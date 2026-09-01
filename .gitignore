@@ -14,3 +14,4 @@ file_cache/
 /.cache
 
 Gemfile.lock
+pry_history
