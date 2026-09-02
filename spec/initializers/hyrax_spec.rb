@@ -12,4 +12,8 @@ RSpec.describe 'config/initializers/hyrax.rb' do
   it "unregisters the host application's stock work types" do
     expect(registered).not_to include('GenericWork', 'Image', 'Etd', 'Oer')
   end
+
+  it 'reseeds valid_child_concerns from the final registration list' do
+    expect(StillImage.valid_child_concerns).to eq Hyrax.config.curation_concerns
+  end
 end

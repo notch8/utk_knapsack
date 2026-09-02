@@ -28,4 +28,6 @@ Rails.application.config.after_initialize do
     config.schema_loader_config_search_paths.unshift(HykuKnapsack::Engine.root) \
       if config.respond_to?(:schema_loader_config_search_paths)
   end
+
+  HykuKnapsack::ReseedValidChildConcerns.call
 end
