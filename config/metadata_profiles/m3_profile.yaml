@@ -1,10 +1,10 @@
 ---
 m3_version: 1.0.beta2
 profile:
-  date_modified: '2026-09-01'
+  date_modified: '2026-09-03'
   responsibility: https://www.lib.utk.edu
   responsibility_statement: University of Tennessee Libraries
-  type: UTK Digital Collections modified from Allinson Flex
+  type: ProfileMigrated from AllinsonFlex
   version: 1
 classes:
   AdminSetResource:
@@ -61,16 +61,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a standardized title for display. If only one title is needed,
         transcribe the title from the source itself.
     display_label:
-      default: Title
+      default: blacklight.search.fields.show.title_tesim
+    form:
+      required: true
+      primary: true
     index_documentation: displayable, searchable
     indexing:
     - title_sim
     - title_tesim
-    - stored_searchable
     mappings:
       metatags: twitter:title, og:title
       mods_oai_pmh: mods:titleInfo/mods:title
@@ -81,12 +84,8 @@ properties:
     requirement: required
     sample_values:
     - Pencil drawn portrait study of woman
-    data_type: array
     view:
       html_dl: true
-    form:
-      required: true
-      primary: true
   alternative_title:
     available_on:
       class:
@@ -103,18 +102,20 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter any alternate titles used to identify the source. If the source
         is a serial publication, this could include a transcribed title. If the title
         is written in more than one language, this title could include a foreign language
         (parallel) title.
     display_label:
-      default: Alternative Title
+      default: blacklight.search.fields.index.alternative_title_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - alternative_title_sim
     - alternative_title_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: modstitleInfo[@type="alternative"]/mods:title
       qualified_dc_pmh: dcterms:alternative
@@ -123,7 +124,6 @@ properties:
     requirement: optional
     sample_values:
     - 'Swimming 1969: The University of Tennessee'
-    data_type: array
     view:
       html_dl: true
   abstract:
@@ -142,15 +142,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Summary of the resource.
     display_label:
       default: Abstract
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - abstract_sim
     - abstract_tesim
-    - stored_searchable
     mappings:
       metatags: og:description
       mods_oai_pmh: mods:abstract
@@ -165,7 +167,6 @@ properties:
       of his statement is censored due to classified information.
     usage_guidelines:
       default: Enter a summary of the resource. End this field with a period.
-    data_type: array
     view:
       html_dl: true
   creator:
@@ -189,17 +190,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization responsible
         for the intellectual or artistic content of a resource. Use when a suitable
         more granular term cannot be identified.
     display_label:
-      default: Creator
+      default: blacklight.search.fields.show.creator_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - creator_sim
     - creator_tesim
-    - stored_searchable
     - facetable
     mappings:
       blacklight: creator_sim
@@ -211,7 +214,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   contributor:
@@ -232,6 +234,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family or organization responsible
         for making contributions to the resource. This includes those whose work has
@@ -239,12 +242,13 @@ properties:
         or other compilation of individual works. If a more specific role is available,
         prefer that, e.g. editor, compiler, illustrator.
     display_label:
-      default: Contributor
+      default: blacklight.search.fields.show.contributor_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - contributor_sim
     - contributor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Contributor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -254,7 +258,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   date_created:
@@ -273,15 +276,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the date a work was created. If this is a published work, use
         "Date Issued."
     display_label:
-      default: Date Created
+      default: blacklight.search.fields.show.date_created_tesim
+    form:
+      display: true
     indexing:
     - date_created_sim
     - date_created_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateCreated
       qualified_dc_pmh: dcterms:created
@@ -291,7 +296,6 @@ properties:
     requirement: optional
     sample_values:
     - '"approximately between 1940 and 1950", "1940~/1950"'
-    data_type: array
     view:
       html_dl: true
   date_created_d:
@@ -311,15 +315,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#date
       sources:
       - 'null'
+    data_type: string
     definition:
       default: Machine readable date for creation date.
     display_label:
       default: Machine Readable Creation Date
+    form:
+      display: true
     index_documentation: displayable, searchable, date created facet
     indexing:
     - date_created_d_sim
     - date_created_d_tesim
-    - stored_searchable
     - facetable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateCreated
@@ -331,7 +337,6 @@ properties:
     sample_values:
     - '1999-09-09'
     syntax: EDTF
-    data_type: string
     view:
       html_dl: true
   date_issued:
@@ -350,14 +355,16 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the date a work was published as a string.
     display_label:
       default: Date Issued
+    form:
+      display: true
     indexing:
     - date_issued_sim
     - date_issued_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateIssued
       qualified_dc_pmh: dcterms:issued
@@ -367,7 +374,6 @@ properties:
     requirement: optional
     sample_values:
     - '1999'
-    data_type: array
     view:
       html_dl: true
   date_issued_d:
@@ -387,14 +393,16 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#date
       sources:
       - 'null'
+    data_type: string
     definition:
       default: Machine readable date for publication date.
     display_label:
       default: Machine Readable Publication Date
+    form:
+      display: true
     indexing:
     - date_issued_d_sim
     - date_issued_d_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateIssued
       qualified_dc_pmh: dcterms:issued
@@ -405,7 +413,6 @@ properties:
     sample_values:
     - '1999'
     syntax: EDTF
-    data_type: string
     view:
       html_dl: true
   date_other:
@@ -424,15 +431,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a date of importance to the work that is neither the date it
         was created nor the date it was published.
     display_label:
       default: Date Other
+    form:
+      display: true
     indexing:
     - date_other_sim
     - date_other_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateOther
       qualified_dc_pmh: dcterms:date
@@ -440,7 +449,6 @@ properties:
     property_uri: http://purl.org/dc/terms/date
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   date_other_d:
@@ -459,15 +467,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#date
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Machine readable date for a date that is neither a publication nor
         creation date.
     display_label:
       default: Unclassified Machine Readable Date
+    form:
+      display: true
     indexing:
     - date_other_d_sim
     - date_other_d_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateOther
       qualified_dc_pmh: dcterms:date
@@ -476,7 +486,6 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#date
     requirement: optional
     syntax: EDTF
-    data_type: array
     view:
       html_dl: true
   spatial:
@@ -494,18 +503,20 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
-      - geonames
       - naf
       - lcsh
+      - geonames
+    data_type: array
     definition:
       default: Enter the controlled name of a place with which the resource is associated.
     display_label:
       default: Location
+    form:
+      display: true
     index_documentation: displayable, searchable, spatial facet
     indexing:
     - spatial_sim
     - spatial_tesim
-    - stored_searchable
     - facetable
     mappings:
       blacklight: spatial_sim
@@ -519,7 +530,6 @@ properties:
     - http://id.loc.gov/authorities/names/n80040520
     - http://id.loc.gov/authorities/names/n79109786
     - http://id.loc.gov/authorities/subjects/sh94001975
-    data_type: array
     view:
       html_dl: true
   subject:
@@ -543,18 +553,20 @@ properties:
       - lcsh
       - tgm
       - wikidata
+    data_type: array
     definition:
       default: Enter a controlled term for a topic covered by the resource or that
         the resource is about. Topics include broad concepts (e.g. "Agriculture")
         and the names of people (last, first) depicted in or written about in the
         resource.
     display_label:
-      default: Subject
+      default: blacklight.search.fields.show.subject_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, subject facet
     indexing:
     - subject_sim
     - subject_tesim
-    - stored_searchable
     - facetable
     mappings:
       blacklight: subject_sim
@@ -571,7 +583,6 @@ properties:
     - http://id.loc.gov/vocabulary/graphicMaterials/tgm009950
     - http://sws.geonames.org/6180926
     - http://www.wikidata.org/entity/Q108903133
-    data_type: array
     view:
       html_dl: true
   language:
@@ -590,17 +601,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - iso639-2b
+    data_type: array
     definition:
       default: Enter a language used in the resource. When multiple languages are
         present, use multiple fields. If no language is present, use "No linguistic
         content."
     display_label:
-      default: Language
+      default: blacklight.search.fields.show.language_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, language facet
     indexing:
     - language_sim
     - language_tesim
-    - stored_searchable
     - facetable
     mappings:
       metatags: og:locale
@@ -612,7 +625,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/vocabulary/iso639-2/eng
-    data_type: array
     view:
       html_dl: true
   form:
@@ -633,12 +645,14 @@ properties:
       - aat
       - lcsh
       - lcgft
+    data_type: array
     display_label:
       default: Form
+    form:
+      display: true
     indexing:
     - form_sim
     - form_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:physicalDescription/mods:form
       qualified_dc_pmh: dcterms:medium
@@ -649,7 +663,6 @@ properties:
     sample_values:
     - http://vocab.getty.edu/aat/300046300
     - http://id.loc.gov/authorities/genreForms/gf2014026151
-    data_type: array
     view:
       html_dl: true
   extent:
@@ -668,18 +681,20 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the dimensions (if a photograph, artwork, etc.), the total number
         of digital pages of the resource, or time duration (if audiovisual content)
         of the resource. Units should be included as text within the field (e.g. "8x10
         inches", "6 pages", or "1 hour, 2 minutes").
     display_label:
-      default: Extent
+      default: blacklight.search.fields.show.extent_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - extent_sim
     - extent_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:physicalDescription/mods:extent
       qualified_dc_pmh: dcterms:extent
@@ -689,7 +704,6 @@ properties:
     requirement: optional
     sample_values:
     - 25 pages
-    data_type: array
     view:
       html_dl: true
   resource_type:
@@ -707,19 +721,21 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
-      - resourceTypes
+      - resource_types
+    data_type: array
     definition:
       default: Enter broad term(s) that describe the general format of the resource
-        (Text, Cartographic, Notated music, Audio non-musical, Audio, Still StillImage,
-        Moving StillImage, Artifact, Collection). Note that more than one term can be used
+        (Text, Cartographic, Notated music, Audio non-musical, Audio, Still image,
+        Moving image, Artifact, Collection). Note that more than one term can be used
         if the resource is dominated by more than one resource type.
     display_label:
-      default: Resource Type
+      default: blacklight.search.fields.index.resource_type_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, resource type facet
     indexing:
     - resource_type_sim
     - resource_type_tesim
-    - stored_searchable
     - facetable
     mappings:
       mods_oai_pmh: mods:typeOfResource
@@ -728,7 +744,6 @@ properties:
     property_uri: http://purl.org/dc/terms/type
     range: http://www.w3.org/2001/XMLSchema#anyURI
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   publisher:
@@ -749,16 +764,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization responsible
         for publishing, releasing, or issuing a resource.
     display_label:
-      default: Publisher
+      default: blacklight.search.fields.show.publisher_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - publisher_sim
     - publisher_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Publisher')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -768,7 +785,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   publication_place:
@@ -787,16 +803,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - naf
+    data_type: array
     definition:
       default: For published works, enter the place of publication. This should be
         a city (with state/country info).
     display_label:
       default: Publication Place
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - publication_place_sim
     - publication_place_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/place/placeTerm
     property_uri: https://id.loc.gov/vocabulary/relators/pup
@@ -804,7 +822,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n79109786
-    data_type: array
     view:
       html_dl: true
   provider:
@@ -823,16 +840,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The name of the organization (typically UT) who delivers data directly
         to an aggregation service.
     display_label:
       default: Provider
+    form:
+      required: true
+      primary: true
     index_documentation: displayable, searchable
     indexing:
     - provider_sim
     - provider_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:location/mods:physicalLocation
       qualified_dc_pmh: dcterms:publisher
@@ -842,7 +862,6 @@ properties:
     requirement: required
     sample_values:
     - University of Tennessee, Knoxville. Libraries
-    data_type: array
     view:
       html_dl: true
   repository:
@@ -861,20 +880,21 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the name of the institution that physically holds the materials.
     display_label:
       default: Repository
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - repository_sim
     - repository_tesim
-    - stored_searchable
     mappings: {}
     property_uri: http://id.loc.gov/vocabulary/relators/rps
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   rights_statement:
@@ -892,16 +912,19 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
-      - rightsstatements
+      - rights_statements
+    data_type: array
     definition:
       default: Enter the rights statement that applies to the resource.
     display_label:
-      default: Rights
+      default: blacklight.search.fields.index.rights_statement_tesim
+    form:
+      required: true
+      primary: true
     index_documentation: displayable, searchable, rights facet
     indexing:
     - rights_statement_sim
     - rights_statement_tesim
-    - stored_searchable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -912,7 +935,6 @@ properties:
     requirement: required
     sample_values:
     - http://rightsstatements.org/vocab/InC/1.0/
-    data_type: array
     view:
       html_dl: true
   call_number:
@@ -927,17 +949,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the base call number of cataloged resources (written on resource
         or present in the catalog). Do not include the year or author (e.g. for "LD5296
         .W6 2001" should be "LD5296 .W6").
     display_label:
       default: Library of Congress Classification
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - call_number_sim
     - call_number_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:classification[@authority="lcc"]
     property_uri: http://id.loc.gov/vocabulary/classSchemes/lcc
@@ -945,7 +969,6 @@ properties:
     requirement: optional
     sample_values:
     - LD5296 .W6
-    data_type: array
     view:
       html_dl: true
   primary_identifier:
@@ -964,15 +987,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the primary identifier.
     display_label:
       default: Primary Identifier
+    form:
+      required: true
+      primary: true
     index_documentation: displayable, searchable
     indexing:
     - primary_identifier_sim
     - primary_identifier_tesim
-    - stored_searchable
     mappings:
       blacklight: primary_identifier_ssi
       mods_oai_pmh: mods:identifier[@type='primary']
@@ -988,7 +1014,6 @@ properties:
         should be the original PID. For new resources, this may follow another pattern.
         This was added because the original pid is not always in the MODS record and
         source_identifier isn't inlcluded in Solr.
-    data_type: array
     view:
       html_dl: true
   local_identifier:
@@ -1007,14 +1032,16 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a local identifier.
     display_label:
       default: Local Identifier
+    form:
+      display: true
     index_documentation: searchable
     indexing:
     - local_identifier_tesim
-    - stored_searchable
     mappings:
       blacklight: identifier_ssi
       mods_oai_pmh: mods:identifier[@type='local']
@@ -1028,7 +1055,6 @@ properties:
     usage_guidelines:
       default: This can be the identifier created by Digital Production or another
         identifier found on the source (but not the ISSN, ISBN, or OCLC number).
-    data_type: array
     view:
       html_dl: true
   acquisition_identifier:
@@ -1047,15 +1073,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: An identifier assigned by a museum during acquisition.
     display_label:
       default: Acquisition Identifier
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - acquisition_identifier_sim
     - acquisition_identifier_tesim
-    - stored_searchable
     mappings:
       blacklight: identifier_ssi
       mods_oai_pmh: mods:identifier[@type='acquisition']
@@ -1069,7 +1097,6 @@ properties:
     usage_guidelines:
       default: Enter an identifier assigned by a museum for acquisition. Values typically
         start with a year (e.g. 1996.10.1)
-    data_type: array
     view:
       html_dl: true
   addressee:
@@ -1087,16 +1114,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name (last, first) to whom the correspondence in a work is
         addressed.
     display_label:
       default: Addressee
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - addressee_sim
     - addressee_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Addressee')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1106,7 +1135,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   architect:
@@ -1122,17 +1150,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating an architectural design, including a pictorial representation
         intended to show how a building, etc., will look when completed.
     display_label:
       default: Architect
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - architect_sim
     - architect_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Architect')]]/mods:namePart
@@ -1143,7 +1173,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   archival_collection:
@@ -1162,17 +1191,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the name of the physical archival collection (e.g. "Virginia
         P. Moore Collection") the resource belongs to. Match how the name is represented
         in ArchivesSpace.
     display_label:
       default: Archival Collection
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - archival_collection_sim
     - archival_collection_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:relatedItem[@type="host"][@displayLabel="Collection"]/mods:titleInfo/mods:title
       qualified_dc_pmh: dc:source
@@ -1182,7 +1213,6 @@ properties:
     requirement: optional
     sample_values:
     - Virginia P. Moore Collection
-    data_type: array
     view:
       html_dl: true
   ark:
@@ -1201,17 +1231,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Should not appear in metadata form.  This field should be autopopulated
         on a pcdmworks:Work and presented to users in the metadata, but should never
         be editable by a user or admin.
     display_label:
       default: ARK
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - ark_sim
     - ark_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:location/mods:url[access="object in context"]
       qualified_dc_pmh: dcterms:identifier
@@ -1222,7 +1254,6 @@ properties:
     sample_values:
     - ark:/87290/v8pv6hjx
     syntax: IETF ARK 18
-    data_type: array
     view:
       html_dl: true
   arranger:
@@ -1239,6 +1270,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization contributing
         to a musical work by rewriting the composition for a medium of performance
@@ -1248,11 +1280,12 @@ properties:
         that effectively results in the creation of a new musical work, use Composer.
     display_label:
       default: Arranger
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - arranger_sim
     - arranger_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Arranger')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1262,7 +1295,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   artist:
@@ -1283,17 +1315,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) family, or organization responsible
         for creating a work by conceiving, and implementing, an original graphic design,
         drawing, painting, etc.
     display_label:
       default: Artist
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - artist_sim
     - artist_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Artist')]]/mods:namePart
@@ -1304,7 +1338,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   associated_name:
@@ -1325,6 +1358,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name a person (last, first) or organization associated with
         or found in an item or collection, which cannot be determined to be that of
@@ -1333,11 +1367,12 @@ properties:
         use subject instead.
     display_label:
       default: Associated Name
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - associated_name_sim
     - associated_name_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Associated name')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1347,7 +1382,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   attributed_name:
@@ -1368,17 +1402,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), particularly an author or
         artist, for which there is or once was substantial authority for designating
         that person as author, creator, etc. of the work indicative of provenance.
     display_label:
       default: Attributed Name
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - attributed_name_sim
     - attributed_name_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Attributed name')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -1388,7 +1424,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   author:
@@ -1409,6 +1444,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating a work that is primarily textual in content, regardless of media
@@ -1419,11 +1455,12 @@ properties:
         of the original or changed the medium of expression.
     display_label:
       default: Author
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - author_sim
     - author_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Author')]]/mods:namePart
@@ -1434,7 +1471,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   autographer:
@@ -1452,16 +1488,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) whose written signature appears
         on an item.
     display_label:
       default: Autographer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - autographer_sim
     - autographer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Autographer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1471,7 +1509,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   bibliographic_citation:
@@ -1490,22 +1527,23 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a bibliographic reference for the resource.
     display_label:
       default: Bibliographic Citation
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - bibliographic_citation_sim
     - bibliographic_citation_tesim
-    - stored_searchable
     mappings: {}
     property_uri: http://purl.org/dc/terms/bibliographicCitation
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - The Arrow, Volume 27, Number 1
-    data_type: array
     view:
       html_dl: true
   binding_designer:
@@ -1520,17 +1558,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization responsible
         for the binding design of a book, including the type of binding, the type
         of materials used, and any decorative aspects of the binding.
     display_label:
       default: Binding Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - binding_designer_sim
     - binding_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Binding designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -1540,7 +1580,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   cartographer:
@@ -1556,16 +1595,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) family, or organization responsible
         for creating a map, atlas, globe, or other cartographic work.
     display_label:
       default: Cartographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - cartographer_sim
     - cartographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Cartographer')]]/mods:namePart
@@ -1576,7 +1617,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   censor:
@@ -1591,17 +1631,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who examines
         bibliographic resources for the purpose of suppressing parts deemed objectionable
         on moral, political, military, or other grounds.
     display_label:
       default: Censor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - censor_sim
     - censor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Censor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1611,7 +1653,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   choreographer:
@@ -1627,16 +1668,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) responsible for creating or
         contributing to a work of movement.
     display_label:
       default: Choreographer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - choreographer_sim
     - choreographer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Choreographer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1646,7 +1689,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   client:
@@ -1667,16 +1709,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization for whom another
         person or organization is acting.
     display_label:
       default: Client
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - client_sim
     - client_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Client')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1686,7 +1730,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   compiler:
@@ -1707,6 +1750,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating a new work (e.g., a bibliography, a directory) through the act
@@ -1714,11 +1758,12 @@ properties:
         information, etc.
     display_label:
       default: Compiler
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - compiler_sim
     - compiler_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Compiler')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -1728,7 +1773,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   composer:
@@ -1749,17 +1793,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating or contributing to a musical resource by adding music to a work
         that originally lacked it or supplements it.
     display_label:
       default: Composer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - composer_sim
     - composer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Composer')]]/mods:namePart
@@ -1770,7 +1816,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   contractor:
@@ -1791,17 +1836,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization relevant to
         a resource, who enters into a contract with another person or organization
         to perform a specific task.
     display_label:
       default: Contractor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - contractor_sim
     - contractor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Contractor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1811,7 +1858,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   coordinates:
@@ -1830,14 +1876,16 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the coordinates of a place with which the resource is associated.
     display_label:
       default: Coordinates
+    form:
+      display: true
     indexing:
     - coordinates_sim
     - coordinates_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:subject/mods:cartographics/mods:coordinates
     property_uri: https://www.w3.org/2003/01/geo/wgs84_pos#lat_long
@@ -1845,7 +1893,6 @@ properties:
     requirement: optional
     sample_values:
     - 35.71453, -83.51189
-    data_type: array
     view:
       html_dl: true
   copyright_holder:
@@ -1866,6 +1913,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization to whom copy
         and legal rights have been granted or transferred for the intellectual content
@@ -1874,11 +1922,12 @@ properties:
         and use of the work to which the associated copyright protection applies.
     display_label:
       default: Copyright Holder
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - copyright_holder_sim
     - copyright_holder_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Copyright holder')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -1888,7 +1937,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   correspondent:
@@ -1909,16 +1957,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who was the
         writer of a letter or other communication.
     display_label:
       default: Correspondent
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - correspondent_sim
     - correspondent_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Correspondent')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -1928,7 +1978,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   costume_designer:
@@ -1949,17 +1998,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization that
         designs the costumes for a moving image production or for a musical or dramatic
         presentation or entertainment.
     display_label:
       default: Costume Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - costume_designer_sim
     - costume_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Costume designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -1969,7 +2020,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   dedicatee:
@@ -1990,16 +2040,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization to
         whom a resource is dedicated.
     display_label:
       default: Dedicatee
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - dedicatee_sim
     - dedicatee_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Dedicatee')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2009,7 +2061,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   depicted:
@@ -2030,17 +2081,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of an entity (e.g. person (last, first)) depicted or
         portrayed in a work, particularly in a work of art. Use subject when a person
         is depicted in a photograph.
     display_label:
       default: Depicted
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - depicted_sim
     - depicted_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Depicted')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2050,7 +2103,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   designer:
@@ -2071,16 +2123,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating a design for an object.
     display_label:
       default: Designer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - designer_sim
     - designer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Designer')]]/mods:namePart
@@ -2091,7 +2145,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   distributor:
@@ -2112,16 +2165,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person or organization that has exclusive or shared
         marketing rights for a resource.
     display_label:
       default: Distributor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - distributor_sim
     - distributor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Distributor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2131,7 +2186,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   donor:
@@ -2152,16 +2206,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name (last, first - if person) of a former owner of an item
         who donated that item to another owner.
     display_label:
       default: Donor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - donor_sim
     - donor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Donor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2171,7 +2227,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   duration:
@@ -2185,6 +2240,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: This property describes the total duration of an A/V work or an A/V
         file. In the case where an A/V work consists of multiple files being served
@@ -2193,11 +2249,12 @@ properties:
         experience (add example using World War II Oral Histories).
     display_label:
       default: Duration
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - duration_sim
     - duration_tesim
-    - stored_searchable
     mappings: {}
     property_uri: http://id.loc.gov/ontologies/bibframe/duration
     range: http://www.w3.org/2001/XMLSchema#string
@@ -2206,7 +2263,6 @@ properties:
     - '0:57:15.904000'
     - '3435.904000'
     syntax: W3C Media Fragments (4.2.1)
-    data_type: array
     view:
       html_dl: true
   editor:
@@ -2227,17 +2283,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization contributing
         to a resource by revising or elucidating the content, e.g., adding an introduction,
         notes, or other critical matter.
     display_label:
       default: Editor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - editor_sim
     - editor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Editor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2247,7 +2305,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   editor_of_compilation:
@@ -2268,6 +2325,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization contributing
         to a collective or aggregate work by selecting and putting together works,
@@ -2275,11 +2333,12 @@ properties:
         etc., that result in new works, use Compiler.
     display_label:
       default: Editor of Compilation
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - editor_of_compilation_sim
     - editor_of_compilation_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Editor of compilation')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2289,7 +2348,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   engraver:
@@ -2310,16 +2368,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who cuts letters,
         figures, etc. on a surface, such as a wooden or metal plate used for printing.
     display_label:
       default: Engraver
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - engraver_sim
     - engraver_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Engraver')]]/mods:namePart
@@ -2330,7 +2390,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   first_line:
@@ -2343,24 +2402,25 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Use for sheet music that has lyrics. Enter the first complete phrase
         of the lyrics. Note that the phrase may exceed or fall short of the first
         full line. No quotation marks are needed.
     display_label:
       default: First Line
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - first_line_sim
     - first_line_tesim
-    - stored_searchable
     mappings: {}
     property_uri: http://opaquenamespace.org/ns/sheetmusic_firstLine
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - On the other hand with regard to
-    data_type: array
     view:
       html_dl: true
   form_local:
@@ -2379,16 +2439,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a term that describes the type of work, including the physical
         form or medium of material for the work.
     display_label:
       default: Form
+    form:
+      display: true
     index_documentation: displayable, searchable, form facet
     indexing:
     - form_local_sim
     - form_local_tesim
-    - stored_searchable
     - facetable
     mappings:
       mods_oai_pmh: mods:physicalDescription/mods:form
@@ -2399,7 +2461,6 @@ properties:
     requirement: optional
     sample_values:
     - photographs
-    data_type: array
     view:
       html_dl: true
   former_owner:
@@ -2420,16 +2481,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization formerly
         having legal possession of an item.
     display_label:
       default: Former Owner
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - former_owner_sim
     - former_owner_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Former owner')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2439,7 +2502,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   honoree:
@@ -2460,17 +2522,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization honored
         by a work or item (e.g., the honoree of a festschrift, a person to whom a
         copy is presented).
     display_label:
       default: Honoree
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - honoree_sim
     - honoree_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Honoree')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2480,7 +2544,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   host_institution:
@@ -2501,17 +2564,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of an organization hosting an event, exhibit, conference,
         etc., which gave rise to a resource, but has little or no responsibility for
         the content of the resource.
     display_label:
       default: Host Institution
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - host_institution_sim
     - host_institution_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Host institution')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2521,7 +2586,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   illustrator:
@@ -2542,6 +2606,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization contributing
         to a resource by supplementing the primary content with drawings, diagrams,
@@ -2549,11 +2614,12 @@ properties:
         this entity, use Artist or Photographer.
     display_label:
       default: Illustrator
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - illustrator_sim
     - illustrator_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Illustrator')]]/mods:namePart
@@ -2564,7 +2630,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   instrumentalist:
@@ -2585,16 +2650,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who contributed to a resource
         by playing a musical instrument.
     display_label:
       default: Instrumentalist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - instrumentalist_sim
     - instrumentalist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Instrumentalist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2604,7 +2671,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   instrumentation:
@@ -2619,6 +2685,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: 'Enter the voices and external instruments used to perform a piece
         of music along with the number of each (e.g. "For piccolo, 2 flutes, 2 oboes,
@@ -2627,11 +2694,12 @@ properties:
         should follow the Library of Congress Medium of Performance Thesaurus (lcmpt). '
     display_label:
       default: Instrumentation
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - instrumentation_sim
     - instrumentation_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:abstract
       qualified_dc_pmh: dcterms:abstract
@@ -2643,7 +2711,6 @@ properties:
     - For piccolo, 2 flutes, 2 oboes, 2 bassoons, contrabassoon, 3 clarinets, bass
       clarinet, contrabass clarinet, 2 alto saxophones, tenor saxophone, baritone
       saxophone, 3 trumpets, 4 horns, 3 trombones, baritone, tuba, timpani, and percussion.
-    data_type: array
     view:
       html_dl: true
   intended_audience:
@@ -2657,6 +2724,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the grade level (e.g. "Second Grade") that a resource was created
         to be used by. Note that this field is not applicable to primary sources,
@@ -2664,11 +2732,12 @@ properties:
         and understanding context.
     display_label:
       default: Intended Audience
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - intended_audience_sim
     - intended_audience_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:targetAudience
       qualified_dc_pmh: dcterms:audience
@@ -2677,7 +2746,6 @@ properties:
     requirement: optional
     sample_values:
     - Second Grade
-    data_type: array
     view:
       html_dl: true
   intermediate_provider:
@@ -2696,16 +2764,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The name of the organization who contributes data indirectly to an
         aggregation service.
     display_label:
       default: Intermediate Provider
+    form:
+      display: true
     index_documentation: displayable, searchable, intermediate provider facet
     indexing:
     - intermediate_provider_sim
     - intermediate_provider_tesim
-    - stored_searchable
     - facetable
     mappings:
       mods_oai_pmh: mods:location/mods:physicalLocation
@@ -2716,7 +2786,6 @@ properties:
     requirement: optional
     sample_values:
     - Langston Hughes Library (Children's Defense Fund Haley Farm)
-    data_type: array
     view:
       html_dl: true
   interviewee:
@@ -2737,17 +2806,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family or organization responsible
         for creating or contributing to a resource by responding to an interviewer,
         usually a reporter, pollster, or some other information gathering agent.
     display_label:
       default: Interviewee
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - interviewee_sim
     - interviewee_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Interviewee')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -2757,7 +2828,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   interviewer:
@@ -2778,17 +2848,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating or contributing to a resource by acting as an interviewer, reporter,
         pollster, or some other information gathering agent.
     display_label:
       default: Interviewer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - interviewer_sim
     - interviewer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Interviewer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2798,7 +2870,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   is_part_of:
@@ -2817,17 +2888,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Should not appear in metadata form.  This field should be autopopulated
         with ARKs for all ArchivesSpace Finding Aids and presented to users in the
         metadata, but should never be editable by a user or admin.
     display_label:
       default: Is Part Of
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - is_part_of_sim
     - is_part_of_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:relatedItem[@type="host"][@displayLabel="Collection"]/mods:location/mods:url
       qualified_dc_pmh: dcterms:isPartOf
@@ -2838,7 +2911,6 @@ properties:
     sample_values:
     - https://n2t.net/ark:/87290/v8pz5703
     syntax: IETF ARK 18
-    data_type: array
     view:
       html_dl: true
   isbn:
@@ -2849,31 +2921,32 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2000/01/rdf-schema#Literal
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the ISBN for the resource.
     display_label:
       default: ISBN
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - isbn_sim
     - isbn_tesim
-    - stored_searchable
     mappings:
       blacklight: identifier_ssi
       mods_oai_pmh: mods:identifier[@type='isbn']
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://dbpedia.org/ontology/isbn
-    range: http://www.w3.org/2000/01/rdf-schema#Literal
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - '1881985202'
     - '938008692'
     - '18819859105'
-    data_type: array
     view:
       html_dl: true
   issn:
@@ -2885,31 +2958,32 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2000/01/rdf-schema#Literal
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the ISSN for a serial resource (e.g. 2687-9875)
     display_label:
       default: ISSN
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - issn_sim
     - issn_tesim
-    - stored_searchable
     mappings:
       blacklight: identifier_ssi
       mods_oai_pmh: mods:identifier[@type='issn']
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://dbpedia.org/ontology/issn
-    range: http://www.w3.org/2000/01/rdf-schema#Literal
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - 2687-9875
     validations:
       match_regex: "^[0-9]{4}-[0-9]{3}[0-9xX]$."
-    data_type: array
     view:
       html_dl: true
   issuing_body:
@@ -2930,16 +3004,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family or organization issuing
         a work, such as an official organ of the body.
     display_label:
       default: Issuing Body
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - issuing_body_sim
     - issuing_body_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Issuing body')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -2949,7 +3025,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   keyword:
@@ -2968,18 +3043,20 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter an uncontrolled term for a topic covered by the resource or that
         the resource is about. Topics include broad concepts (e.g. "Agriculture")
         and the names of people (last, first) depicted in or written about in the
         resource.
     display_label:
-      default: Keyword
+      default: blacklight.search.fields.show.keyword_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, subject facet
     indexing:
     - keyword_sim
     - keyword_tesim
-    - stored_searchable
     mappings:
       blacklight: subject_sim
       mods_oai_pmh: mods:subject/mods:topic
@@ -2991,7 +3068,6 @@ properties:
     sample_values:
     - Board of Aid to Land Ownership
     - Farming and Agriculture.
-    data_type: array
     view:
       html_dl: true
   language_local:
@@ -3010,17 +3086,19 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - iso639-2b
+    data_type: array
     definition:
       default: Enter a language used in the resource as text. When multiple languages
         are present, use multiple fields. If no language is present, use "No linguistic
         content."
     display_label:
       default: Language
+    form:
+      display: true
     index_documentation: displayable, searchable, language facet
     indexing:
     - language_local_sim
     - language_local_tesim
-    - stored_searchable
     - facetable
     mappings:
       metatags: og:locale
@@ -3032,7 +3110,6 @@ properties:
     requirement: optional
     sample_values:
     - English
-    data_type: array
     view:
       html_dl: true
   license:
@@ -3050,17 +3127,19 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
-      - creativecommons
+      - licenses
+    data_type: array
     definition:
       default: 'If applicable, enter the Creative Commons license that applies to
         the resource. '
     display_label:
-      default: License
+      default: blacklight.search.fields.index.license_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable, rights facet
     indexing:
     - license_sim
     - license_tesim
-    - stored_searchable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -3071,7 +3150,6 @@ properties:
     requirement: optional
     sample_values:
     - https://creativecommons.org/licenses/by-nd/4.0/
-    data_type: array
     view:
       html_dl: true
   lithographer:
@@ -3092,17 +3170,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who prepares
         the stone or plate for lithographic printing, including a graphic artist creating
         a design directly on the surface from which printing will be done.
     display_label:
       default: Lithographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - lithographer_sim
     - lithographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Lithographer')]]/mods:namePart
@@ -3113,7 +3193,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   lyricist:
@@ -3134,16 +3213,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who authored of the words
         of a non-dramatic musical work (e.g. the text of a song), except for oratorios.
     display_label:
       default: Lyricist
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - lyricist_sim
     - lyricist_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Lyricist')]]/mods:namePart
@@ -3154,7 +3235,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   music_copyist:
@@ -3175,16 +3255,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who transcribes or copies
         musical notation.
     display_label:
       default: Music Copyist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - music_copyist_sim
     - music_copyist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Music copyist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3194,7 +3276,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   musical_director:
@@ -3215,17 +3296,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who coordinates the activities
-        of the composer, the sound editor, and sound mixers for a moving StillImage production
+        of the composer, the sound editor, and sound mixers for a moving image production
         or for a musical or dramatic presentation or entertainment.
     display_label:
       default: Musical Director
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - musical_director_sim
     - musical_director_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Musical director')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3235,7 +3318,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   note:
@@ -3254,6 +3336,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter any general textual information relating to a resource that does
         not belong in an abstract and shouldn't display in the brief results. This
@@ -3262,17 +3345,17 @@ properties:
         in the record. End this field with a period.
     display_label:
       default: Note
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - note_sim
     - note_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:note
     property_uri: http://www.w3.org/2004/02/skos/core#note
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   oclc:
@@ -3288,29 +3371,30 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2000/01/rdf-schema#Literal
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the 8 or 9 digit OCLC identifier (e.g. 50008789).
     display_label:
       default: OCLC Number
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - oclc_sim
     - oclc_tesim
-    - stored_searchable
     mappings:
       blacklight: identifier_ssi
       mods_oai_pmh: mods:identifier[@type='oclc']
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://dbpedia.org/ontology/oclc
-    range: http://www.w3.org/2000/01/rdf-schema#Literal
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - '44394278'
-    data_type: array
     view:
       html_dl: true
   organizer:
@@ -3331,16 +3415,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization organizing
         the exhibit, event, conference, etc., which gave rise to a resource.
     display_label:
       default: Organizer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - organizer_sim
     - organizer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Organizer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3350,7 +3436,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   originator:
@@ -3371,6 +3456,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization performing
         the work, i.e., the name of a person or organization associated with the intellectual
@@ -3378,11 +3464,12 @@ properties:
         affiliation, or sponsor except where it is also the corporate author.
     display_label:
       default: Originator
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - originator_sim
     - originator_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Originator')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3392,7 +3479,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   other_version:
@@ -3411,16 +3497,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter a link to a related resource that is a version, edition, or adaptation
         of the described resource.
     display_label:
       default: Other Version
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - other_version_sim
     - other_version_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:relatedItem[@type="otherVersion"]/mods:location/mods:url
       qualified_dc_pmh: dcterms:relation
@@ -3428,7 +3516,6 @@ properties:
     property_uri: http://purl.org/dc/terms/hasVersion
     range: http://www.w3.org/2001/XMLSchema#anyURI
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   owner:
@@ -3449,16 +3536,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization that
         currently owns an item or collection, i.e.has legal possession of a resource
     display_label:
       default: Owner
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - owner_sim
     - owner_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Owner')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3468,7 +3557,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   performer:
@@ -3489,6 +3577,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) contributing to a resource
         by performing music, acting, dancing, speaking, etc., often in a musical or
@@ -3496,11 +3585,12 @@ properties:
         is not clear).
     display_label:
       default: Performer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - performer_sim
     - performer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Performer')]]/mods:namePart
@@ -3511,7 +3601,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   photographer:
@@ -3532,16 +3621,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for creating a photographic work.
     display_label:
       default: Photographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - photographer_sim
     - photographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Photographer')]]/mods:namePart
@@ -3552,7 +3643,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   printer:
@@ -3573,17 +3663,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization involved
         in manufacturing a manifestation of printed text, notated music, etc., from
         type or plates, such as a book, newspaper, magazine, broadside, score, etc.
     display_label:
       default: Printer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - printer_sim
     - printer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Printer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3593,7 +3685,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   printer_of_plates:
@@ -3614,16 +3705,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who prints
         illustrations from plates.
     display_label:
       default: Printer of Plates
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - printer_of_plates_sim
     - printer_of_plates_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Printer of plates')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3633,7 +3726,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   producer:
@@ -3654,6 +3746,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for most of the business aspects of a production for screen, audio recording,
@@ -3662,11 +3755,12 @@ properties:
         etc.
     display_label:
       default: Producer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - producer_sim
     - producer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Producer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3676,7 +3770,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   production_company:
@@ -3697,17 +3790,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of organization that is responsible for financial, technical,
         and organizational management of a production for stage, screen, audio recording,
         television, webcast, etc.
     display_label:
       default: Production Company
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - production_company_sim
     - production_company_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Production company')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3717,7 +3812,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   resource_link:
@@ -3736,24 +3830,25 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Should not appear in metadata form. This value is generated upon ingest.
     display_label:
       default: Resource Link
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - resource_link_sim
     - resource_link_tesim
-    - stored_searchable
     mappings:
-      metatags: og:url, twitter:ImageResource
+      metatags: og:url, twitter:image
       mods_oai_pmh: mods:location/mods:url[access="object in context"]
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://www.europeana.eu/schemas/edm/isShownAt
     range: http://www.w3.org/2001/XMLSchema#anyURI
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   resource_type_local:
@@ -3772,18 +3867,20 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - resourceTypes
+    data_type: array
     definition:
       default: Enter broad term(s) that describe the general format of the resource
-        (Text, Cartographic, Notated music, Audio non-musical, Audio, Still StillImage,
-        Moving StillImage, Artifact, Collection). Note that more than one term can be used
+        (Text, Cartographic, Notated music, Audio non-musical, Audio, Still image,
+        Moving image, Artifact, Collection). Note that more than one term can be used
         if the resource is dominated by more than one resource type.
     display_label:
       default: Resource Type
+    form:
+      display: true
     index_documentation: displayable, searchable, resource type facet
     indexing:
     - resource_type_local_sim
     - resource_type_local_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:typeOfResource
       qualified_dc_pmh: dcterms:type
@@ -3791,7 +3888,6 @@ properties:
     property_uri: http://purl.org/dc/elements/1.1/type
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   restorationist:
@@ -3812,6 +3908,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization responsible
         for the set of technical, editorial, and intellectual procedures aimed at
@@ -3819,11 +3916,12 @@ properties:
         as close as possible to its original condition.
     display_label:
       default: Restorationist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - restorationist_sim
     - restorationist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Restorationist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3833,7 +3931,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   sequence:
@@ -3852,24 +3949,25 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#integer
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Numeric order in which to display pages or other items
     display_label:
       default: Sequence
+    form:
+      display: true
     index_documentation: displayable, stored_searchable
     indexing:
     - sequence_sim
     - sequence_tesim
-    - stored_searchable
-    property_uri: http://www.w3.org/2003/12/exif/ns#xResolution
-    range: http://www.w3.org/2001/XMLSchema#integer
-    requirement: optional
     mappings:
       blacklight: sequence_sim
       mods_oai_pmh: mods:sequence
       qualified_dc_pmh: dcterms:sequence
       simple_dc_pmh: dc:sequence
-    data_type: array
+    property_uri: http://www.w3.org/2003/12/exif/ns#xResolution
+    range: http://www.w3.org/2001/XMLSchema#integer
+    requirement: optional
     view:
       html_dl: true
   set_designer:
@@ -3890,6 +3988,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who translates the rough sketches
         of the art director into actual architectural structures for a theatrical
@@ -3897,11 +3996,12 @@ properties:
         guides and specifications for building the set.
     display_label:
       default: Set Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - set_designer_sim
     - set_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Set designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3911,7 +4011,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   sheetmusic_hostitem:
@@ -3930,20 +4029,21 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Host Item
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - sheetmusic_hostitem_sim
     - sheetmusic_hostitem_tesim
-    - stored_searchable
     mappings: {}
     property_uri: http://opaquenamespace.org/ns/sheetmusic_hostItem
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - Three songs for soprano, alto flute, English horn, and bass clarinet
-    data_type: array
     view:
       html_dl: true
   signer:
@@ -3964,17 +4064,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) whose signature appears without
         a presentation or other statement indicative of provenance. When there is
         a presentation statement, use Inscriber.
     display_label:
       default: Signer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - signer_sim
     - signer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Signer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -3984,7 +4086,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   spatial_local:
@@ -4003,14 +4104,16 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Enter the uncontrolled name of a place with which the resource is associated.
     display_label:
       default: Location
+    form:
+      display: true
     indexing:
     - spatial_local_sim
     - spatial_local_tesim
-    - stored_searchable
     mappings:
       blacklight: spatial_sim
       mods_oai_pmh: mods:subject/mods:geographic
@@ -4023,7 +4126,6 @@ properties:
     - pa0056.
     - Walker Sisters Cabin
     - The House That Jack Built
-    data_type: array
     view:
       html_dl: true
   speaker:
@@ -4044,16 +4146,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) contributing to a resource
         by speaking words, such as a lecture, speech, etc.
     display_label:
       default: Speaker
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - speaker_sim
     - speaker_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Speaker')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4063,7 +4167,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   stage_director:
@@ -4084,16 +4187,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization contributing
         to a stage resource through the overall management and supervision of a performance.
     display_label:
       default: Stage Director
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - stage_director_sim
     - stage_director_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Stage director')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4103,7 +4208,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   stage_manager:
@@ -4124,17 +4228,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who is in charge of everything
         that occurs on a performance stage, and who acts as chief of all crews and
         assistant to a director during rehearsals.
     display_label:
       default: Stage Manager
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - stage_manager_sim
     - stage_manager_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Stage manager')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4144,7 +4250,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   standards_body:
@@ -4165,16 +4270,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of an organization responsible for the development or
         enforcement of a standard.
     display_label:
       default: Standards Body
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - standards_body_sim
     - standards_body_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Standards body')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4184,7 +4291,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   surveyor:
@@ -4205,17 +4311,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first), family, or organization contributing
         to a cartographic resource by providing measurements or dimensional relationships
         for the geographic area represented.
     display_label:
       default: Surveyor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - surveyor_sim
     - surveyor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Surveyor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4225,7 +4333,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   table_of_contents:
@@ -4243,15 +4350,17 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: 'Enter a list of subunits of the resource (chapters, etc.). Separate '
     display_label:
-      default: Table of Contents
+      default: blacklight.search.fields.index.table_of_contents_tesim
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - table_of_contents_sim
     - table_of_contents_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:tableOfContents
       qualified_dc_pmh: dcterms:tableOfContents
@@ -4265,7 +4374,6 @@ properties:
       spindle picking of 4 cottons - Personnel changes - Soybean irrigation - Alfalfa
       crown rot - Bedding for better cotton stands - Controlling bagworms - Nitrogen
       on shade trees'
-    data_type: array
     view:
       html_dl: true
   temporal:
@@ -4284,16 +4392,18 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: 'Enter a date range or phrase that captures the time period the resource
         is about. '
     display_label:
       default: Temporal Coverage
+    form:
+      display: true
     index_documentation: displayable, searchable, temporal facet
     indexing:
     - temporal_sim
     - temporal_tesim
-    - stored_searchable
     - facetable
     mappings:
       mods_oai_pmh: mods:subject/mods:temporal
@@ -4304,7 +4414,6 @@ properties:
     requirement: optional
     sample_values:
     - Founding of Pi Beta Phi Settlement School, Gatlinburg, Tennessee, 1909-1927
-    data_type: array
     view:
       html_dl: true
   translator:
@@ -4325,17 +4434,19 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) or organization who renders
         a text from one language into another, or from an older form of a language
         into the modern form.
     display_label:
       default: Translator
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - translator_sim
     - translator_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Translator')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4345,7 +4456,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   utk_addressee:
@@ -4360,13 +4470,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Addressee
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_addressee_sim
     - utk_addressee_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Addressee')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4376,7 +4488,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_architect:
@@ -4390,13 +4501,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Architect
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_architect_sim
     - utk_architect_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Architect')]]/mods:namePart
@@ -4407,7 +4520,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_arranger:
@@ -4422,13 +4534,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Arranger
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_arranger_sim
     - utk_arranger_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Arranger')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4438,7 +4552,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_artist:
@@ -4457,13 +4570,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Artist
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_artist_sim
     - utk_artist_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Artist')]]/mods:namePart
@@ -4474,7 +4589,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_associated_name:
@@ -4493,13 +4607,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Associated Name
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_associated_name_sim
     - utk_associated_name_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Associated name')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4509,7 +4625,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_attributed_name:
@@ -4528,13 +4643,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Attributed Name
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_attributed_name_sim
     - utk_attributed_name_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Attributed name')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -4544,7 +4661,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_author:
@@ -4563,13 +4679,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Author
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_author_sim
     - utk_author_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Author')]]/mods:namePart
@@ -4580,7 +4698,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_autographer:
@@ -4596,13 +4713,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Autographer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_autographer_sim
     - utk_autographer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Autographer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4612,7 +4731,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_binding_designer:
@@ -4625,13 +4743,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Binding Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_binding_designer_sim
     - utk_binding_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Binding designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -4641,7 +4761,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_cartographer:
@@ -4654,13 +4773,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Cartographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_cartographer_sim
     - utk_cartographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Cartographer')]]/mods:namePart
@@ -4671,7 +4792,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_censor:
@@ -4684,13 +4804,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Censor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_censor_sim
     - utk_censor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Censor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4700,7 +4822,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_choreographer:
@@ -4714,13 +4835,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Choreographer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_choreographer_sim
     - utk_choreographer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Choreographer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4730,7 +4853,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_client:
@@ -4749,13 +4871,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Client
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_client_sim
     - utk_client_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Client')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4765,7 +4889,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_compiler:
@@ -4784,13 +4907,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Compiler
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_compiler_sim
     - utk_compiler_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Compiler')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -4800,7 +4925,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_composer:
@@ -4819,13 +4943,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Composer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_composer_sim
     - utk_composer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Composer')]]/mods:namePart
@@ -4836,7 +4962,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_contractor:
@@ -4855,13 +4980,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Contractor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_contractor_sim
     - utk_contractor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Contractor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4871,7 +4998,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_contributor:
@@ -4890,13 +5016,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Contributor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_contributor_sim
     - utk_contributor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Contributor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4906,7 +5034,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_copyright_holder:
@@ -4925,13 +5052,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Copyright Holder
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_copyright_holder_sim
     - utk_copyright_holder_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Copyright holder')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -4941,7 +5070,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_correspondent:
@@ -4960,13 +5088,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Correspondent
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_correspondent_sim
     - utk_correspondent_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Correspondent')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -4976,7 +5106,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_costume_designer:
@@ -4995,13 +5124,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Costume Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_costume_designer_sim
     - utk_costume_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Costume designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:creator
@@ -5011,7 +5142,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_creator:
@@ -5030,13 +5160,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Creator
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_creator_sim
     - utk_creator_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Creator')]]/mods:namePart
@@ -5047,7 +5179,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_dedicatee:
@@ -5066,13 +5197,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Dedicatee
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_dedicatee_sim
     - utk_dedicatee_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Dedicatee')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5082,7 +5215,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_depicted:
@@ -5101,13 +5233,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Depicted
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_depicted_sim
     - utk_depicted_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Depicted')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5117,7 +5251,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_designer:
@@ -5136,13 +5269,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Designer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_designer_sim
     - utk_designer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Designer')]]/mods:namePart
@@ -5153,7 +5288,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_distributor:
@@ -5172,13 +5306,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Distributor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_distributor_sim
     - utk_distributor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Distributor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5188,7 +5324,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_donor:
@@ -5207,13 +5342,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Donor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_donor_sim
     - utk_donor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Donor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5223,7 +5360,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_editor:
@@ -5242,13 +5378,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Editor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_editor_sim
     - utk_editor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Editor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5258,7 +5396,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_editor_of_compilation:
@@ -5277,13 +5414,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Editor of Compilation
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_editor_of_compilation_sim
     - utk_editor_of_compilation_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Editor of compilation')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5293,7 +5432,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_engraver:
@@ -5312,13 +5450,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Engraver
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_engraver_sim
     - utk_engraver_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Engraver')]]/mods:namePart
@@ -5329,7 +5469,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_former_owner:
@@ -5348,13 +5487,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Former Owner
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_former_owner_sim
     - utk_former_owner_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Former owner')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5364,7 +5505,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_honoree:
@@ -5383,13 +5523,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Honoree
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_honoree_sim
     - utk_honoree_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Honoree')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5399,7 +5541,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_host_institution:
@@ -5418,13 +5559,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Host Institution
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_host_institution_sim
     - utk_host_institution_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Host institution')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5434,7 +5577,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_illustrator:
@@ -5453,13 +5595,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Illustrator
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_illustrator_sim
     - utk_illustrator_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Illustrator')]]/mods:namePart
@@ -5470,7 +5614,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_instrumentalist:
@@ -5489,13 +5632,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Instrumentalist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_instrumentalist_sim
     - utk_instrumentalist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Instrumentalist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5505,7 +5650,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_interviewee:
@@ -5524,13 +5668,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Interviewee
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_interviewee_sim
     - utk_interviewee_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Interviewee')]]/mods:namePart
@@ -5541,7 +5687,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_interviewer:
@@ -5560,13 +5705,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Interviewer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_interviewer_sim
     - utk_interviewer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Interviewer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5576,7 +5723,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_issuing_body:
@@ -5595,13 +5741,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Issuing Body
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_issuing_body_sim
     - utk_issuing_body_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Issuing body')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5611,7 +5759,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_lithographer:
@@ -5630,13 +5777,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Lithographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_lithographer_sim
     - utk_lithographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Lithographer')]]/mods:namePart
@@ -5647,7 +5796,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_lyricist:
@@ -5666,13 +5814,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Lyricist
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_lyricist_sim
     - utk_lyricist_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Lyricist')]]/mods:namePart
@@ -5683,7 +5833,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_minute_taker:
@@ -5702,13 +5851,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Minute Taker
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_minute_taker_sim
     - utk_minute_taker_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Minute taker')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5718,7 +5869,6 @@ properties:
     requirement: optional
     sample_values:
     - Eaton, Andrew Chamberlain
-    data_type: array
     view:
       html_dl: true
   utk_music_copyist:
@@ -5737,13 +5887,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Music Copyist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_music_copyist_sim
     - utk_music_copyist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Music copyist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5753,7 +5905,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_musical_director:
@@ -5772,13 +5923,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Musical Director
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_musical_director_sim
     - utk_musical_director_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Musical director')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5788,7 +5941,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_organizer:
@@ -5807,13 +5959,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Organizer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_organizer_sim
     - utk_organizer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Organizer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5823,7 +5977,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_originator:
@@ -5842,13 +5995,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Originator
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_originator_sim
     - utk_originator_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Originator')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5858,7 +6013,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_owner:
@@ -5877,13 +6031,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Owner
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_owner_sim
     - utk_owner_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Owner')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -5893,7 +6049,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_performer:
@@ -5912,13 +6067,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Performer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_performer_sim
     - utk_performer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Performer')]]/mods:namePart
@@ -5929,7 +6086,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_photographer:
@@ -5948,13 +6104,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Photographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_photographer_sim
     - utk_photographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Photographer')]]/mods:namePart
@@ -5965,7 +6123,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_place_of_publication:
@@ -5984,13 +6141,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Publication Place
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_place_of_publication_sim
     - utk_place_of_publication_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:originInfo/place/placeTerm
     property_uri: https://ontology.lib.utk.edu/roles#pup
@@ -5998,7 +6157,6 @@ properties:
     requirement: optional
     sample_values:
     - Knoxville
-    data_type: array
     view:
       html_dl: true
   utk_printer:
@@ -6017,13 +6175,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Printer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_printer_sim
     - utk_printer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Printer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6033,7 +6193,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_printer_of_plates:
@@ -6052,13 +6211,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Printer of Plates
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_printer_of_plates_sim
     - utk_printer_of_plates_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Printer of plates')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6068,7 +6229,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_producer:
@@ -6087,13 +6247,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Producer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_producer_sim
     - utk_producer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Producer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6103,7 +6265,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_production_company:
@@ -6122,13 +6283,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Production Company
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_production_company_sim
     - utk_production_company_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Production company')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6138,7 +6301,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_publisher:
@@ -6157,13 +6319,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Publisher
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_publisher_sim
     - utk_publisher_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Publisher')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6173,7 +6337,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_restorationist:
@@ -6192,13 +6355,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Restorationist
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_restorationist_sim
     - utk_restorationist_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Restorationist')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6208,7 +6373,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_set_designer:
@@ -6227,13 +6391,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Set Designer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_set_designer_sim
     - utk_set_designer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Set designer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6243,7 +6409,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_signer:
@@ -6262,13 +6427,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Signer
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_signer_sim
     - utk_signer_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Signer')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6278,7 +6445,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_speaker:
@@ -6297,13 +6463,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Speaker
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_speaker_sim
     - utk_speaker_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Speaker')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6313,7 +6481,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_stage_director:
@@ -6332,13 +6499,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Stage Director
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_stage_director_sim
     - utk_stage_director_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Stage director')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6348,7 +6517,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_stage_manager:
@@ -6367,13 +6535,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Stage Manager
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_stage_manager_sim
     - utk_stage_manager_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Stage manager')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6383,7 +6553,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_standards_body:
@@ -6402,13 +6571,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Standards Body
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_standards_body_sim
     - utk_standards_body_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Standards body')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6418,7 +6589,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_surveyor:
@@ -6437,13 +6607,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Surveyor
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_surveyor_sim
     - utk_surveyor_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Surveyor')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6453,7 +6625,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_translator:
@@ -6472,13 +6643,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Translator
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_translator_sim
     - utk_translator_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Translator')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6488,7 +6661,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_videographer:
@@ -6507,13 +6679,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Videographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - utk_videographer_sim
     - utk_videographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Videographer')]]/mods:namePart
@@ -6524,7 +6698,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   utk_witness:
@@ -6543,13 +6716,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     display_label:
       default: Witness
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - utk_witness_sim
     - utk_witness_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Witness')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6559,7 +6734,6 @@ properties:
     requirement: optional
     sample_values:
     - Manetti, Antonio
-    data_type: array
     view:
       html_dl: true
   videographer:
@@ -6580,6 +6754,7 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) in charge of a video production,
         e.g. the video recording of a stage production as opposed to a commercial
@@ -6587,11 +6762,12 @@ properties:
         one or more camera operators. Do not confuse with cinematographer.
     display_label:
       default: Videographer
+    form:
+      display: true
     index_documentation: displayable, searchable, creator facet
     indexing:
     - videographer_sim
     - videographer_tesim
-    - stored_searchable
     mappings:
       blacklight: creator_sim
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Videographer')]]/mods:namePart
@@ -6602,7 +6778,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   witness:
@@ -6623,16 +6798,18 @@ properties:
       - wikidata
       - naf
       - ulan
+    data_type: array
     definition:
       default: Enter the name of a person (last, first) who verifies the truthfulness
         of an event or action.
     display_label:
       default: Witness
+    form:
+      display: true
     index_documentation: displayable, searchable
     indexing:
     - witness_sim
     - witness_tesim
-    - stored_searchable
     mappings:
       mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Witness')]]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
@@ -6642,7 +6819,6 @@ properties:
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
-    data_type: array
     view:
       html_dl: true
   has_work_type:
@@ -6661,10 +6837,14 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - utk
+    data_type: array
     definition:
       default: Describes the local work type of the work.
     display_label:
       default: Work Type
+    form:
+      required: true
+      primary: true
     index_documentation: admin_only
     indexing:
     - has_work_type_tesim
@@ -6673,8 +6853,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#anyURI
     requirement: required
     sample_values:
-    - https://ontology.lib.utk.edu/works#ImageResourceWork
-    data_type: array
+    - https://ontology.lib.utk.edu/works#ImageWork
   behavior:
     available_on:
       class:
@@ -6685,10 +6864,13 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#anyURI
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Links a file to a specific IIIF presentation behavior.
     display_label:
       default: Behavior
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - behavior_sim
@@ -6697,7 +6879,6 @@ properties:
     property_uri: https://ontology.lib.utk.edu/works#hasBehavior
     range: http://www.w3.org/2001/XMLSchema#anyURI
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   bits_per_sample:
@@ -6710,12 +6891,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
-      default: The number of bits per StillImage component. In this standard each component
-        of the StillImage is 8 bits, so the value for this tag is 8. See also SamplesPerPixel.
+      default: The number of bits per image component. In this standard each component
+        of the image is 8 bits, so the value for this tag is 8. See also SamplesPerPixel.
         In JPEG compressed data a JPEG marker is used instead of this tag.
     display_label:
       default: Bits Per Sample
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - bits_per_sample_sim
@@ -6724,7 +6908,6 @@ properties:
     property_uri: http://www.w3.org/2003/12/exif/ns#bitsPerSample
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   capture_software:
@@ -6737,11 +6920,14 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
-      default: The name and version of the software or firmware of the camera or StillImage
-        input device used to generate the StillImage.
+      default: The name and version of the software or firmware of the camera or image
+        input device used to generate the image.
     display_label:
       default: Capture Software
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - capture_software_sim
@@ -6750,7 +6936,6 @@ properties:
     property_uri: http://www.w3.org/2003/12/exif/ns#software
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   color_profile:
@@ -6763,10 +6948,13 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
-      default: The name of the color profile used when capturing an StillImage.
+      default: The name of the color profile used when capturing an image.
     display_label:
       default: Color Profile Name
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - color_profile_sim
@@ -6775,7 +6963,6 @@ properties:
     property_uri: http://projecthydra.org/ns/mix/colorProfileName
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   color_space:
@@ -6788,12 +6975,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The color space information tag (ColorSpace) is always recorded as
         the color space specifier. Normally sRGB (=1) is used to define the color
         space based on the PC monitor conditions and environment.
     display_label:
       default: Color Space
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - color_space_sim
@@ -6802,7 +6992,6 @@ properties:
     property_uri: http://www.w3.org/2003/12/exif/ns#colorSpace
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   compression_scheme:
@@ -6815,12 +7004,15 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
-      default: The compression scheme used for the StillImage data. When a primary StillImage
+      default: The compression scheme used for the image data. When a primary image
         is JPEG compressed, this designation is not necessary and is omitted. When
         thumbnails use JPEG compression, this tag value is set to 6.
     display_label:
       default: Compression Scheme
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - compression_scheme_sim
@@ -6829,7 +7021,6 @@ properties:
     property_uri: http://www.w3.org/2003/12/exif/ns#compression
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   file_language:
@@ -6842,6 +7033,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The language associated with a specific file or fileset. If present,
         should be none or combination of subtag and prefix defined in the iana registry
@@ -6850,6 +7042,8 @@ properties:
         subtitle files.
     display_label:
       default: Language
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - file_language_sim
@@ -6864,7 +7058,6 @@ properties:
     - es
     - en-CA-newfound
     syntax: BCP-47
-    data_type: array
     view:
       html_dl: true
   file_size:
@@ -6877,10 +7070,13 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Provides the size of a MediaResource in bytes.
     display_label:
       default: File Size
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - file_size_sim
@@ -6889,7 +7085,6 @@ properties:
     property_uri: http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#fileSize
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   format_name:
@@ -6902,10 +7097,13 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: A designation of the format of the file or bitstream.
     display_label:
       default: Format Name
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - format_name_sim
@@ -6914,7 +7112,6 @@ properties:
     property_uri: http://www.loc.gov/premis/rdf/v1#hasFormatName
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   frame_height:
@@ -6927,6 +7124,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#integer
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Should not appear in metadata form.  This field should be autopopulated
         on a pcdm:File and added to the IIIF presentation manifest as height / width
@@ -6941,7 +7139,6 @@ properties:
     property_uri: http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#height
     range: http://www.w3.org/2001/XMLSchema#integer
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   frame_width:
@@ -6954,6 +7151,7 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#integer
       sources:
       - 'null'
+    data_type: array
     definition:
       default: Should not appear in metadata form.  This field should be autopopulated
         on a pcdm:File and added to the IIIF presentation manifest as height / width
@@ -6968,7 +7166,6 @@ properties:
     property_uri: http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#width
     range: http://www.w3.org/2001/XMLSchema#integer
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   hash_value:
@@ -6981,10 +7178,13 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The actual value of a hash checksum.
     display_label:
       default: Hash Value
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - hash_value_sim
@@ -6993,7 +7193,6 @@ properties:
     property_uri: http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue
     range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   is_associated_with_page:
@@ -7006,23 +7205,25 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
+    data_type: array
     definition:
       default: The page of a book that a particular attachment is associated with.
     display_label:
       default: Is Associated With Page
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - is_associated_with_page_sim
     - is_associated_with_page_tesim
     mappings: {}
     property_uri: https://ontology.lib.utk.edu/works#isAssociatedWithPage
-    range: http://www.w3.org/2000/01/rdf-schema#Literal
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - 1
     - 2
     - 3
-    data_type: array
     view:
       html_dl: true
   rdf_type:
@@ -7037,10 +7238,14 @@ properties:
       - pcdm
       - pcdmuse
       - pcdmff
+    data_type: array
     definition:
       default: The subject (file or file set) is an instance of this rdf class.
     display_label:
       default: Type of File
+    form:
+      required: true
+      primary: true
     index_documentation: displayable
     indexing:
     - rdf_type_sim
@@ -7052,7 +7257,6 @@ properties:
     sample_values:
     - http://pcdm.org/use#PreservationFile
     - http://pcdm.org/use#IntermediateFile
-    data_type: array
     view:
       html_dl: true
   xresolution:
@@ -7065,11 +7269,14 @@ properties:
       format: http://www.w3.org/2001/XMLSchema#integer
       sources:
       - 'null'
+    data_type: array
     definition:
-      default: The number of pixels per ResolutionUnit in the StillImageWidth direction.
-        When the StillImage resolution is unknown, 72 [dpi] is designated.
+      default: The number of pixels per ResolutionUnit in the ImageWidth direction.
+        When the image resolution is unknown, 72 [dpi] is designated.
     display_label:
       default: XResolution
+    form:
+      display: true
     index_documentation: displayable
     indexing:
     - xresolution_sim
@@ -7078,7 +7285,6 @@ properties:
     property_uri: http://www.w3.org/2003/12/exif/ns#xResolution
     range: http://www.w3.org/2001/XMLSchema#integer
     requirement: optional
-    data_type: array
     view:
       html_dl: true
   date_modified:
@@ -7094,14 +7300,14 @@ properties:
       - Newspaper
       - Pdf
       - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
     data_type: string
     display_label:
       default: blacklight.search.fields.show.date_modified_dtsi
     property_uri: http://purl.org/dc/terms/modified
     range: http://www.w3.org/2001/XMLSchema#dateTime
-    cardinality:
-      minimum: 0
-      maximum: 1
     view:
       html_dl: true
   date_uploaded:
@@ -7117,14 +7323,14 @@ properties:
       - Newspaper
       - Pdf
       - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
     data_type: string
     display_label:
       default: blacklight.search.fields.show.date_uploaded_dtsi
     property_uri: http://purl.org/dc/terms/dateSubmitted
     range: http://www.w3.org/2001/XMLSchema#dateTime
-    cardinality:
-      minimum: 0
-      maximum: 1
   depositor:
     available_on:
       class:
@@ -7138,44 +7344,35 @@ properties:
       - Newspaper
       - Pdf
       - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
     data_type: string
     display_label:
       default: Depositor
-    property_uri: http://id.loc.gov/vocabulary/relators/dpt
-    range: http://www.w3.org/2001/XMLSchema#string
+    index_documentation: searchable
     indexing:
     - depositor_tesim
     - depositor_ssim
-    cardinality:
-      minimum: 0
-      maximum: 1
-    index_documentation: searchable
+    property_uri: http://id.loc.gov/vocabulary/relators/dpt
+    range: http://www.w3.org/2001/XMLSchema#string
   label:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
       - Hyrax::FileSet
-      - Audio
-      - Book
-      - CompoundObject
-      - StillImage
-      - Newspaper
-      - Pdf
-      - Video
-    data_type: array
-    display_label:
-      default: Label
-    property_uri: info:fedora/fedora-system:def/model#downloadFilename
-    range: http://www.w3.org/2001/XMLSchema#string
-    indexing:
-    - label_sim
-    - label_tesim
     cardinality:
       minimum: 0
       maximum: 1
-    index_documentation: displayable, searchable
+    data_type: array
+    display_label:
+      default: Label
     form:
       primary: false
+    index_documentation: displayable, searchable
+    indexing:
+    - label_sim
+    - label_tesim
+    property_uri: info:fedora/fedora-system:def/model#downloadFilename
+    range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
