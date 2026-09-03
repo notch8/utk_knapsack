@@ -9,4 +9,5 @@ RSpec.describe CompoundObject do
   subject(:work) { described_class.new }
 
   it_behaves_like 'a Hyrax::Work'
+  it_behaves_like 'a UTK work type'
 end
