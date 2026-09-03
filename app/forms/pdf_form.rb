@@ -6,12 +6,6 @@
 # @see https://github.com/samvera/hyrax/wiki/Hyrax-Valkyrie-Usage-Guide#forms
 # @see https://github.com/samvera/valkyrie/wiki/ChangeSets-and-Dirty-Tracking
 class PdfForm < Hyrax::Forms::ResourceForm(Pdf)
-  if Hyrax.config.work_include_metadata?
-    include Hyrax::FormFields(:basic_metadata)
-    include Hyrax::FormFields(:pdf)
-    include Hyrax::FormFields(:with_pdf_viewer)
-    include Hyrax::FormFields(:with_video_embed)
-  end
   include VideoEmbedBehavior::Validation
 
   check_if_flexible(Pdf)
