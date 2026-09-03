@@ -746,6 +746,7 @@ properties:
     requirement: optional
     view:
       html_dl: true
+      render_as: linked
   publisher:
     available_on:
       class:
@@ -937,6 +938,7 @@ properties:
     - http://rightsstatements.org/vocab/InC/1.0/
     view:
       html_dl: true
+      render_as: rights_statement
   call_number:
     available_on:
       class:
@@ -3152,6 +3154,7 @@ properties:
     - https://creativecommons.org/licenses/by-nd/4.0/
     view:
       html_dl: true
+      render_as: external_link
   lithographer:
     available_on:
       class:

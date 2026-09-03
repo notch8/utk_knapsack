@@ -99,6 +99,17 @@ CONTROLLED_VALUE_SOURCES = {
   'license' => %w[licenses]
 }.freeze
 
+# `view.render_as` selects the show-page renderer. Allinson Flex has no
+# equivalent, so nothing in the source supplies it and a converted property
+# renders as plain text. These match Hyku's values for the same properties:
+# `linked` makes each value a facet link, `external_link` a followable URL, and
+# `rights_statement` draws the rights badge.
+RENDER_AS = {
+  'resource_type' => 'linked',
+  'rights_statement' => 'rights_statement',
+  'license' => 'external_link'
+}.freeze
+
 # Hyrax reads data_type first in FlexibleSchema#determine_multiplicity, so
 # normalizing onto it makes multiplicity unambiguous regardless of what the
 # source said via multi_value or cardinality.
@@ -231,12 +242,9 @@ source['classes'].each do |name, config|
 end
 
 missing_renames = RENAMED_CLASSES.keys - source['classes'].keys
-unless missing_renames.empty?
-  warn "WARNING: RENAMED_CLASSES names absent from the source profile: #{missing_renames.join(', ')}"
-end
+warn "WARNING: RENAMED_CLASSES names absent from the source profile: #{missing_renames.join(', ')}" if missing_renames.any?
 
 all_classes = classes.keys
-work_classes = all_classes - [FILE_SET_CLASS]
 
 # --- properties ----------------------------------------------------------
 converted = {}
@@ -316,8 +324,11 @@ properties.each do |name, config|
   # Show-page rendering is opt-in via `view:` in Hyrax; without this every
   # field would silently vanish from show pages. Restricted fields are not
   # rendered in the attribute table, so they get no view block.
-  unless source_indexing.include?('admin_only') || source_indexing.include?('editor_only')
-    new_config['view'] = { 'html_dl' => true }
+  restricted = source_indexing.include?('admin_only') || source_indexing.include?('editor_only')
+  unless restricted
+    view = { 'html_dl' => true }
+    view['render_as'] = RENDER_AS[name] if RENDER_AS.key?(name)
+    new_config['view'] = view
   end
 
   converted[name] = new_config

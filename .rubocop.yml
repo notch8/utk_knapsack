@@ -12,10 +12,29 @@ AllCops:
   - "hyrax-webapp/**/*"
   - "gems/**/*"
 
+# The m3 migration scripts are standalone plain-Ruby utilities run with `ruby`,
+# never loaded by Rails, so the Rails cops do not apply: Time.zone is nil there
+# and ActiveSupport's index_with is unavailable. They stay under every other cop.
+Rails/TimeZone:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
+
+Rails/IndexWith:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
+
+# The conversion's top-level loop transforms one property at a time; splitting it
+# would scatter a sequence that is meant to be read in order.
 Metrics/BlockLength:
   AllowedMethods: ['included', 'describe', 'it', 'context']
   Exclude:
   - "spec/**/*.rb"
+  - "docs/m3_migration/scripts/*.rb"
+
+# core_property assembles an m3 property from its parts; each is a distinct field.
+Metrics/ParameterLists:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
 
 Style/AsciiComments:
   Enabled: false
