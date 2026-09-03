@@ -6,23 +6,38 @@ no `controlled_values` key at all (`date_modified`, `date_uploaded`, `depositor`
 and `label`, which the conversion synthesizes rather than reading from the
 source). All 121 are free text.
 
-**Nothing in Hyrax reads any of this.** `controlled_values` is not consulted by
-the schema loader or by any validator; it passes validation because the
-`properties.*` subschema does not set `additionalProperties: false`. It is
-documentation of intent, and the intent is not yet wired to anything.
+`controlled_values.sources` is what drives the authority behavior. Naming a
+vocabulary here is sufficient: the properties backed by a shipped authority
+render their picker without any further wiring, and need no `form.input_type`.
 
-What *is* live is the `range`: 72 of these 74 properties are typed
-`xsd:anyURI`, so their values are URIs. Without an authority behind them, the
-deposit form renders a plain text box and a depositor is expected to paste a URI
-by hand. Closing that gap needs two things the profile does not currently have:
+The `sources` value must match the authority it refers to. Where an equivalent
+already ships with Hyku, the conversion renames the source profile's own
+shorthand to the authority's filename (`CONTROLLED_VALUE_SOURCES`), so the two
+agree on one identifier:
 
-1. A Questioning Authority YAML in `config/authorities/`, and
-2. An `input_type` on the property pointing at it.
+| Property | Source shorthand | Authority named |
+|---|---|---|
+| `rights_statement` | `rightsstatements` | `rights_statements` |
+| `license` | `creativecommons` | `licenses` |
+| `resource_type` | `resourceTypes` | `resource_types` |
 
-The knapsack has **no `config/authorities/` directory yet**. Hyku ships eleven
-authority files, three of which already correspond to vocabularies named below.
-`config/initializers/knapsack_authorities.rb` makes QA search the knapsack's
-authorities directory first, so a same-named YAML placed there overrides Hyku's.
+Hyku ships eleven authority files in `config/authorities/`. The knapsack has no
+such directory of its own yet; `config/initializers/knapsack_authorities.rb`
+makes QA search the knapsack's first, so a same-named YAML placed there
+overrides Hyku's.
+
+## Ranges are all `xsd:string`
+
+These fields were originally typed `xsd:anyURI`, but **every range in the profile
+is now `xsd:string`**. `anyURI` made Hyrax coerce values to `RDF::URI`, whose
+`as_json` is `{"@id" => "..."}`, which Solr rejects as a malformed atomic update,
+so saving a work with any such field populated failed. Hyku ranges its own
+controlled fields as `string` for the same reason.
+
+The change costs nothing: `range` drives only the Ruby coercion type, while
+`controlled_values` names the authority. Every vocabulary below survived it
+untouched, and Hyku's `rights_statement` is the proof of the pairing — the same
+`rights_statements` vocabulary, ranged as `string`.
 
 ## Most properties name more than one authority
 
@@ -86,13 +101,18 @@ are the cheapest to wire up.
 
 | Property | Sources | Hyku authority |
 |---|---|---|
-| `rights_statement` | `rightsstatements` | `rights_statements.yml` |
-| `license` | `creativecommons` | `licenses.yml` |
-| `resource_type` | `resourceTypes` | `resource_types.yml` |
+| `rights_statement` | `rights_statements` | `rights_statements.yml` |
+| `license` | `licenses` | `licenses.yml` |
+| `resource_type` | `resource_types` | `resource_types.yml` |
 
-Note Hyku's `resource_types.yml` uses bare string ids (`Article`, `Audio`),
-while this profile types `resource_type` as `xsd:anyURI`. The two do not
-currently agree, so that pairing needs a decision before it is used.
+The conversion renames these three from the source's own shorthand
+(`rightsstatements`, `creativecommons`, `resourceTypes`) to the shipped
+authority filenames, via `CONTROLLED_VALUE_SOURCES`, so `sources` and
+`config/authorities/` agree on one identifier.
+
+With every range now `xsd:string`, `resource_type` also agrees with Hyku's
+`resource_types.yml`, which uses bare string ids (`Article`, `Audio`) rather
+than URIs. That mismatch is resolved.
 
 ### Structural and local
 
@@ -104,21 +124,27 @@ currently agree, so that pairing needs a decision before it is used.
 ### `_local` free-text twins
 
 Four properties pair a controlled field with a free-text fallback for values not
-present in the authority. Every twin is typed `xsd:string` rather than `anyURI`,
-but they disagree on whether to restate the source vocabulary:
+present in the authority. Now that every range is `xsd:string` the pairs differ
+only in their `controlled_values`, and they disagree on whether the twin should
+restate the source vocabulary:
 
-| Controlled (`anyURI`) | Free text (`string`) | Twin's `sources` |
+| Controlled | Free text | Twin's `sources` |
 |---|---|---|
 | `language` | `language_local` | `iso639-2b` (repeats the parent) |
 | `resource_type` | `resource_type_local` | `resourceTypes` (repeats the parent) |
 | `form` | `form_local` | `['null']` |
 | `spatial` | `spatial_local` | `['null']` |
 
-Two restate the parent's vocabulary and two do not. Since nothing reads
-`controlled_values`, the inconsistency is currently harmless, but it makes the
-profile misleading to read: `language_local` appears controlled by `iso639-2b`
-while being a free-text field. Worth normalizing with the metadata owners, in
-whichever direction they prefer.
+Two restate the parent's vocabulary and two do not, and that inconsistency is
+worth resolving rather than leaving. Since `sources` is what drives the
+authority behavior, a twin naming a vocabulary is asking for the same picker as
+its parent — which defeats the point of a free-text fallback. `language_local`
+and `resource_type_local` are the two to check with the metadata owners.
+
+Note also that `resource_type_local` still names the source's `resourceTypes`
+shorthand rather than the renamed `resource_types`, since
+`CONTROLLED_VALUE_SOURCES` only remaps the parent. If the twin is meant to stay
+free text, the fix is to clear its `sources` rather than rename it.
 
 ## All 18 vocabularies named
 

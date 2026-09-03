@@ -66,17 +66,20 @@ We carry the source's `requirement: optional|required` through; Hyku omits the
 key entirely. Hyrax derives requiredness from `cardinality.minimum` and
 `form.required`, not from this key, so it is documentation rather than behavior.
 
-## 4. Ranges: `anyURI` where Hyku has `string` — deliberate
+## 4. Ranges: resolved, no longer a difference
 
-`creator`, `contributor`, `subject`, `language`, `publisher`, `resource_type`,
-`license`, `rights_statement`.
+This section previously recorded eight properties ranged `anyURI` in ours where
+Hyku has `string`, and treated the divergence as a deliberate reflection of
+UTK's controlled-vocabulary model.
 
-UTK's source declares these as controlled-vocabulary URIs (`sources: [wikidata,
-naf, ulan]`) where Hyku uses free text. The divergence is UTK's data model, not
-a conversion error.
+That reading was wrong. `anyURI` makes Hyrax coerce the value to an `RDF::URI`,
+whose `as_json` is `{"@id" => "..."}`, which Solr rejects as a malformed atomic
+update. Saving a work with any such field populated 500s. All 77 `anyURI` ranges
+are now `xsd:string`, matching Hyku, and the controlled vocabularies are
+untouched — `range` drives coercion, `controlled_values` names the authority.
 
-`date_created` is the counter-case: `dateTime` in Hyku, `string` in ours, also
-from the source, and defensible given UTK's EDTF-style date values.
+`date_created` remains a real difference: `dateTime` in Hyku, `string` in ours,
+carried from the source and defensible given UTK's EDTF-style date values.
 
 ## 5. Different predicates — confirm with metadata owners
 

@@ -86,6 +86,19 @@ def index_keys_for(name, source_indexing)
   keys
 end
 
+# The source names vocabularies in its own shorthand; where an equivalent local
+# authority already ships with Hyku, the profile should name that file instead,
+# so `sources` and `config/authorities/` agree on one identifier.
+#
+# Nothing in Hyrax reads `controlled_values`, so this changes no behavior on its
+# own. It is the naming half of wiring these up; the form still needs an
+# input_type before a picker appears.
+CONTROLLED_VALUE_SOURCES = {
+  'resource_type' => %w[resource_types],
+  'rights_statement' => %w[rights_statements],
+  'license' => %w[licenses]
+}.freeze
+
 # Hyrax reads data_type first in FlexibleSchema#determine_multiplicity, so
 # normalizing onto it makes multiplicity unambiguous regardless of what the
 # source said via multi_value or cardinality.
@@ -97,15 +110,32 @@ def data_type_for(config)
   max.nil? || max.to_i > 1 ? 'array' : 'string'
 end
 
-# Hyrax::SchemaLoader#type_for constantizes Valkyrie::Types::<local name> and
-# raises ArgumentError when that constant is missing, so a range must name a
-# concrete datatype. rdf-schema#Literal is valid RDF but carries none, and
-# Allinson Flex uses it for identifier fields; it has no Valkyrie::Types::Literal
-# and raises when the deposit form builds its attributes. Neither the JSON
-# schema nor FlexibleSchemaValidatorService resolves ranges, so this is caught
-# here or not at all.
+# Ranges Allinson Flex uses legitimately that Hyrax cannot store, both mapped to
+# xsd:string. Neither the JSON schema nor FlexibleSchemaValidatorService resolves
+# a range, so these are caught here or not at all.
+#
+# rdf-schema#Literal is the generic supertype of all literals and carries no
+# datatype. Hyrax::SchemaLoader#type_for constantizes
+# Valkyrie::Types::<local name>, there is no Valkyrie::Types::Literal, and it
+# raises ArgumentError when the deposit form builds its attributes.
+#
+# XMLSchema#anyURI is worse, because it fails later and looks like a Solr
+# problem. FlexibleSchema#lookup_type maps it to 'uri', producing a
+# Valkyrie::Types::URI attribute whose value is an RDF::URI rather than a
+# String. RDF::URI#as_json returns {"@id" => "..."}, and Solr reads a nested
+# object in an update document as an atomic-update command, sees `@id`, and
+# rejects it:
+#
+#   Error: [doc=...] Unknown operation for the an atomic update: @id
+#
+# So saving a work with any populated anyURI field 500s. Neither stock profile
+# uses anyURI anywhere (Hyrax 0 occurrences, Hyku 0), and Hyku ranges its
+# rights_statement -- same rights_statements vocabulary as UTK's -- as string.
+# `range` only drives the Ruby coercion type; `controlled_values` is what names
+# the authority, and is untouched, so controlled-vocabulary behavior survives.
 UNMAPPABLE_RANGES = {
-  'http://www.w3.org/2000/01/rdf-schema#Literal' => 'http://www.w3.org/2001/XMLSchema#string'
+  'http://www.w3.org/2000/01/rdf-schema#Literal' => 'http://www.w3.org/2001/XMLSchema#string',
+  'http://www.w3.org/2001/XMLSchema#anyURI' => 'http://www.w3.org/2001/XMLSchema#string'
 }.freeze
 
 def normalize_range(value)
@@ -212,7 +242,7 @@ work_classes = all_classes - [FILE_SET_CLASS]
 converted = {}
 report = { contradictory_multiplicity: [], moved_to_file_set: [], dropped_attachment: 0,
            normalized_ranges: [], blacklight_labels: [], renamed_scope: [],
-           form_required: [], form_excluded: [] }
+           form_required: [], form_excluded: [], vocabularies: [] }
 
 properties.each do |name, config|
   new_config = config.dup
@@ -245,11 +275,18 @@ properties.each do |name, config|
   # range: replace values that have no Valkyrie type. controlled_values.format
   # is not read for typing, but is kept in step so the two never disagree.
   if UNMAPPABLE_RANGES.key?(config['range'])
-    report[:normalized_ranges] << name
+    report[:normalized_ranges] << [name, config['range']]
     new_config['range'] = normalize_range(config['range'])
   end
   if (format = config.dig('controlled_values', 'format')) && UNMAPPABLE_RANGES.key?(format)
     new_config['controlled_values'] = config['controlled_values'].merge('format' => normalize_range(format))
+  end
+
+  # controlled_values.sources: name the shipped authority where one exists.
+  if (sources = CONTROLLED_VALUE_SOURCES[name])
+    report[:vocabularies] << name
+    existing = new_config['controlled_values'] || config['controlled_values'] || {}
+    new_config['controlled_values'] = existing.merge('sources' => sources)
   end
 
   # display_label: prefer a Blacklight i18n key so the label localizes.
@@ -411,8 +448,16 @@ report[:contradictory_multiplicity].each_slice(6) { |s| puts "  #{s.join(', ')}"
 
 unless report[:normalized_ranges].empty?
   puts
-  puts "Ranges normalized to xsd:string (confirm each is not numeric or a date):"
-  report[:normalized_ranges].each_slice(6) { |s| puts "  #{s.join(', ')}" }
+  puts "Ranges normalized to xsd:string (#{report[:normalized_ranges].size} properties):"
+  report[:normalized_ranges].group_by { |_, from| from }.each do |from, entries|
+    puts "  from #{from.split(%r{[#/]}).last} (#{entries.size}): #{entries.map(&:first).first(8).join(', ')}#{entries.size > 8 ? ', ...' : ''}"
+  end
+end
+
+unless report[:vocabularies].empty?
+  puts
+  puts "controlled_values.sources pointed at a shipped Hyku authority:"
+  report[:vocabularies].each { |n| puts "  #{n} -> #{CONTROLLED_VALUE_SOURCES[n].join(', ')}" }
 end
 
 unless report[:form_required].empty?

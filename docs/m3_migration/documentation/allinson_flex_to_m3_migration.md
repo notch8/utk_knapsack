@@ -317,13 +317,45 @@ ArgumentError: Unrecognized type: literal
 The visible symptom is that every affected work type 500s on `#new` and `#edit`
 for anyone trying to deposit, while the profile itself saved cleanly.
 
-`http://www.w3.org/2000/01/rdf-schema#Literal` is the one that shows up in
-practice. It is valid RDF — the generic supertype of all literals — but it
-carries no datatype, so there is no `Valkyrie::Types::Literal` to map it onto.
-Allinson Flex uses it freely for identifier-ish fields; Hyrax cannot.
+Two ranges show up in practice, and they fail at different moments.
 
-Convert each occurrence to the concrete XSD range for the field's real content,
-which for identifiers is `#string` rather than a numeric type:
+**`rdf-schema#Literal`** fails immediately and loudly. It is valid RDF — the
+generic supertype of all literals — but carries no datatype, so there is no
+`Valkyrie::Types::Literal` to map it onto. Allinson Flex uses it freely for
+identifier-ish fields; Hyrax cannot.
+
+**`XMLSchema#anyURI`** is the dangerous one, because it resolves cleanly and
+fails much later, disguised as a Solr problem. `FlexibleSchema#lookup_type` maps
+it to `'uri'`, producing a `Valkyrie::Types::URI` attribute whose value is an
+`RDF::URI` rather than a String. `RDF::URI#as_json` returns `{"@id" => "..."}`,
+and Solr reads a nested object inside an update document as an atomic-update
+command:
+
+```
+Error: [doc=...] Unknown operation for the an atomic update: @id
+```
+
+So **saving a work with any populated `anyURI` field 500s**. The profile
+validates, the schema seeds, the form renders and accepts input, and the failure
+lands on save with a message that points at Solr rather than at the profile. It
+is not a `schema.xml` or field-type problem: the value is malformed before it
+leaves Rails.
+
+This affected 77 of UTK's 195 properties — every controlled-vocabulary and
+relator field. Only `rights_statement` and `has_work_type` surfaced in testing
+because they are the only two required fields; filling in any of the other 75
+reproduces it.
+
+Neither stock profile uses `anyURI` at all (Hyrax 0 occurrences, Hyku 0), and
+Hyku ranges its `rights_statement` — the *same* `rights_statements` controlled
+vocabulary UTK uses — as `string`. That is the precedent worth internalizing:
+**`range` only drives the Ruby coercion type, and `controlled_values` is what
+names the authority.** Ranging a controlled field as `string` loses nothing.
+
+Both map to `#string` via `UNMAPPABLE_RANGES`. For the `anyURI` fields that is
+the whole story, since a URI *is* a string as far as storage is concerned. For
+the `Literal` fields, pick the concrete range matching the real content, which
+for identifiers is `#string` rather than a numeric type:
 
 | Field | Why `#string`, not `#integer` |
 |---|---|
@@ -342,7 +374,7 @@ carrying `#Literal` passes both gates in the migration procedure below and fails
 only when a user opens the deposit form. Grep for it directly:
 
 ```bash
-grep -n 'rdf-schema#Literal' config/metadata_profiles/m3_profile.yaml
+grep -nE 'rdf-schema#Literal|XMLSchema#anyURI' config/metadata_profiles/m3_profile.yaml
 ```
 
 `convert_allinson_to_m3.rb` normalizes these via `UNMAPPABLE_RANGES` and reports
@@ -576,15 +608,25 @@ A profile can pass every validator and still be wrong:
 - **Accidental multiplicity** — `data_type: array` on a checksum is legal and
   wrong.
 - **Unmappable `range` values** — nothing resolves a range until a work type
-  builds its attributes, so the profile saves and the deposit form 500s.
+  builds its attributes, so the profile saves and the deposit form 500s
+  (`rdf-schema#Literal`), or the form works and *saving* 500s with a Solr error
+  (`XMLSchema#anyURI`).
 - **Unresolved `display_label` keys** — an i18n key that has no translation
   renders as its own raw text on the show page.
 - **Missing `form:` blocks** — the profile validates and seeds, the work type
   instantiates, and the deposit form is nearly empty. This is the one that
   silently loses most of a converted profile.
 
-The first two are the pattern to watch for: both validators check the profile's
-*shape*, and neither resolves a value against the application. A profile is
-verified when a work type instantiates and its form builds, not when it saves.
+The pattern: both validators check the profile's *shape*, and neither resolves a
+value against the application. Each failure surfaces one step further along than
+the last — at attribute build, at form render, at save, at display — so no single
+checkpoint proves a profile good.
+
+The `anyURI` case is the one to remember when deciding how far to test. Every
+earlier checkpoint passes: it validates, it seeds, the work type instantiates,
+the form renders and accepts input. It fails only when a populated value is
+written, and the error names Solr rather than the profile. **A profile is
+verified when a work with its fields filled in saves and comes back**, not when
+the form appears.
 
 Treat validation as a floor, and review the semantic diff separately.

@@ -337,7 +337,7 @@
         <tr><td><code>multi_value</code></td><td><code>data_type: array|string</code></td><td>Legacy key still read, but <code>data_type</code> is checked first.</td></tr>
         <tr><td><code>cardinality.minimum</code></td><td>Required flag</td><td><code>&gt;= 1</code> means required.</td></tr>
         <tr><td><code>cardinality.maximum</code></td><td>Multiplicity fallback</td><td>Only when <code>data_type</code> and <code>multi_value</code> are absent.</td></tr>
-        <tr><td><code>range</code></td><td><code>type</code> (Dry type)</td><td><code>#anyURI</code>→<code>uri</code>, <code>#dateTime</code>→<code>date_time</code>. Must resolve to a real <code>Valkyrie::Types::*</code>; <code>rdf-schema#Literal</code> does not.</td></tr>
+        <tr><td><code>range</code></td><td><code>type</code> (Dry type)</td><td><code>#dateTime</code>→<code>date_time</code>. Must resolve to a real <code>Valkyrie::Types::*</code>; <code>rdf-schema#Literal</code> does not, and <code>#anyURI</code> resolves to a type Solr cannot store. Both become <code>#string</code>.</td></tr>
         <tr><td><code>property_uri</code></td><td><code>predicate</code></td><td>Renamed by <code>values_map</code>.</td></tr>
         <tr><td><code>display_label</code> (literal)</td><td><code>display_label.default</code></td><td>Passed through <code>I18n.t</code>, so only a Blacklight key localizes.</td></tr>
         <tr><td><code>available_on.class</code></td><td>Class scope</td><td>Must name registered curation concerns.</td></tr>
@@ -492,7 +492,7 @@ errs.first(20).each { |e|
     <li><strong>Predicate changes</strong> — retargeting <code>creator</code> is structurally fine and semantically significant.</li>
     <li><strong>Class re-scoping</strong> — validates instantly, may strand existing records.</li>
     <li><strong>Accidental multiplicity</strong> — <code>data_type: array</code> on a checksum is legal and wrong.</li>
-    <li><strong>Unmappable <code>range</code> values</strong> — nothing resolves a range until a work type builds its attributes, so the profile saves and the deposit form 500s.</li>
+    <li><strong>Unmappable <code>range</code> values</strong> — <code>rdf-schema#Literal</code> 500s the deposit form; <code>#anyURI</code> renders fine and 500s on <em>save</em>, with an error naming Solr rather than the profile.</li>
     <li><strong>Unresolved <code>display_label</code> keys</strong> — an i18n key with no translation renders as its own raw text.</li>
     <li><strong>Missing <code>form:</code> blocks</strong> — the profile validates, the schema seeds, the work type instantiates, and the deposit form comes up nearly empty. The one that silently loses most of a converted profile.</li>
   </ul>
