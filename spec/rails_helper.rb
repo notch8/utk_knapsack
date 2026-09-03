@@ -3,8 +3,7 @@
 # Set environment variables BEFORE requiring the Rails environment so that
 # initializers read the correct values on their first and only load.
 ENV["RAILS_ENV"] ||= "test"
-# Knapsacks that run flexible metadata set HYRAX_FLEXIBLE in their own .env.
-ENV['HYRAX_FLEXIBLE'] ||= 'false'
+ENV['HYRAX_FLEXIBLE'] = 'true'
 # Mirrors hyrax-webapp/spec/rails_helper.rb, which this file replaces.
 ENV['HYKU_ADMIN_HOST'] = 'test.host'
 ENV['HYKU_ROOT_HOST'] = 'test.host'
