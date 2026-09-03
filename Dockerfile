@@ -1,4 +1,5 @@
 ARG HYRAX_IMAGE_VERSION=hyrax-v5.2.0
+ARG NGINX_VERSION=1.29-alpine
 FROM ghcr.io/samvera/hyrax/hyrax-base:$HYRAX_IMAGE_VERSION AS hyku-web
 
 USER root
@@ -23,10 +24,10 @@ RUN bundle install --jobs "$(nproc)"
 ############## END KNAPSACK SPECIFIC CODE ################
 
 RUN RAILS_ENV=production SECRET_KEY_BASE=$(bin/rails secret) DB_ADAPTER=nulldb DB_URL='postgresql://fake' bundle exec rails assets:precompile && yarn install
-CMD ./bin/web
+CMD [./bin/web]
 
 FROM hyku-web AS hyku-worker
-CMD ./bin/worker
+CMD [./bin/worker]
 
 # Use a Solr version with patched Log4j to address CVE-2021-44228
 FROM solr:8.11.2 AS hyku-solr
@@ -36,7 +37,7 @@ USER root
 COPY --chown=solr:solr solr/security.json /var/solr/data/security.json
 USER $SOLR_USER
 
-FROM ghcr.io/notch8/scripts/bitnamilegacy-nginx:1.21.6-debian-11-r21 AS hyku-nginx
-COPY --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
-COPY --from=hyku-web /app/samvera/hyrax-webapp/public/pdf.js /app/samvera/hyrax-webapp/public/pdf.js
-COPY --from=hyku-web /app/samvera/hyrax-webapp/public/uv /app/samvera/hyrax-webapp/public/uv
+FROM nginxinc/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
+COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
+COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/pdf.js /app/samvera/hyrax-webapp/public/pdf.js
+COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/uv /app/samvera/hyrax-webapp/public/uv
