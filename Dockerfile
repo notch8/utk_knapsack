@@ -24,10 +24,10 @@ RUN bundle install --jobs "$(nproc)"
 ############## END KNAPSACK SPECIFIC CODE ################
 
 RUN RAILS_ENV=production SECRET_KEY_BASE=$(bin/rails secret) DB_ADAPTER=nulldb DB_URL='postgresql://fake' bundle exec rails assets:precompile && yarn install
-CMD [./bin/web]
+CMD ["./bin/web"]
 
 FROM hyku-web AS hyku-worker
-CMD [./bin/worker]
+CMD ["./bin/worker"]
 
 # Use a Solr version with patched Log4j to address CVE-2021-44228
 FROM solr:8.11.2 AS hyku-solr
