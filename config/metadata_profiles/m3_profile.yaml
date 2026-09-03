@@ -4,7 +4,7 @@ profile:
   date_modified: '2026-09-03'
   responsibility: https://www.lib.utk.edu
   responsibility_statement: University of Tennessee Libraries
-  type: ProfileMigrated from AllinsonFlex
+  type: Migrated from AllinsonFlex profile
   version: 1
 classes:
   AdminSetResource:
@@ -185,7 +185,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -210,7 +210,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://purl.org/dc/elements/1.1/creator
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -229,7 +229,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -254,7 +254,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/ctb
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -501,11 +501,11 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
+      - geonames
       - naf
       - lcsh
-      - geonames
     data_type: array
     definition:
       default: Enter the controlled name of a place with which the resource is associated.
@@ -524,7 +524,7 @@ properties:
       qualified_dc_pmh: dcterms:spatial
       simple_dc_pmh: dc:coverage
     property_uri: http://purl.org/dc/terms/spatial
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n80040520
@@ -545,7 +545,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - naf
       - agrovoc
@@ -574,7 +574,7 @@ properties:
       qualified_dc_pmh: dcterms:subject
       simple_dc_pmh: dc:subject
     property_uri: http://purl.org/dc/terms/subject
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://aims.fao.org/aos/agrovoc/c_10266
@@ -598,7 +598,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - iso639-2b
     data_type: array
@@ -621,7 +621,7 @@ properties:
       qualified_dc_pmh: dcterms:language
       simple_dc_pmh: dc:language
     property_uri: http://purl.org/dc/terms/language
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/vocabulary/iso639-2/eng
@@ -640,7 +640,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - aat
       - lcsh
@@ -658,7 +658,7 @@ properties:
       qualified_dc_pmh: dcterms:medium
       simple_dc_pmh: dc:format
     property_uri: http://purl.org/dc/terms/format
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://vocab.getty.edu/aat/300046300
@@ -719,7 +719,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - resource_types
     data_type: array
@@ -742,7 +742,7 @@ properties:
       qualified_dc_pmh: dcterms:type
       simple_dc_pmh: dc:type
     property_uri: http://purl.org/dc/terms/type
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     view:
       html_dl: true
@@ -759,7 +759,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -781,7 +781,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/pbl
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -800,7 +800,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - naf
     data_type: array
@@ -818,7 +818,7 @@ properties:
     mappings:
       mods_oai_pmh: mods:originInfo/place/placeTerm
     property_uri: https://id.loc.gov/vocabulary/relators/pup
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n79109786
@@ -910,7 +910,7 @@ properties:
     cardinality:
       minimum: 1
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - rights_statements
     data_type: array
@@ -931,7 +931,7 @@ properties:
       qualified_dc_pmh: dcterms:rights
       simple_dc_pmh: dc:rights
     property_uri: http://www.europeana.eu/schemas/edm/rights
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: required
     sample_values:
     - http://rightsstatements.org/vocab/InC/1.0/
@@ -1109,7 +1109,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1131,7 +1131,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/rcp
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1145,7 +1145,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1169,7 +1169,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/arc
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1228,7 +1228,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
     data_type: array
@@ -1249,7 +1249,7 @@ properties:
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://id.loc.gov/vocabulary/identifiers/ark
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - ark:/87290/v8pv6hjx
@@ -1265,7 +1265,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1291,7 +1291,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/arr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1310,7 +1310,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1334,7 +1334,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/art
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1353,7 +1353,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1378,7 +1378,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/asn
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1397,7 +1397,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1420,7 +1420,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/att
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1439,7 +1439,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1467,7 +1467,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/aut
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1483,7 +1483,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1505,7 +1505,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/ato
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1553,7 +1553,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1576,7 +1576,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/bdd
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1590,7 +1590,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1613,7 +1613,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/ctg
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1626,7 +1626,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1649,7 +1649,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/cns
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1663,7 +1663,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1685,7 +1685,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/chr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1704,7 +1704,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1726,7 +1726,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/cli
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1745,7 +1745,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1769,7 +1769,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/com
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1788,7 +1788,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1812,7 +1812,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/cmp
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1831,7 +1831,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1854,7 +1854,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/ctr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1908,7 +1908,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1933,7 +1933,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/cph
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1952,7 +1952,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -1974,7 +1974,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/crp
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -1993,7 +1993,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2016,7 +2016,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/cst
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2035,7 +2035,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2057,7 +2057,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/dte
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2076,7 +2076,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2099,7 +2099,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/dpc
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2118,7 +2118,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2141,7 +2141,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/dsr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2160,7 +2160,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2182,7 +2182,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/dst
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2201,7 +2201,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2223,7 +2223,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/dnr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2278,7 +2278,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2301,7 +2301,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/edt
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2320,7 +2320,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2344,7 +2344,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/edc
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2363,7 +2363,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2386,7 +2386,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/egr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2476,7 +2476,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2498,7 +2498,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/fmo
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2517,7 +2517,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2540,7 +2540,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/hnr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2559,7 +2559,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2582,7 +2582,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/his
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2601,7 +2601,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2626,7 +2626,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/ill
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2645,7 +2645,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2667,7 +2667,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/itr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2801,7 +2801,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2824,7 +2824,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/ive
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2843,7 +2843,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -2866,7 +2866,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/ivr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -2885,7 +2885,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
     data_type: array
@@ -2906,7 +2906,7 @@ properties:
       qualified_dc_pmh: dcterms:isPartOf
       simple_dc_pmh: dc:source
     property_uri: http://dbpedia.org/ontology/isPartOf
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - https://n2t.net/ark:/87290/v8pz5703
@@ -2999,7 +2999,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3021,7 +3021,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/isb
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3125,7 +3125,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - licenses
     data_type: array
@@ -3146,7 +3146,7 @@ properties:
       qualified_dc_pmh: dcterms:license
       simple_dc_pmh: dc:rights
     property_uri: http://purl.org/dc/terms/license
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - https://creativecommons.org/licenses/by-nd/4.0/
@@ -3165,7 +3165,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3189,7 +3189,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/ltg
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3208,7 +3208,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3231,7 +3231,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/lyr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3250,7 +3250,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3272,7 +3272,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/mcp
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3291,7 +3291,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3314,7 +3314,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/msd
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3410,7 +3410,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3432,7 +3432,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/orm
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3451,7 +3451,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3475,7 +3475,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/org
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3494,7 +3494,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
     data_type: array
@@ -3514,7 +3514,7 @@ properties:
       qualified_dc_pmh: dcterms:relation
       simple_dc_pmh: dc:relation
     property_uri: http://purl.org/dc/terms/hasVersion
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     view:
       html_dl: true
@@ -3531,7 +3531,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3553,7 +3553,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/own
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3572,7 +3572,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3597,7 +3597,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/prf
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3616,7 +3616,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3639,7 +3639,7 @@ properties:
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://id.loc.gov/vocabulary/relators/pht
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3658,7 +3658,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3681,7 +3681,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/prt
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3700,7 +3700,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3722,7 +3722,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/pop
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3741,7 +3741,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3766,7 +3766,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/pro
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3785,7 +3785,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3808,7 +3808,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/prn
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3827,7 +3827,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
     data_type: array
@@ -3847,7 +3847,7 @@ properties:
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://www.europeana.eu/schemas/edm/isShownAt
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     view:
       html_dl: true
@@ -3903,7 +3903,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -3927,7 +3927,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/rsr
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -3983,7 +3983,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4007,7 +4007,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/std
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4059,7 +4059,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4082,7 +4082,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/sgn
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4141,7 +4141,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4163,7 +4163,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/spk
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4182,7 +4182,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4204,7 +4204,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/sgd
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4223,7 +4223,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4246,7 +4246,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/stm
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4265,7 +4265,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4287,7 +4287,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/stn
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4306,7 +4306,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4329,7 +4329,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/srv
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -4429,7 +4429,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -4452,7 +4452,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/trl
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -6749,7 +6749,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -6774,7 +6774,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/vdg
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -6793,7 +6793,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - wikidata
       - naf
@@ -6815,7 +6815,7 @@ properties:
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: http://id.loc.gov/vocabulary/relators/wit
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     sample_values:
     - http://id.loc.gov/authorities/names/n2017180154
@@ -6834,7 +6834,7 @@ properties:
     cardinality:
       minimum: 1
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - utk
     data_type: array
@@ -6850,7 +6850,7 @@ properties:
     - has_work_type_tesim
     - admin_only
     property_uri: https://ontology.lib.utk.edu/works#hasWorkType
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: required
     sample_values:
     - https://ontology.lib.utk.edu/works#ImageWork
@@ -6861,7 +6861,7 @@ properties:
     cardinality:
       minimum: 0
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - 'null'
     data_type: array
@@ -6877,7 +6877,7 @@ properties:
     - behavior_tesim
     mappings: {}
     property_uri: https://ontology.lib.utk.edu/works#hasBehavior
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: optional
     view:
       html_dl: true
@@ -7233,7 +7233,7 @@ properties:
     cardinality:
       minimum: 1
     controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#anyURI
+      format: http://www.w3.org/2001/XMLSchema#string
       sources:
       - pcdm
       - pcdmuse
@@ -7252,7 +7252,7 @@ properties:
     - rdf_type_tesim
     mappings: {}
     property_uri: https://ontology.lib.utk.edu/works#hasType
-    range: http://www.w3.org/2001/XMLSchema#anyURI
+    range: http://www.w3.org/2001/XMLSchema#string
     requirement: required
     sample_values:
     - http://pcdm.org/use#PreservationFile
