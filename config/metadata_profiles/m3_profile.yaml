@@ -1,0 +1,248 @@
+m3_version: 1.0.beta2
+profile:
+  date_modified: '2026-09-02'
+  responsibility: https://www.lib.utk.edu
+  responsibility_statement: University of Tennessee Knoxville Libraries
+  type: UTK Profile
+  version: 1
+classes:
+  AdminSetResource:
+    display_label: Admin Set
+  CollectionResource:
+    display_label: Collection
+  Hyrax::FileSet:
+    display_label: File Set
+  StillImage:
+    display_label: Still Image
+  Audio:
+    display_label: Audio
+  Book:
+    display_label: Book
+  CompoundObject:
+    display_label: Compound Object
+  Newspaper:
+    display_label: Newspaper
+  Pdf:
+    display_label: PDF
+  Video:
+    display_label: Video
+contexts:
+  flexible_context:
+    display_label: Flexible Metadata Example
+  special_context:
+    display_label: Special Context
+mappings:
+  blacklight:
+    name: Additional Blacklight Solr Mappings
+  metatags:
+    name: Metatags
+  mods_oai_pmh:
+    name: MODS OAI PMH
+  qualified_dc_pmh:
+    name: Qualified DC OAI PMH
+  simple_dc_pmh:
+    name: Simple DC OAI PMH
+properties:
+  title:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      minimum: 1
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+      - 'null'
+    data_type: array
+    definition:
+      default: Enter a standardized title for display. If only one title is needed, transcribe the title
+        from the source itself.
+    display_label:
+      default: blacklight.search.fields.show.title_tesim
+      en: Title
+      es: "T\xEDtulo"
+    form:
+      primary: true
+      required: true
+    index_documentation: displayable, searchable
+    indexing:
+    - title_sim
+    - title_tesim
+    mappings:
+      metatags: twitter:title, og:title
+      mods_oai_pmh: mods:titleInfo/mods:title
+      qualified_dc_pmh: dcterms:title
+      simple_dc_pmh: dc:title
+    property_uri: http://purl.org/dc/terms/title
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+    - Pencil drawn portrait study of woman
+    view:
+      html_dl: true
+  date_modified:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      maximum: 1
+      minimum: 0
+    data_type: string
+    display_label:
+      de: "Zuletzt ge\xE4ndert"
+      default: blacklight.search.fields.show.date_modified_dtsi
+      en: Last modified
+      es: "\xDAltima modificaci\xF3n"
+      fr: "Derni\xE8re modification"
+      it: Ultima modifica
+      pt-BR: "\xDAltima modifica\xE7\xE3o"
+      zh: "\u6700\u65B0\u4FEE\u6539"
+    property_uri: http://purl.org/dc/terms/modified
+    range: http://www.w3.org/2001/XMLSchema#dateTime
+    sample_values:
+    - "2024-06-06 21:06:51 +0000"
+    view:
+      html_dl: true
+  date_uploaded:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      maximum: 1
+      minimum: 0
+    data_type: string
+    display_label:
+      default: blacklight.search.fields.show.date_uploaded_dtsi
+    property_uri: http://purl.org/dc/terms/dateSubmitted
+    range: http://www.w3.org/2001/XMLSchema#dateTime
+    sample_values:
+    - "2024-06-06 21:06:51 +0000"
+  depositor:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      maximum: 1
+      minimum: 0
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+      - 'null'
+    data_type: string
+    display_label:
+      default: Depositor
+    index_documentation: searchable
+    indexing:
+    - depositor_tesim
+    - depositor_ssim
+    property_uri: http://id.loc.gov/vocabulary/relators/dpt
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+    - Julie Allinson
+  creator:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      minimum: 0
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+      - 'null'
+    data_type: array
+    display_label:
+      default: blacklight.search.fields.show.creator_tesim
+    form:
+      primary: true
+      required: true
+    index_documentation: displayable, searchable
+    indexing:
+    - creator_sim
+    - creator_tesim
+    - facetable
+    mappings:
+      simple_dc_pmh: dc:creator
+    property_uri: http://purl.org/dc/elements/1.1/creator
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+    - Julie Allinson
+    view:
+      html_dl: true
+      render_as: linked
+  label:
+    available_on:
+      class:
+      - AdminSetResource
+      - CollectionResource
+      - Hyrax::FileSet
+      - StillImage
+      - Audio
+      - Book
+      - CompoundObject
+      - Newspaper
+      - Pdf
+      - Video
+    cardinality:
+      maximum: 1
+      minimum: 0
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+      - 'null'
+    data_type: array
+    display_label:
+      default: Label
+    form:
+      primary: false
+    index_documentation: displayable, searchable
+    indexing:
+    - label_sim
+    - label_tesim
+    property_uri: info:fedora/fedora-system:def/model#downloadFilename
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+    - file_label.txt

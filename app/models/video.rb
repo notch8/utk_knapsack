@@ -1,22 +1,18 @@
 # frozen_string_literal: true
 
 # Generated via
-#  `rails generate hyku_knapsack:work_resource <%= class_name %>`
-class <%= class_name %> < Hyrax::Work
+#  `rails generate hyku_knapsack:work_resource Video`
+class Video < Hyrax::Work
   if Hyrax.config.work_include_metadata?
     include Hyrax::Schema(:core_metadata) unless Hyrax.config.work_default_metadata?
     include Hyrax::Schema(:basic_metadata)
-    include Hyrax::Schema(:<%= file_name %>)
+    include Hyrax::Schema(:video)
     include Hyrax::Schema(:with_pdf_viewer)
     include Hyrax::Schema(:with_video_embed)
   end
 
   include Hyrax::ArResource
   include Hyrax::NestedWorks
-<% if af_model -%>
-
-  Hyrax::ValkyrieLazyMigration.migrating(self, from: <%= af_model %>)
-<% end -%>
 
   include IiifPrint.model_configuration(
     pdf_split_child_model: self,

@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 # Generated via
-#  `rails generate hyku_knapsack:work_resource <%= class_name %>`
+#  `rails generate hyku_knapsack:work_resource CompoundObject`
 #
 # @see https://github.com/samvera/hyrax/wiki/Hyrax-Valkyrie-Usage-Guide#forms
 # @see https://github.com/samvera/valkyrie/wiki/ChangeSets-and-Dirty-Tracking
-class <%= class_name %>Form < Hyrax::Forms::ResourceForm(<%= class_name %>)
+class CompoundObjectForm < Hyrax::Forms::ResourceForm(CompoundObject)
   if Hyrax.config.work_include_metadata?
     include Hyrax::FormFields(:basic_metadata)
-    include Hyrax::FormFields(:<%= file_name %>)
+    include Hyrax::FormFields(:compound_object)
     include Hyrax::FormFields(:with_pdf_viewer)
     include Hyrax::FormFields(:with_video_embed)
   end
   include VideoEmbedBehavior::Validation
 
-  check_if_flexible(<%= class_name %>)
+  check_if_flexible(CompoundObject)
 
   # Define custom form fields using the Valkyrie::ChangeSet interface
   #

@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 # Generated via
-#  `rails generate hyku_knapsack:work_resource <%= class_name %>`
+#  `rails generate hyku_knapsack:work_resource Pdf`
 #
 # @see https://github.com/samvera/hyrax/wiki/Hyrax-Valkyrie-Usage-Guide#forms
 # @see https://github.com/samvera/valkyrie/wiki/ChangeSets-and-Dirty-Tracking
-class <%= class_name %>Form < Hyrax::Forms::ResourceForm(<%= class_name %>)
+class PdfForm < Hyrax::Forms::ResourceForm(Pdf)
   if Hyrax.config.work_include_metadata?
     include Hyrax::FormFields(:basic_metadata)
-    include Hyrax::FormFields(:<%= file_name %>)
+    include Hyrax::FormFields(:pdf)
     include Hyrax::FormFields(:with_pdf_viewer)
     include Hyrax::FormFields(:with_video_embed)
   end
   include VideoEmbedBehavior::Validation
 
-  check_if_flexible(<%= class_name %>)
+  check_if_flexible(Pdf)
 
   # Define custom form fields using the Valkyrie::ChangeSet interface
   #

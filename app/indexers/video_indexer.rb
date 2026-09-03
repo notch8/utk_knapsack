@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 # Generated via
-#  `rails generate hyku_knapsack:work_resource <%= class_name %>`
-class <%= class_name %>Indexer < Hyrax::ValkyrieWorkIndexer
+#  `rails generate hyku_knapsack:work_resource Video`
+class VideoIndexer < Hyrax::ValkyrieWorkIndexer
   if Hyrax.config.work_include_metadata?
     include Hyrax::Indexer(:core_metadata)
     include Hyrax::Indexer(:basic_metadata)
-    include Hyrax::Indexer(:<%= file_name %>)
+    include Hyrax::Indexer(:video)
     include Hyrax::Indexer(:with_pdf_viewer)
     include Hyrax::Indexer(:with_video_embed)
   end
-  check_if_flexible(<%= class_name %>)
+  check_if_flexible(Video)
 
   include HykuIndexing
 
