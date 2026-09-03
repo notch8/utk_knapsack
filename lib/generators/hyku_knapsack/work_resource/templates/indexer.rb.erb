@@ -9,9 +9,10 @@ class <%= class_name %>Indexer < Hyrax::ValkyrieWorkIndexer
     include Hyrax::Indexer(:<%= file_name %>)
     include Hyrax::Indexer(:with_pdf_viewer)
     include Hyrax::Indexer(:with_video_embed)
-    include HykuIndexing
   end
   check_if_flexible(<%= class_name %>)
+
+  include HykuIndexing
 
   # Uncomment this block if you want to add custom indexing behavior:
   #  def to_solr
