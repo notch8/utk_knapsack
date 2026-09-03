@@ -14,6 +14,14 @@ RSpec.describe StillImage do
     expect(described_class.ancestors.first).to eq described_class
   end
 
+  it 'routes creator through OrderAlready under flexible metadata' do
+    work = described_class.new
+
+    expect(OrderAlready::InputOrderSerializer).to receive(:serialize).with(['Zeta, Z']).and_call_original
+
+    work.creator = ['Zeta, Z']
+  end
+
   it 'splits PDFs into a registered work type' do
     expect(Hyrax.config.registered_curation_concern_types)
       .to include(described_class.new.iiif_print_config.pdf_split_child_model.to_s)
