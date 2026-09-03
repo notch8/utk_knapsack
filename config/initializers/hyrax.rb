@@ -2,6 +2,10 @@
 
 # Use this to override any Hyrax configuration from the Knapsack
 
+Rails.application.config.to_prepare do
+  Bulkrax.default_work_type = 'StillImage' if Hyku.bulkrax_enabled?
+end
+
 # Needs to stay in #after_initialize
 # @see https://github.com/notch8/palni_palci_knapsack/commit/e17e7e56
 Rails.application.config.after_initialize do
