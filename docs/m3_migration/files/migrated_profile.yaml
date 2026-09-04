@@ -3939,7 +3939,6 @@ properties:
   sequence:
     available_on:
       class:
-      - Hyrax::FileSet
       - StillImage
       - Video
       - Audio
@@ -3969,7 +3968,7 @@ properties:
       mods_oai_pmh: mods:sequence
       qualified_dc_pmh: dcterms:sequence
       simple_dc_pmh: dc:sequence
-    property_uri: https://schema.org/position
+    property_uri: http://www.w3.org/2003/12/exif/ns#xResolution
     range: http://www.w3.org/2001/XMLSchema#integer
     requirement: optional
     view:
