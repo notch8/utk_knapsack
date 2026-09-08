@@ -1,0 +1,5 @@
+fr:
+  hyrax:
+    select_type:
+      compound_object:
+        description: Deux types de travail ou plus
