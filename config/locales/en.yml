@@ -1,0 +1,5 @@
+en:
+  hyrax:
+    select_type:
+      compound_object:
+        description: Two or more worktypes
