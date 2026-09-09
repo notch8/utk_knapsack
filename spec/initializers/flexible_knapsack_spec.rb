@@ -32,7 +32,7 @@ RSpec.describe 'config/initializers/2flexible_knapsack.rb' do
       load initializer
 
       expect(ENV.fetch('HYRAX_FLEXIBLE_CLASSES').split(','))
-        .to eq %w[AdminSetResource CollectionResource Hyrax::FileSet] + utk_types
+        .to eq %w[AdminControl DigitalCollection Hyrax::FileSet] + utk_types
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe 'config/initializers/2flexible_knapsack.rb' do
     before { ENV['HYRAX_FLEXIBLE'] = 'false' }
 
     it 'leaves the environment alone' do
-      ENV['HYRAX_FLEXIBLE_CLASSES'] = 'AdminSetResource,CollectionResource'
+      ENV['HYRAX_FLEXIBLE_CLASSES'] = 'AdminControl,DigitalCollection'
 
       expect { load initializer }.not_to(change { ENV.fetch('HYRAX_FLEXIBLE_CLASSES', nil) })
     end

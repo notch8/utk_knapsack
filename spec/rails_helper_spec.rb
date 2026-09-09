@@ -16,11 +16,11 @@ RSpec.describe 'the knapsack spec harness' do
   end
 
   it 'points Hyrax at the Valkyrie admin set model' do
-    expect(Hyrax.config.admin_set_model).to eq 'AdminSetResource'
+    expect(Hyrax.config.admin_set_model).to eq 'AdminControl'
   end
 
   it 'points Hyrax at the Valkyrie collection model' do
-    expect(Hyrax.config.collection_model).to eq 'CollectionResource'
+    expect(Hyrax.config.collection_model).to eq 'DigitalCollection'
   end
 
   it 'looks for factories in Hyrax, the host application and the engine' do
