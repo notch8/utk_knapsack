@@ -1,4 +1,8 @@
 en:
+  blacklight:
+    search:
+      facets:
+        missing: Unknown
   hyrax:
     select_type:
       compound_object:
