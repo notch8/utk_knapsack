@@ -1,5 +1,6 @@
+<%# OVERRIDE Hyrax 5.3.0 to carry the member's sequence for the file manager's sort. %>
 <%# OVERRIDE Hyrax 5.3.0 to read a label that a flexible presenter returns as an array. %>
-<li data-reorder-id='<%= node.id %>'>
+<li data-reorder-id='<%= node.id %>' data-sequence='<%= HykuKnapsack::SequenceSortKey.call(node.try(:sequence)) %>'>
     <div class="card">
       <%= simple_form_for [main_app, node], remote: true, html: {'data-type': 'json'} do |f| %>
         <div class="card-header">

@@ -31,5 +31,11 @@ RSpec.describe 'config/metadata_profiles/m3_profile.yaml' do
     expect(profile['classes'].keys)
       .to include(*Hyrax::FlexibleSchemaValidatorService::REQUIRED_CLASSES)
   end
+
+  it 'offers sequence on everything the file manager can list' do
+    listable = Hyrax.config.registered_curation_concern_types + ['Hyrax::FileSet']
+
+    expect(profile['properties']['sequence']['available_on']['class']).to include(*listable)
+  end
 end
 # rubocop:enable RSpec/DescribeClass
