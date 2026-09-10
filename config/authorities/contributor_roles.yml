@@ -83,11 +83,11 @@ terms:
   term: Interviewer
   active: true
   uri: http://id.loc.gov/vocabulary/relators/ivr
-- id: IssuingBody
+- id: Issuing Body
   term: Issuing Body
   active: true
   uri: http://id.loc.gov/vocabulary/relators/isb
-- id: MusicCopyist
+- id: Music Copyist
   term: Music Copyist
   active: true
   uri: http://id.loc.gov/vocabulary/relators/mcp
@@ -155,7 +155,7 @@ terms:
   term: Stage Manager
   active: true
   uri: http://id.loc.gov/vocabulary/relators/stm
-- id: StandardsBody
+- id: Standards Body
   term: Standards Body
   active: true
   uri: http://id.loc.gov/vocabulary/relators/stn

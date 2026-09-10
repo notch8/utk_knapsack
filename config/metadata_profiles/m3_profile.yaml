@@ -2762,15 +2762,38 @@ properties:
       render_as: compound
       html_dl: true
   # subproperties
-  name:
+  creator_name:
     type: string
+    name: name
     available_on:
       properties:
         - creators
+    required: true
+    form:
+      cols: 8
+    indexing:
+    - creators_name_sim
+    - creators_name_tesim
+    mappings:
+      simple_dc_pmh: dc:creator
+      qualified_dc_pmh: dcterms:creator
+      mods_oai_pmh: mods:name/mods:namePart
+  contributor_name:
+    type: string
+    name: name
+    available_on:
+      properties:
         - contributors
     required: true
     form:
       cols: 8
+    indexing:
+    - contributors_name_sim
+    - contributors_name_tesim
+    mappings:
+      simple_dc_pmh: dc:contributor
+      qualified_dc_pmh: dcterms:contributor
+      mods_oai_pmh: mods:name/mods:namePart
   creator_role:
     type: controlled
     name: role
