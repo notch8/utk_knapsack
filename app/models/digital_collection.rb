@@ -7,13 +7,6 @@
 # acquire one: it is deliberately free of Wings mappings so that removing Wings
 # is a no-op for it.
 class DigitalCollection < Hyrax::PcdmCollection
-  if Hyrax.config.collection_include_metadata?
-    include Hyrax::Schema(:basic_metadata)
-    include Hyrax::Schema(:bulkrax_metadata)
-    include Hyrax::Schema(:collection_resource)
-    include Hyrax::Schema(:with_thumbnail)
-    include Hyrax::Schema(:compound_metadata) unless Hyrax.config.flexible?
-  end
   include Hyrax::ArResource
 
   include Hyrax::Permissions::Readable
@@ -29,7 +22,7 @@ class DigitalCollection < Hyrax::PcdmCollection
   end
 
   ##
-  # @return [Enumerator]
+  # @return [Enumerator, Array]
   def members_of
     return [] unless persisted?
 
