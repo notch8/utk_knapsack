@@ -7,9 +7,9 @@ profile:
   type: Migrated from AllinsonFlex profile
   version: 1
 classes:
-  AdminSetResource:
+  AdminControl:
     display_label: Admin Set
-  CollectionResource:
+  DigitalCollection:
     display_label: Collection
   Hyrax::FileSet:
     display_label: File Set
@@ -45,8 +45,8 @@ properties:
   title:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
+      - AdminControl
+      - DigitalCollection
       - Hyrax::FileSet
       - Audio
       - Book
@@ -129,6 +129,7 @@ properties:
   abstract:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -172,8 +173,8 @@ properties:
   creator:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
+      - AdminControl
+      - DigitalCollection
       - Hyrax::FileSet
       - Audio
       - Book
@@ -219,6 +220,7 @@ properties:
   contributor:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -263,6 +265,7 @@ properties:
   date_created:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -301,6 +304,7 @@ properties:
   date_created_d:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -342,6 +346,7 @@ properties:
   date_issued:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -379,6 +384,7 @@ properties:
   date_issued_d:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -491,6 +497,7 @@ properties:
   spatial:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -535,6 +542,7 @@ properties:
   subject:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -630,6 +638,7 @@ properties:
   form:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -668,6 +677,7 @@ properties:
   extent:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -709,6 +719,7 @@ properties:
   resource_type:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -750,6 +761,7 @@ properties:
   publisher:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -791,6 +803,7 @@ properties:
   publication_place:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -868,6 +881,7 @@ properties:
   repository:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -976,6 +990,7 @@ properties:
   primary_identifier:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -2428,6 +2443,7 @@ properties:
   form_local:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -3032,6 +3048,7 @@ properties:
   keyword:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -3326,6 +3343,7 @@ properties:
   note:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -3820,6 +3838,7 @@ properties:
   resource_link:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -5007,6 +5026,7 @@ properties:
   utk_contributor:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -5151,6 +5171,7 @@ properties:
   utk_creator:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -6132,6 +6153,7 @@ properties:
   utk_place_of_publication:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -6310,6 +6332,7 @@ properties:
   utk_publisher:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -7294,8 +7317,8 @@ properties:
   date_modified:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
+      - AdminControl
+      - DigitalCollection
       - Hyrax::FileSet
       - Audio
       - Book
@@ -7317,8 +7340,8 @@ properties:
   date_uploaded:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
+      - AdminControl
+      - DigitalCollection
       - Hyrax::FileSet
       - Audio
       - Book
@@ -7338,8 +7361,8 @@ properties:
   depositor:
     available_on:
       class:
-      - AdminSetResource
-      - CollectionResource
+      - AdminControl
+      - DigitalCollection
       - Hyrax::FileSet
       - Audio
       - Book
@@ -7380,3 +7403,98 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+  redirects:
+    available_on:
+      class:
+        - DigitalCollection
+        - Audio
+        - Book
+        - CompoundObject
+        - StillImage
+        - Newspaper
+        - Pdf
+        - Video
+    cardinality:
+      minimum: 0
+    display_label:
+      default: Redirects
+    type: hash
+    multiple: true
+    form:
+      display: false
+    indexing:
+      - editor_only
+    property_uri: http://samvera.org/ns/hyku/redirects
+    range: http://www.w3.org/2001/XMLSchema#string
+    view:
+      render_term: redirects_path
+      render_as: redirects_label
+      html_dl: true
+  media_viewer:
+    available_on:
+      class:
+        - Audio
+        - Book
+        - CompoundObject
+        - StillImage
+        - Newspaper
+        - Pdf
+        - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
+    data_type: string
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+        - media_viewer
+    display_label:
+      default: Viewer
+    index_documentation: displayable
+    indexing:
+      - media_viewer_ssi
+    form:
+      display: true
+      primary: false
+      required: false
+      multiple: false
+    property_uri: https://hykucommons.org/terms/mediaViewer
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+      - universal_viewer
+      - clover
+  bulkrax_identifier:
+    available_on:
+      class:
+        - DigitalCollection
+        - Audio
+        - Book
+        - CompoundObject
+        - StillImage
+        - Newspaper
+        - Pdf
+        - Video
+        - Hyrax::FileSet
+    cardinality:
+      minimum: 0
+      maximum: 1
+    data_type: string
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#string
+      sources:
+        - "null"
+    display_label:
+      default: Bulkrax Identifier
+    index_documentation: displayable, searchable
+    indexing:
+      - bulkrax_identifier_tesim
+      - bulkrax_identifier_ssi
+    form:
+      display: false
+      primary: false
+      required: false
+      multiple: false
+    property_uri: https://hykucommons.org/terms/bulkrax_identifier
+    range: http://www.w3.org/2001/XMLSchema#string
+    sample_values:
+      - example-bulkrax-identifier

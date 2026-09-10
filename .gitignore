@@ -18,3 +18,4 @@ pry_history
 docker-compose*.override.yml
 .claude
 /CLAUDE.md
+/branding

@@ -25,9 +25,6 @@ require 'capybara/rails'
 require 'dry-validation'
 require 'database_cleaner'
 
-Hyrax.config.admin_set_model = "AdminSetResource"
-Hyrax.config.collection_model = "CollectionResource"
-
 # Hyrax's :hyrax_work factory declares `class: 'Hyrax::Test::SimpleWork'`, and
 # FactoryBot constantizes that when it compiles the parent chain. Requiring
 # Hyrax's shared_specs/simple_work.rb, as hyrax-webapp's own rails_helper does,
