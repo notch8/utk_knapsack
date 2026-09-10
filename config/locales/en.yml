@@ -1,5 +1,10 @@
 en:
   hyrax:
+    base:
+      file_manager_actions:
+        sort_by_sequence: Sort by sequence
+        sort_by_sequence_hint: Order members by ascending sequence. Members without a sequence move to the end, keeping their current order.
+        sort_by_sequence_status: Members reordered by sequence.
     select_type:
       compound_object:
         description: Two or more worktypes

@@ -1,5 +1,10 @@
 zh:
   hyrax:
+    base:
+      file_manager_actions:
+        sort_by_sequence: 按序列排序
+        sort_by_sequence_hint: 按序列升序排列成员。没有序列的成员移至末尾，并保持当前顺序。
+        sort_by_sequence_status: 已按序列重新排序成员。
     select_type:
       compound_object:
         description: 两个或多个工作类型
