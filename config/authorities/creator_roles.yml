@@ -1,0 +1,73 @@
+terms:
+- id: Architect
+  term: Architect
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/arc
+- id: Artist
+  term: Artist
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/art
+- id: Attributed Name
+  term: Attributed Name
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/att
+- id: Author
+  term: Author
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/aut
+- id: Binding Designer
+  term: Binding Designer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/bdd
+- id: Cartographer
+  term: Cartographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ctg
+- id: Compiler
+  term: Compiler
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/com
+- id: Composer
+  term: Composer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cmp
+- id: Correspondent
+  term: Correspondent
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/crp
+- id: Costume Designer
+  term: Costume Designer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cst
+- id: Creator
+  term: Creator
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cre
+- id: Designer
+  term: Designer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/dsr
+- id: Engraver
+  term: Engraver
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/egr
+- id: Illustrator
+  term: Illustrator
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ill
+- id: Interviewee
+  term: Interviewee
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ive
+- id: Lithographer
+  term: Lithographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ltg
+- id: Lyricist
+  term: Lyricist
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/lyr
+- id: Photographer
+  term: Photographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/pht
