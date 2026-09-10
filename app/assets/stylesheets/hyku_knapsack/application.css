@@ -13,3 +13,9 @@
  *= require_tree .
  *= require_self
  */
+
+/* ---- date range facet ---- */
+
+.range_limit input.submit[aria-hidden="true"] {
+  display: none;
+}
