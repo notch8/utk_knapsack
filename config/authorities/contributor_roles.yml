@@ -1,0 +1,177 @@
+terms:
+- id: Addressee
+  term: Addressee
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/rcp
+- id: Arranger
+  term: Arranger
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/arr
+- id: Associated Name
+  term: Associated Name
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/asn
+- id: Autographer
+  term: Autographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ato
+- id: Censor
+  term: Censor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cns
+- id: Choreographer
+  term: Choreographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/chr
+- id: Client
+  term: Client
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cli
+- id: Contractor
+  term: Contractor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ctr
+- id: Contributor
+  term: Contributor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ctb
+- id: Copyright Holder
+  term: Copyright Holder
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/cph
+- id: Dedicatee
+  term: Dedicatee
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/dte
+- id: Depicted
+  term: Depicted
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/dpc
+- id: Distributor
+  term: Distributor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/dst
+- id: Donor
+  term: Donor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/dnr
+- id: Editor
+  term: Editor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/edt
+- id: Editor of Compilation
+  term: Editor of Compilation
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/edc
+- id: Former Owner
+  term: Former Owner
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/fmo
+- id: Honoree
+  term: Honoree
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/hnr
+- id: Host Institution
+  term: Host Institution
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/his
+- id: Instrumentalist
+  term: Instrumentalist
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/itr
+- id: Interviewer
+  term: Interviewer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/ivr
+- id: Issuing Body
+  term: Issuing Body
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/isb
+- id: Music Copyist
+  term: Music Copyist
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/mcp
+- id: Musical Director
+  term: Musical Director
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/msd
+- id: Organizer
+  term: Organizer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/orm
+- id: Originator
+  term: Originator
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/org
+- id: Owner
+  term: Owner
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/own
+- id: Performer
+  term: Performer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/prf
+- id: Printer
+  term: Printer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/prt
+- id: Printer of Plates
+  term: Printer of Plates
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/pop
+- id: Producer
+  term: Producer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/pro
+- id: Production Company
+  term: Production Company
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/prn
+- id: Publisher
+  term: Publisher
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/pbl
+- id: Restorationist
+  term: Restorationist
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/rsr
+- id: Set Designer
+  term: Set Designer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/std
+- id: Signer
+  term: Signer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/sgn
+- id: Speaker
+  term: Speaker
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/spk
+- id: Stage Director
+  term: Stage Director
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/sgd
+- id: Stage Manager
+  term: Stage Manager
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/stm
+- id: Standards Body
+  term: Standards Body
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/stn
+- id: Surveyor
+  term: Surveyor
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/srv
+- id: Translator
+  term: Translator
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/trl
+- id: Videographer
+  term: Videographer
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/vdg
+- id: Witness
+  term: Witness
+  active: true
+  uri: http://id.loc.gov/vocabulary/relators/wit
