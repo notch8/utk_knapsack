@@ -5,6 +5,7 @@
 class CompoundObjectIndexer < Hyrax::ValkyrieWorkIndexer
   check_if_flexible(CompoundObject)
 
+  include UtkDateRangeIndexing
   include HykuIndexing
 
   # Uncomment this block if you want to add custom indexing behavior:
