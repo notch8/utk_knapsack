@@ -35,6 +35,11 @@ and no `fcrepo` container starts. It sits behind a `fedora` compose profile, wai
 needs the old path back. `docker-compose.override-nofcrepo4.yml` is what turns Wings off, so keep it
 in `COMPOSE_FILE` below.
 
+"Off" means no Fedora and no ActiveFedora storage. It does **not** mean the `Wings` constant is
+gone: `Object.const_defined?("Wings")` is still true, and Hyrax branches on exactly that in places,
+so those branches run and then fail on a resource that never came from Fedora. Overriding the branch
+is the fix, not trying to undefine the constant.
+
 Development runs in Docker via [stack_car](https://github.com/notch8/stack_car). Run everything from
 the Knapsack root, **never** from inside `hyrax-webapp/`.
 
