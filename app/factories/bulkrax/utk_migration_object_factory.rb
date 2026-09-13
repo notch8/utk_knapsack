@@ -51,6 +51,7 @@ module Bulkrax
 
     def attach_files(file_set, attrs, digest)
       file_metadata = Hyrax.persister.save(resource: file_metadata_for(file_set, attrs, digest))
+      UtkMigrationCharacterizationJob.perform_later(file_metadata.id.to_s)
       file_set.file_ids = [file_metadata.id]
       Hyrax.persister.save(resource: file_set)
     end
@@ -77,6 +78,8 @@ module Bulkrax
         pcdm_use: [Hyrax::FileMetadata::Use::ORIGINAL_FILE]
       )
     end
+
+
 
     def file_identifier_for(digest)
       adapter = Hyrax.storage_adapter
