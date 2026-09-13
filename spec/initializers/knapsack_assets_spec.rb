@@ -45,5 +45,25 @@ RSpec.describe 'config/initializers/knapsack_assets.rb' do
 
     expect(filename).to eq HykuKnapsack::Engine.root.join('app', 'assets', 'javascripts', 'codemirror-autorefresh.js').to_s
   end
+
+  # The sequence sort is not reachable from `application.js`, so it only ships if
+  # it is named in `precompile`. Development compiles it on demand either way,
+  # which is exactly how a missing entry stays invisible until deploy.
+  it 'builds the file manager sequence sort, which no manifest requires' do
+    filename = precompile_environment.find_asset('hyku_knapsack/file_manager_sequence_sort.js')&.filename.to_s
+
+    expect(filename)
+      .to eq HykuKnapsack::Engine.root.join('app', 'assets', 'javascripts', 'hyku_knapsack', 'file_manager_sequence_sort.js').to_s
+  end
+
+  it 'names the file manager sequence sort for precompilation' do
+    expect(Rails.application.config.assets.precompile).to include('hyku_knapsack/file_manager_sequence_sort.js')
+  end
+
+  it 'names it once, though the initializer is evaluated more than once per boot' do
+    entries = Rails.application.config.assets.precompile.count('hyku_knapsack/file_manager_sequence_sort.js')
+
+    expect(entries).to eq 1
+  end
 end
 # rubocop:enable RSpec/DescribeClass

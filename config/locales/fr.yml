@@ -1,5 +1,10 @@
 fr:
   hyrax:
+    base:
+      file_manager_actions:
+        sort_by_sequence: Trier par séquence
+        sort_by_sequence_hint: Classe les éléments par séquence croissante. Les éléments sans séquence sont placés à la fin, en conservant leur ordre actuel.
+        sort_by_sequence_status: Éléments réordonnés par séquence.
     select_type:
       compound_object:
         description: Deux types de travail ou plus

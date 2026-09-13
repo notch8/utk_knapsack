@@ -1,5 +1,10 @@
 pt-BR:
   hyrax:
+    base:
+      file_manager_actions:
+        sort_by_sequence: Ordenar por sequência
+        sort_by_sequence_hint: Ordena os itens por sequência crescente. Itens sem sequência vão para o fim, mantendo a ordem atual.
+        sort_by_sequence_status: Itens reordenados por sequência.
     select_type:
       compound_object:
         description: Dois ou mais tipos de trabalho
