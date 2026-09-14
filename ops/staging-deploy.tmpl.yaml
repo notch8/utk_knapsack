@@ -346,6 +346,7 @@ externalPostgresql:
   password: $DB_PASSWORD
 
 externalSolrHost: solr.solr.svc.cluster.local
+externalSolrPort: "8983"
 externalSolrUser: admin
 externalSolrCollection: "utk-knapsack-staging"
 externalSolrPassword: $SOLR_ADMIN_PASSWORD
