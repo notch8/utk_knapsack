@@ -23,7 +23,7 @@ dbPreSetupInitContainer:
     command:
       - sh
       - -c
-      - PGPASSWORD=$DB_PASSWORD psql -h zalando-postgres-v14-pooler.postgres.svc.cluster.local -p 5432 -U postgres utk_knapsack_staging -c "CREATE TABLE IF NOT EXISTS schema_migrations (version character varying(255) NOT NULL PRIMARY KEY);"
+      - PGPASSWORD=$DB_PASSWORD psql -h postgres-18-pooler.postgres.svc.cluster.local -p 5432 -U postgres utk_knapsack_staging -c "CREATE TABLE IF NOT EXISTS schema_migrations (version character varying(255) NOT NULL PRIMARY KEY);"
 
 brandingVolume:
   storageClass: aws-efs
@@ -92,7 +92,7 @@ extraEnvVars: &envVars
   - name: DB_ADAPTER
     value: postgresql
   - name: DB_HOST
-    value: zalando-postgres-v14-pooler.postgres.svc.cluster.local
+    value: postgres-18-pooler.postgres.svc.cluster.local
   - name: DB_NAME
     value: utk_knapsack_staging
   - name: DB_USER
@@ -288,7 +288,7 @@ fits:
     initialDelaySeconds: 60
     failureThreshold: 6
 externalPostgresql:
-  host: zalando-postgres-v14-pooler.postgres.svc.cluster.local
+  host: postgres-18-pooler.postgres.svc.cluster.local
   username: postgres
   database: utk_knapsack_staging
   password: $DB_PASSWORD
