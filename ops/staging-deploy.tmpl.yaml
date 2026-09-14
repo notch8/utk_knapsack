@@ -74,7 +74,7 @@ extraVolumeMounts: &volMounts
 
 ingress:
   enabled: true
-  ingressClassName: "nginx-ingress"
+  ingressClassName: "nginx"
   hosts:
     - host: utk-knapsack-staging.notch8.cloud
       paths:
