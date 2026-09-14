@@ -305,15 +305,17 @@ solr:
 # The default loadSolrConfigSet hardcodes the path to the Solr configset, and doesn't allow for overrides
 # Since this application is using Solr 9, it needs to use an updated Solr configset at the knapsack path
 loadSolrConfigSet: false
+# Unlike extraEnvVars, extraInitContainers is rendered with plain toYaml (not the chart's templating
+# helper), so {{ }} expressions here get written to the manifest as literal text - use resolved values.
 extraInitContainers:
   - name: load-solr-config
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+    image: "ghcr.io/$REPO_LOWER/web:$TAG"
+    imagePullPolicy: IfNotPresent
     envFrom:
       - configMapRef:
-          name: "{{ include \"hyrax.fullname\" . }}-env"
+          name: utk-knapsack-staging-hyrax-env
       - secretRef:
-          name: "{{ include \"hyrax.fullname\" . }}"
+          name: utk-knapsack-staging-hyrax
     command:
       - sh
       - -c
