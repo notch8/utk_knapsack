@@ -13,6 +13,22 @@ livenessProbe:
 readinessProbe:
   enabled: false
 
+# No commonLabels/podLabels in this chart, so podAnnotations is the only lever for tying pods to the project/environment.
+podAnnotations:
+  project: utk-knapsack
+  environment: staging
+
+# Prefer spreading web replicas across AZs; the default nodegroup spans all 3 but nothing does this automatically.
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: hyrax
+
 # db-setup's migration-count check queries schema_migrations before db:create
 # ever runs, so it dies under `set -e` against a genuinely empty database.
 # Host/user/db are hardcoded, not $DB_HOST-style: this container gets no env
@@ -103,6 +119,12 @@ extraEnvVars: &envVars
     value: "false"
   - name: DB_ADVISORY_LOCKS
     value: "false"
+  - name: REPOSITORY_S3_STORAGE
+    value: "true"
+  - name: REPOSITORY_S3_BUCKET
+    value: utk-staging-repository-staging-559021623471
+  - name: REPOSITORY_S3_REGION
+    value: us-east-2
   - name: DISABLE_ANALYTICS_FEATURES
     value: "false"
   - name: GOOGLE_ANALYTICS_ID
@@ -230,6 +252,15 @@ worker:
   replicaCount: 1
   extraVolumeMounts: *volMounts
   extraEnvVars: *envVars
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: topology.kubernetes.io/zone
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: hyrax-worker
   podSecurityContext:
     runAsUser: 1001
     runAsGroup: 101
