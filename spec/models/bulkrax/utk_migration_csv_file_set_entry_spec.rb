@@ -32,6 +32,25 @@ RSpec.describe Bulkrax::UtkMigrationCsvFileSetEntry do
         expect(entry.field_supported?(field)).to be true
       end
     end
+
+    # `multiple?` still asks the *global* factory, which this entry deliberately
+    # does not use. It answers false only because the stock factory does not
+    # recognise sha1, and `digest_for` needs the scalar: `match?` raises on an
+    # Array.
+    it 'keeps sha1 scalar' do
+      expect(entry.multiple?('sha1')).to be false
+    end
+
+    # This is why none of them needs a field mapping: an unmapped column falls
+    # back to its own name in `field_to`, and `add_metadata` then gates only on
+    # `field_supported?`, which the override above answers.
+    it 'carries them into parsed_metadata with no mapping entry of their own' do
+      Bulkrax::UtkMigrationObjectFactory::FILE_POINTER_FIELDS.each { |f| entry.add_metadata(f, "value-#{f}") }
+
+      expect(entry.parsed_metadata).to include('sha1' => 'value-sha1',
+                                               'mime_type' => 'value-mime_type',
+                                               'original_filename' => 'value-original_filename')
+    end
   end
 
   describe 'a column the tenant excludes' do

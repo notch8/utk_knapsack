@@ -99,4 +99,5 @@ end
 mappings = {}
 mappings["Bulkrax::BagitParser"] = parser_mappings
 mappings["Bulkrax::CsvParser"] = parser_mappings
+mappings["Bulkrax::UtkMigrationCsvParser"] = parser_mappings
 Hyku.default_bulkrax_field_mappings = mappings
