@@ -224,8 +224,9 @@ extraEnvVars: &envVars
     value: admin
   - name: SOLR_COLLECTION_NAME
     value: utk-knapsack-dev
+  # utk-staging's Solr only has 1 replica/node; bump to 3 once production has real Solr capacity.
   - name: SOLR_COLLECTION_REPLICAS
-    value: "3"
+    value: "1"
   - name: SOLR_CONFIGSET_NAME
     value: utk-knapsack-dev
   - name: SOLR_HOST
