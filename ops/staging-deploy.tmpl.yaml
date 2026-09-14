@@ -6,7 +6,7 @@ resources:
     cpu: "1250m"
   requests:
     memory: "2Gi"
-    cpu: "900m"
+    cpu: "250m"
 
 livenessProbe:
   enabled: false
