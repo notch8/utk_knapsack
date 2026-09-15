@@ -230,11 +230,11 @@ extraEnvVars: &envVars
   - name: SOLR_CONFIGSET_NAME
     value: utk-knapsack-dev
   - name: SOLR_HOST
-    value: solr.solr
+    value: solr-solrcloud-common.solr
   - name: SOLR_PORT
-    value: "8983"
+    value: "80"
   - name: SOLR_URL
-    value: http://admin:$SOLR_ADMIN_PASSWORD@solr.solr:8983/solr/
+    value: http://admin:$SOLR_ADMIN_PASSWORD@solr-solrcloud-common.solr:80/solr/
   - name: TEST_USER_EMAIL
     value: user@example.com
   - name: TEST_USER_PASSWORD
@@ -345,8 +345,8 @@ externalPostgresql:
   database: utk_knapsack_dev
   password: $DB_PASSWORD
 
-externalSolrHost: solr.solr.svc.cluster.local
-externalSolrPort: "8983"
+externalSolrHost: solr-solrcloud-common.solr.svc.cluster.local
+externalSolrPort: "80"
 externalSolrUser: admin
 externalSolrCollection: "utk-knapsack-dev"
 externalSolrPassword: $SOLR_ADMIN_PASSWORD
