@@ -14,7 +14,10 @@ namespace :utk do
         next if uri.blank?
 
         UriCache.find_or_create_by!(uri:) do |cache|
-          cache.value = value.presence || UriLabelResolver.label_for(uri)
+          resolved = value.presence || UriLabelResolver.label_for(uri)
+          next if resolved.start_with?(uri)
+
+          cache.value = resolved
           count += 1
         end
       rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e

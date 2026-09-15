@@ -81,7 +81,7 @@ class UriLabelResolver
 
     def cache_label(uri, label)
       UriCache.create!(uri:, value: label)
-    rescue ActiveRecord::RecordNotUnique
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
       nil
     end
   end
