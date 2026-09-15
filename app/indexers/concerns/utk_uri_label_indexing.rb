@@ -3,13 +3,15 @@
 module UtkUriLabelIndexing
   class << self
     def uri_properties
-      schema = Hyrax::FlexibleSchema.order(created_at: :asc).last
-      return [] unless schema
+      current_id = Hyrax::FlexibleSchema.order(created_at: :desc).pick(:id)
+      return [] unless current_id
 
-      return @cached_properties if @cached_schema_id == schema.id
+      return @cached_properties if @cached_schema_id == current_id
 
-      @cached_schema_id = schema.id
+      schema = Hyrax::FlexibleSchema.find(current_id)
       @cached_properties = extract_controlled_properties(schema.profile).freeze
+      @cached_schema_id = current_id
+      @cached_properties
     end
 
     def reset_cache!

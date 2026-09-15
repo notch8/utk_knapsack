@@ -17,7 +17,6 @@ RSpec.describe UriCache, type: :model do
   end
 
   it 'validates presence of value' do
-    allow(UriLabelResolver).to receive(:label_for).and_return(nil)
     expect(build(:uri_cache, value: nil)).not_to be_valid
     expect(build(:uri_cache, value: '')).not_to be_valid
   end
@@ -27,17 +26,28 @@ RSpec.describe UriCache, type: :model do
     let(:cache) { create(:uri_cache, uri: uri) }
 
     before do
-      allow(UriLabelResolver).to receive(:label_for).with(uri).and_return('updated value')
+      allow(UriLabelResolver).to receive(:resolve_remote).with(uri).and_return('updated value')
     end
 
-    it 'updates the value from the resolver' do
+    it 'updates the value by re-resolving remotely, bypassing cache' do
       expect { cache.update_cache }.to change { cache.reload.value }.to('updated value')
+    end
+
+    context 'when resolve_remote returns an error annotation' do
+      before do
+        allow(UriLabelResolver).to receive(:resolve_remote).with(uri)
+          .and_return("#{uri} (Failed to load URI)")
+      end
+
+      it 'does not overwrite the cached value' do
+        expect { cache.update_cache }.not_to(change { cache.reload.value })
+      end
     end
   end
 
   describe '.update_all_caches!' do
     before do
-      allow(UriLabelResolver).to receive(:label_for).and_return('updated value')
+      allow(UriLabelResolver).to receive(:resolve_remote).and_return('updated value')
     end
 
     it 'updates all caches' do
@@ -52,35 +62,19 @@ RSpec.describe UriCache, type: :model do
   end
 
   describe '.create' do
-    context 'when both uri and value are provided' do
-      it 'creates a new cache entry' do
-        cache = described_class.create(uri: 'http://example.com/resource', value: 'some value')
+    it 'creates a new cache entry with uri and value' do
+      cache = described_class.create(uri: 'http://example.com/resource', value: 'some value')
 
-        expect(cache).to be_persisted
-        expect(cache.uri).to eq('http://example.com/resource')
-        expect(cache.value).to eq('some value')
-      end
+      expect(cache).to be_persisted
+      expect(cache.uri).to eq('http://example.com/resource')
+      expect(cache.value).to eq('some value')
     end
 
-    context 'when only uri is provided' do
-      let(:uri) { 'http://example.com/resource' }
+    it 'rejects a record without a value' do
+      cache = described_class.create(uri: 'http://example.com/resource')
 
-      before do
-        allow(UriLabelResolver).to receive(:label_for).with(uri).and_return('fetched value')
-      end
-
-      it 'fetches the value and creates a new cache entry' do
-        cache = described_class.create(uri: uri)
-
-        expect(cache).to be_persisted
-        expect(cache.value).to eq('fetched value')
-      end
-
-      it 'raises an error if the fetched value equals the uri' do
-        allow(UriLabelResolver).to receive(:label_for).with(uri).and_return(uri)
-
-        expect { described_class.create(uri: uri) }.to raise_error(StandardError, uri)
-      end
+      expect(cache).not_to be_persisted
+      expect(cache.errors[:value]).to include("can't be blank")
     end
   end
 end

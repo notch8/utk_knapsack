@@ -60,7 +60,7 @@ RSpec.describe UtkUriLabelIndexing do
 
     it 'returns an empty array when no schema exists' do
       allow(Hyrax::FlexibleSchema).to receive(:order).and_return(
-        double(last: nil)
+        double(pick: nil)
       )
       expect(described_class.uri_properties).to eq []
     end

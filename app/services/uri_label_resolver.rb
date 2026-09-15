@@ -20,28 +20,16 @@ class UriLabelResolver
     def label_for(uri)
       return uri unless uri.to_s.start_with?('http')
 
-      cached = UriCache.find_by(uri: uri)
+      cached = UriCache.find_by(uri:)
       return cached.value if cached
 
       local_label = resolve_local(uri)
-      return local_label if local_label
+      if local_label
+        cache_label(uri, local_label)
+        return local_label
+      end
 
       resolve_remote(uri)
-    end
-
-    private
-
-    def resolve_local(uri)
-      host = URI(uri).host
-      authority_name = LOCAL_AUTHORITIES[host]
-      return unless authority_name
-
-      authority = Qa::Authorities::Local.subauthority_for(authority_name)
-      result = authority.find(uri)
-      term = result.is_a?(Hash) ? result[:term] || result['term'] : nil
-      term.presence
-    rescue StandardError
-      nil
     end
 
     def resolve_remote(uri)
@@ -61,6 +49,21 @@ class UriLabelResolver
       "#{uri} (Failed to load URI)"
     end
 
+    private
+
+    def resolve_local(uri)
+      host = URI(uri).host
+      authority_name = LOCAL_AUTHORITIES[host]
+      return unless authority_name
+
+      authority = Qa::Authorities::Local.subauthority_for(authority_name)
+      result = authority.find(uri)
+      term = result.is_a?(Hash) ? result[:term] || result['term'] : nil
+      term.presence
+    rescue StandardError
+      nil
+    end
+
     def extract_label(resource, host)
       predicate = LABEL_PREDICATES[host]
 
@@ -77,7 +80,7 @@ class UriLabelResolver
     end
 
     def cache_label(uri, label)
-      UriCache.create!(uri: uri, value: label)
+      UriCache.create!(uri:, value: label)
     rescue ActiveRecord::RecordNotUnique
       nil
     end

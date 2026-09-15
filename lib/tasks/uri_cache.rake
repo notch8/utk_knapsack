@@ -13,7 +13,7 @@ namespace :utk do
         value = row['value']&.strip
         next if uri.blank?
 
-        UriCache.find_or_create_by!(uri: uri) do |cache|
+        UriCache.find_or_create_by!(uri:) do |cache|
           cache.value = value.presence || UriLabelResolver.label_for(uri)
           count += 1
         end
