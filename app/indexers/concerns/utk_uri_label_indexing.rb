@@ -6,16 +6,17 @@ module UtkUriLabelIndexing
       current_id = Hyrax::FlexibleSchema.order(created_at: :desc).pick(:id)
       return [] unless current_id
 
-      return @cached_properties if @cached_schema_id == current_id
+      cache_key = "#{Apartment::Tenant.current}:#{current_id}"
+      return @cached_properties if @cached_key == cache_key
 
       schema = Hyrax::FlexibleSchema.find(current_id)
       @cached_properties = extract_controlled_properties(schema.profile).freeze
-      @cached_schema_id = current_id
+      @cached_key = cache_key
       @cached_properties
     end
 
     def reset_cache!
-      @cached_schema_id = nil
+      @cached_key = nil
       @cached_properties = nil
     end
 
