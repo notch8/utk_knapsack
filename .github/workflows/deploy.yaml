@@ -6,10 +6,11 @@ on:
       environment:
         description: 'Deploy to Environment'
         required: true
-        default: 'friends'
+        default: 'dev'
         type: choice
         options:
-          - friends
+          - dev
+          - staging
       debug_enabled:
         type: boolean
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
@@ -18,5 +19,5 @@ on:
 
 jobs:
   deploy:
-    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.4
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.10
     secrets: inherit

@@ -50,11 +50,46 @@ services:
       file: hyrax-webapp/docker-compose.yml
       service: zoo
 
+  # Forked from hyrax-webapp/docker-compose.yml's solr service (can't extend
+  # and still drop its `build:`) to run plain solr:9 with no custom image.
   solr:
-    image: ghcr.io/samvera-labs/hyku_knapsack/solr:${TAG:-latest}
-    extends:
-      file: hyrax-webapp/docker-compose.yml
-      service: solr
+    image: solr:9
+    environment:
+      - OOM=script
+      - SOLR_ADMIN_USER=solr
+      - SOLR_ADMIN_PASSWORD=SolrRocks
+      - SOLR_COLLECTION=hydra-development
+      - SOLR_CLOUD_BOOTSTRAP=yes
+      - SOLR_ENABLE_CLOUD_MODE=yes
+      - SOLR_ENABLE_AUTHENTICATION=yes
+      - ZK_HOST=zoo:2181
+      - SOLR_HOST=solr
+      - VIRTUAL_PORT=8983
+      - VIRTUAL_HOST=solr.hyku.test
+      # solrconfig.xml's cache classes default to solr.search.{FastLRU,LRU}Cache, removed in Solr 9.
+      - SOLR_OPTS=-Dsolr.config.lib.enabled=true -Dsolr.filterCache.class=solr.CaffeineCache -Dsolr.queryResultCache.class=solr.CaffeineCache -Dsolr.documentCache.class=solr.CaffeineCache
+    user: root
+    # security.json is bind-mounted read-only, so it's copied into the writable
+    # /var/solr volume before chown rather than chowned in place.
+    command: bash -c "
+      cp /tmp/security.json /var/solr/data/security.json
+      && chown -R 8983:8983 /var/solr
+      && ./bin/solr zk cp file:/var/solr/data/security.json zk:/security.json
+      && runuser -u solr -- solr-foreground"
+    expose:
+      - 8983
+    volumes:
+      - solr:/var/solr
+      - ./solr/security.json:/tmp/security.json:ro
+    healthcheck:
+      test: curl -sf http://$$SOLR_ADMIN_USER:$$SOLR_ADMIN_PASSWORD@solr:8983/solr/admin/cores?action=STATUS || exit 1
+      start_period: 3s
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      zoo:
+        condition: service_healthy
 
   fcrepo:
     extends:
@@ -66,10 +101,23 @@ services:
       file: hyrax-webapp/docker-compose.yml
       service: fits
 
+  # Forked from hyrax-webapp/docker-compose.yml's db service: extends merges
+  # `volumes:` instead of replacing it, so overriding the mount path on top of
+  # extends would leave both the old and new paths mounted.
   db:
-    extends:
-      file: hyrax-webapp/docker-compose.yml
-      service: db
+    image: postgres:18
+    env_file:
+      - .env
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - VIRTUAL_PORT=5432
+      - VIRTUAL_HOST=db.hyku.test
+    volumes:
+      - db:/var/lib/postgresql
 
   web:
     <<: *app
@@ -115,7 +163,7 @@ services:
       service: initialize_app
     command:
       - >
-        /app/samvera/bin/solrcloud-upload-configset.sh /app/samvera/hyrax-webapp/solr/conf &&
+        /app/samvera/bin/solrcloud-upload-configset.sh /app/samvera/solr/conf &&
         /app/samvera/bin/solrcloud-assign-configset.sh &&
         SOLR_COLLECTION_NAME=hydra-test /app/samvera/bin/solrcloud-assign-configset.sh &&
         bundle &&
