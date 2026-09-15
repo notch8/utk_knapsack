@@ -51,8 +51,11 @@ module Bulkrax
 
     def attach_files(file_set, attrs, digest)
       file_metadata = Hyrax.persister.save(resource: file_metadata_for(file_set, attrs, digest))
-      file_set.file_ids = [file_metadata.id]
-      Hyrax.persister.save(resource: file_set)
+      derivatives = derivative_metadata_for(file_set).map { |d| Hyrax.persister.save(resource: d) }
+      file_set.file_ids = [file_metadata.id, *derivatives.map(&:id)]
+      linked = Hyrax.persister.save(resource: file_set)
+      UtkMigrationCharacterizationJob.perform_later(file_metadata.id.to_s)
+      linked
     end
 
     def digest_for(attrs)
@@ -76,6 +79,29 @@ module Bulkrax
         checksum: [digest],
         pcdm_use: [Hyrax::FileMetadata::Use::ORIGINAL_FILE]
       )
+    end
+
+    DERIVATIVE_USE = {
+      'thumbnail' => Hyrax::FileMetadata::Use::THUMBNAIL_IMAGE,
+      'extracted_text' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT,
+      'txt' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT, # from IIIF Print
+      'xml' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT, # from IIIF Print
+      'json' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT # from IIIF Print
+    }.freeze
+
+    def derivative_metadata_for(file_set)
+      Hyrax::DerivativePath.derivatives_for_reference(file_set).filter_map do |path|
+        next unless File.size?(path)
+
+        kind = File.basename(path, '.*').split('-').last
+        Hyrax::FileMetadata.new(
+          file_identifier: ::Valkyrie::ID.new("disk://#{path}"),
+          file_set_id: file_set.id,
+          original_filename: File.basename(path),
+          mime_type: Marcel::MimeType.for(extension: File.extname(path)),
+          pcdm_use: [DERIVATIVE_USE.fetch(kind, Hyrax::FileMetadata::Use::SERVICE_FILE)]
+        )
+      end
     end
 
     def file_identifier_for(digest)

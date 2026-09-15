@@ -146,6 +146,7 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       original = Hyrax.custom_queries.find_file_metadata_by(id: linked.file_ids.first)
 
       expect(Array(original.checksum).first.to_s).to eq digest
+      expect(UtkMigrationCharacterizationJob).to have_been_enqueued.with(original.id.to_s)
     end
   end
 
@@ -193,6 +194,74 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       entity = Sipity::Entity.find_by(proxy_for_global_id: Hyrax::GlobalID(work).to_s)
 
       expect(entity.workflow_state.name).to eq 'deposited'
+    end
+  end
+
+  describe 'derivatives already on disk' do
+    let(:attrs) { { sha1: digest, mime_type: 'image/tiff', original_filename: 'OBJ' } }
+    # Under the configured derivatives root, so the disk adapter can resolve it.
+    let(:root) { Pathname.new(Dir.mktmpdir(nil, Hyrax.config.derivatives_path)) }
+    let(:file_set) { Hyrax.persister.save(resource: Hyrax::FileSet.new(title: ['Probe'])) }
+
+    before { allow(Hyrax.config).to receive(:derivatives_path).and_return(root) }
+
+    after { FileUtils.remove_entry(root) }
+
+    # The pairtree Hyrax's derivative adapter writes to, which is why the legacy
+    # files can be copied in rather than regenerated.
+    def write_derivative(suffix, content)
+      pairs = file_set.id.to_s.scan(/../)
+      dir = root.join(*pairs[0..-2])
+      FileUtils.mkdir_p(dir)
+      File.write(dir.join("#{pairs[-1]}-#{suffix}"), content)
+    end
+
+    def uses_of(resource)
+      resource.file_ids.flat_map do |id|
+        Array(Hyrax.custom_queries.find_file_metadata_by(id:).pcdm_use)
+          .map { |use| use.to_s.split(%r{[#/]}).last }
+      end
+    end
+
+    it 'attaches each one so the file set can derive thumbnail_id from it' do
+      write_derivative('thumbnail.jpeg', 'jpeg bytes')
+
+      linked = bare_factory.send(:attach_files, file_set, attrs, digest)
+      reloaded = Hyrax.query_service.find_by(id: linked.id)
+      thumbnail = Hyrax.custom_queries.find_file_metadata_by(id: reloaded.thumbnail_id)
+
+      expect(uses_of(reloaded)).to contain_exactly('OriginalFile', 'ThumbnailImage')
+      expect(Array(thumbnail.original_filename).first).to end_with '-thumbnail.jpeg'
+      expect(Array(thumbnail.mime_type).first).to eq 'image/jpeg'
+      expect(thumbnail.file.read).to eq 'jpeg bytes'
+      expect(thumbnail.file_set_id.to_s).to eq file_set.id.to_s
+    end
+
+    # `extracted_text` is Hyrax's own container name; `txt`, `xml` and `json` are
+    # iiif_print's, and not siblings: `xml` is the ALTO, and it derives the other
+    # two from it.
+    it 'recognises both the Hyrax and the iiif_print names for extracted text' do
+      %w[extracted_text.txt txt.txt xml.xml json.json].each { |name| write_derivative(name, "text as #{name}") }
+
+      linked = bare_factory.send(:attach_files, file_set, attrs, digest)
+
+      expect(uses_of(linked)).to contain_exactly('OriginalFile', *Array.new(4, 'ExtractedText'))
+    end
+
+    it 'skips a derivative that was written empty' do
+      write_derivative('thumbnail.jpeg', '')
+
+      linked = bare_factory.send(:attach_files, file_set, attrs, digest)
+
+      expect(linked.file_ids.size).to eq 1
+    end
+
+    it 'files an unrecognised derivative as a service file rather than dropping it' do
+      write_derivative('jp2.jp2', 'jp2 bytes')
+
+      linked = bare_factory.send(:attach_files, file_set, attrs, digest)
+
+      expect(uses_of(linked)).to include 'ServiceFile'
     end
   end
 end
