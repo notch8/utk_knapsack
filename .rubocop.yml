@@ -19,6 +19,7 @@ AllCops:
 Rails/TimeZone:
   Exclude:
   - "docs/m3_migration/scripts/*.rb"
+  - "bin/migration/*.rb"
 
 Rails/IndexWith:
   Exclude:
@@ -31,6 +32,7 @@ Metrics/BlockLength:
   Exclude:
   - "spec/**/*.rb"
   - "docs/m3_migration/scripts/*.rb"
+  - "bin/migration/*.rb"
 
 # core_property assembles an m3 property from its parts; each is a distinct field.
 Metrics/ParameterLists:
