@@ -28,6 +28,6 @@ Rails.application.config.to_prepare do
       }
     end
 
-    config.qa_controlled_properties += ['resource_types']
+    config.qa_controlled_properties |= ['resource_types']
   end
 end
