@@ -35,7 +35,7 @@ RSpec.describe UriLabelResolver do
 
       before do
         cache = instance_double(UriCache, value: 'University of Tennessee')
-        allow(UriCache).to receive(:find_by).with(uri: uri).and_return(cache)
+        allow(UriCache).to receive(:find_by).with(uri:).and_return(cache)
       end
 
       it 'returns the cached value' do
@@ -198,7 +198,7 @@ RSpec.describe UriLabelResolver do
         allow(Qa::Authorities::Local).to receive(:subauthority_for)
           .with('licenses').and_return(authority)
         allow(authority).to receive(:find).with(uri)
-          .and_return('term' => 'Attribution-NonCommercial 4.0 International')
+                                          .and_return('term' => 'Attribution-NonCommercial 4.0 International')
       end
 
       it 'resolves from local QA authority' do
@@ -265,8 +265,8 @@ RSpec.describe UriLabelResolver do
 
         it 'caches the resolved label' do
           expect { described_class.label_for(uri) }
-            .to change { UriCache.where(uri: uri).count }.from(0).to(1)
-          expect(UriCache.find_by(uri: uri).value).to eq 'University of Tennessee'
+            .to change { UriCache.where(uri:).count }.from(0).to(1)
+          expect(UriCache.find_by(uri:).value).to eq 'University of Tennessee'
         end
       end
     end

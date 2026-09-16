@@ -59,7 +59,7 @@ RSpec.describe UriCache, type: :model do
       expect do
         described_class.update_all_caches!
       end.to change { cache1.reload.value }.to('updated value')
-        .and change { cache2.reload.value }.to('updated value')
+         .and change { cache2.reload.value }.to('updated value')
     end
   end
 
