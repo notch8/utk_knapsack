@@ -21,6 +21,48 @@ RSpec.describe UriCache, type: :model do
     expect(build(:uri_cache, value: '')).not_to be_valid
   end
 
+  describe '#update_cache' do
+    let(:uri) { 'http://example.com/resource' }
+    let(:cache) { create(:uri_cache, uri:) }
+
+    before do
+      allow(UriLabelResolver).to receive(:resolve_remote)
+        .with(uri).and_return('updated value')
+    end
+
+    it 'updates the value by re-resolving remotely, bypassing cache' do
+      expect { cache.update_cache }.to change { cache.reload.value }.to('updated value')
+    end
+
+    context 'when resolve_remote returns an error annotation' do
+      before do
+        allow(UriLabelResolver).to receive(:resolve_remote)
+          .with(uri).and_return("#{uri} (Failed to load URI)")
+      end
+
+      it 'does not overwrite the cached value' do
+        expect { cache.update_cache }.not_to(change { cache.reload.value })
+      end
+    end
+  end
+
+  describe '.update_all_caches!' do
+    before do
+      allow(UriLabelResolver).to receive(:resolve_remote)
+        .and_return('updated value')
+    end
+
+    it 'updates all caches' do
+      cache1 = create(:uri_cache, uri: 'http://example.com/1', value: 'old value 1')
+      cache2 = create(:uri_cache, uri: 'http://example.com/2', value: 'old value 2')
+
+      expect do
+        described_class.update_all_caches!
+      end.to change { cache1.reload.value }.to('updated value')
+         .and change { cache2.reload.value }.to('updated value')
+    end
+  end
+
   describe '.create' do
     it 'creates a new cache entry with uri and value' do
       cache = described_class.create(uri: 'http://example.com/resource', value: 'some value')
