@@ -6,7 +6,7 @@ RSpec.describe 'config/initializers/bulkrax_config.rb' do
   describe 'fill_in_blank_source_identifiers' do
     let(:callback) { Bulkrax.fill_in_blank_source_identifiers }
     let(:account) { instance_double(Account, name: 'utk') }
-    let(:site) { instance_double(Site, account: account) }
+    let(:site) { instance_double(Site, account:) }
     let(:importer) { instance_double(Bulkrax::Importer, id: 42) }
     let(:entry) { instance_double(Bulkrax::Entry, importerexporter: importer) }
 
@@ -14,6 +14,22 @@ RSpec.describe 'config/initializers/bulkrax_config.rb' do
 
     it 'builds a tenant/importer/index source identifier' do
       expect(callback.call(entry, 7)).to eq 'utk-42-7'
+    end
+  end
+
+  describe 'default_bulkrax_field_mappings' do
+    let(:csv_mappings) { Hyku.default_bulkrax_field_mappings['Bulkrax::CsvParser'] }
+
+    it 'wires parents for relationship creation' do
+      expect(csv_mappings['parents']).to include(related_parents_field_mapping: true)
+    end
+
+    it 'wires children for relationship creation' do
+      expect(csv_mappings['children']).to include(related_children_field_mapping: true)
+    end
+
+    it 'splits parents on semicolons and pipes' do
+      expect(csv_mappings['parents'][:split]).to eq(/\s*[;|]\s*/)
     end
   end
 

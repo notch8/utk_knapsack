@@ -10,9 +10,9 @@ Rails.application.config.to_prepare do
       { name: "XML", class_name: "Bulkrax::XmlParser", partial: "xml_fields" }
     ]
 
-    config.fill_in_blank_source_identifiers = ->(obj, index) {
+    config.fill_in_blank_source_identifiers = lambda do |obj, index|
       "#{Site.instance.account.name}-#{obj.importerexporter.id}-#{index}"
-    }
+    end
 
     config.default_field_mapping = lambda do |field|
       return if field.blank?
