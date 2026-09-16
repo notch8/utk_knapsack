@@ -8,4 +8,8 @@ RSpec.shared_examples 'a UTK work indexer' do
   it 'indexes a date range year, so the work reaches the catalog date facet' do
     expect(described_class.ancestors).to include UtkDateRangeIndexing
   end
+
+  it 'indexes URI labels for controlled vocabulary properties' do
+    expect(described_class.ancestors).to include UtkUriLabelIndexing
+  end
 end
