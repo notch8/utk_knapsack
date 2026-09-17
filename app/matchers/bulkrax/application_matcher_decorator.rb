@@ -6,12 +6,14 @@ module Bulkrax
   # "http://id.loc.gov/…" becomes "Http://id.loc.gov/…", breaking every
   # downstream check that pattern-matches on the scheme.
   #
-  # Return URIs verbatim; apply the original sentence-casing only to plain
-  # text subjects.
+  # Normalize the URI scheme to lowercase, preserving the rest of the URI;
+  # apply the original sentence-casing only to plain text subjects.
   module ApplicationMatcherDecorator
     def parse_subject(src)
       return if src.blank?
-      return src.strip if src.strip.match?(%r{\Ahttps?://}i)
+
+      stripped = src.strip
+      return stripped.sub(%r{\Ahttps?}i, &:downcase) if stripped.match?(%r{\Ahttps?://}i)
 
       super
     end
