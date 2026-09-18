@@ -18,7 +18,7 @@ RSpec.describe 'config/initializers/hyrax.rb' do
   end
 
   it 'assigns the Bulkrax default from to_prepare, before eager load snapshots it' do
-    path = HykuKnapsack::Engine.root.join('config', 'initializers', 'hyrax.rb').to_s
+    path = HykuKnapsack::Engine.root.join('config', 'initializers', 'bulkrax.rb').to_s
     block = Rails.application.config.to_prepare_blocks.find { |b| b.source_location.first == path }
     Bulkrax.default_work_type = 'Sentinel'
 
