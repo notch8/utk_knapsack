@@ -730,6 +730,7 @@ properties:
   provider:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -877,6 +878,7 @@ properties:
   call_number:
     available_on:
       class:
+      - DigitalCollection
       - Book
       - StillImage
       - Pdf
@@ -1075,6 +1077,7 @@ properties:
   ark:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -1150,6 +1153,7 @@ properties:
   coordinates:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio
@@ -1893,6 +1897,7 @@ properties:
   spatial_local:
     available_on:
       class:
+      - DigitalCollection
       - StillImage
       - Video
       - Audio

@@ -2,10 +2,6 @@
 
 # Use this to override any Hyrax configuration from the Knapsack
 
-Rails.application.config.to_prepare do
-  Bulkrax.default_work_type = 'StillImage' if Hyku.bulkrax_enabled?
-end
-
 # Must be set before anything autoloads: CanCan captures `Hyrax.config.collection_model`
 # as a load-time macro argument in Hyrax::Dashboard::CollectionsController, so a value
 # assigned in #after_initialize loses the race and the `new` action builds Hyku's class.
