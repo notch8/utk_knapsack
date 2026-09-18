@@ -2648,6 +2648,72 @@ properties:
       render_term: redirects_path
       render_as: redirects_label
       html_dl: true
+  show_pdf_viewer:
+    available_on:
+      class:
+        - Audio
+        - Book
+        - CompoundObject
+        - StillImage
+        - Newspaper
+        - Pdf
+        - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
+    data_type: string
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#bool
+      sources:
+        - "null"
+    display_label:
+      default: Show PDF Viewer
+    index_documentation: displayable, searchable
+    indexing:
+      - show_pdf_viewer_bsi
+    form:
+      display: false
+      primary: false
+      required: false
+      multiple: false
+    property_uri: http://id.loc.gov/vocabulary/identifiers/show_pdf_viewer
+    range: http://www.w3.org/2001/XMLSchema#bool
+    sample_values:
+      - "0"
+      - "1"
+  show_pdf_download_button:
+    available_on:
+      class:
+        - Audio
+        - Book
+        - CompoundObject
+        - StillImage
+        - Newspaper
+        - Pdf
+        - Video
+    cardinality:
+      minimum: 0
+      maximum: 1
+    data_type: string
+    controlled_values:
+      format: http://www.w3.org/2001/XMLSchema#bool
+      sources:
+        - "null"
+    display_label:
+      default: Show PDF Download Button
+    index_documentation: displayable, searchable
+    indexing:
+      - show_pdf_download_button_bsi
+    form:
+      display: false
+      primary: false
+      required: false
+      multiple: false
+    property_uri: http://id.loc.gov/vocabulary/identifiers/show_pdf_download_button
+    range: http://www.w3.org/2001/XMLSchema#bool
+    sample_values:
+      - "0"
+      - "1"
   media_viewer:
     available_on:
       class:
