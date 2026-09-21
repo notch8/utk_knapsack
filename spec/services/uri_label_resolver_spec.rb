@@ -6,15 +6,25 @@ require 'rails_helper'
 RSpec.describe UriLabelResolver do
   let(:graph) { RDF::Graph.new }
 
-  def load_fixture(filename, format: nil)
-    format ||= case File.extname(filename)
-               when '.nt' then :ntriples
-               when '.rdf' then :rdfxml
-               when '.ttl' then :ttl
-               end
+  def load_fixture(filename, into: graph)
+    format = case File.extname(filename)
+             when '.nt' then :ntriples
+             when '.rdf' then :rdfxml
+             when '.ttl' then :ttl
+             end
 
-    File.open(Rails.root.join('..', 'spec', 'fixtures', 'rdf_data', filename)) do |file|
-      RDF::Reader.for(format).new(file) { |reader| reader.each_statement { |s| graph << s } }
+    path = Rails.root.join('..', 'spec', 'fixtures', 'rdf_data', filename)
+    File.open(path) do |file|
+      RDF::Reader.for(format).new(file) { |reader| reader.each_statement { |s| into << s } }
+    end
+  end
+
+  def stub_remote_fetch(fixture_file)
+    allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, uri|
+      resource = method.call(uri)
+      load_fixture(fixture_file, into: resource.graph)
+      allow(resource).to receive(:fetch).and_return(resource)
+      resource
     end
   end
 
@@ -44,38 +54,62 @@ RSpec.describe UriLabelResolver do
     end
 
     context 'from the Library of Congress' do
-      before do
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:rdf_label).and_return([label])
-        allow(resource).to receive(:graph).and_return(graph)
-      end
-
-      context 'example 1' do
+      context 'example 1 (https URI, fixture subject is http)' do
         let(:uri) { 'https://id.loc.gov/authorities/names/n79007751' }
-        let(:label) { 'New York (N.Y.)' }
 
-        it 'resolves the label' do
+        before { stub_remote_fetch('loc_1.nt') }
+
+        it 'resolves to the English label' do
           expect(described_class.label_for(uri)).to eq 'New York (N.Y.)'
         end
       end
 
-      context 'example 2' do
+      context 'example 2 (sameAs redirect, subject path differs)' do
         let(:uri) { 'http://id.loc.gov/authorities/subjects/sj96006364' }
-        let(:label) { 'Water power' }
 
-        it 'resolves the label' do
+        before { stub_remote_fetch('loc_2.nt') }
+
+        it 'resolves to the English label' do
           expect(described_class.label_for(uri)).to eq 'Water power'
         end
       end
 
-      context 'example 3 (has .html in uri)' do
+      context 'example 3 (.html suffix in URI)' do
         let(:uri) { 'https://id.loc.gov/authorities/subjects/sh85088046.html' }
-        let(:label) { 'Motion picture film collections' }
 
-        it 'resolves the label' do
+        before { stub_remote_fetch('loc_3.nt') }
+
+        it 'resolves to the English label' do
           expect(described_class.label_for(uri)).to eq 'Motion picture film collections'
+        end
+      end
+
+      context 'example 4 (deleted authority)' do
+        let(:uri) { 'http://id.loc.gov/authorities/subjects/sh2009007848' }
+        let(:expected) do
+          "#{uri} (Failed to load URI) - This authority record has been deleted because it is not a valid heading."
+        end
+
+        before { stub_remote_fetch('loc_4.nt') }
+
+        it 'returns the deletion note' do
+          expect(described_class.label_for(uri)).to eq expected
+        end
+      end
+
+      context 'UT (cache integration)' do
+        let(:uri) { 'http://id.loc.gov/authorities/names/n2017180154' }
+
+        before do
+          allow(UriCache).to receive(:find_by).and_call_original
+          allow(UriCache).to receive(:create!).and_call_original
+          stub_remote_fetch('loc_ut.nt')
+        end
+
+        it 'caches the resolved label' do
+          expect { described_class.label_for(uri) }
+            .to change { UriCache.where(uri:).count }.from(0).to(1)
+          expect(UriCache.find_by(uri:).value).to eq 'University of Tennessee'
         end
       end
     end
@@ -83,76 +117,78 @@ RSpec.describe UriLabelResolver do
     context 'from the Getty' do
       let(:uri) { 'http://vocab.getty.edu/page/aat/300022208' }
 
-      before do
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:rdf_label).and_return(['Postmodern'])
-        allow(resource).to receive(:graph).and_return(graph)
+      before { stub_remote_fetch('getty.nt') }
+
+      it 'rewrites /page/ to / for the fetch URL' do
+        captured_uri = nil
+        allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, rdf_uri|
+          captured_uri = rdf_uri.to_s
+          resource = method.call(rdf_uri)
+          load_fixture('getty.nt', into: resource.graph)
+          allow(resource).to receive(:fetch).and_return(resource)
+          resource
+        end
+        described_class.label_for(uri)
+        expect(captured_uri).to eq 'http://vocab.getty.edu/aat/300022208'
       end
 
-      it 'resolves the label' do
+      it 'resolves to the English label' do
         expect(described_class.label_for(uri)).to eq 'Postmodern'
       end
     end
 
-    context 'from Geonames' do
+    context 'from GeoNames' do
       let(:uri) { 'http://sws.geonames.org/4624443' }
 
-      before do
-        load_fixture('geonames.rdf')
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:graph).and_return(graph)
-      end
+      before { stub_remote_fetch('geonames.rdf') }
 
-      it 'resolves the label via geonames:name predicate' do
+      it 'resolves to the English label via geonames:name predicate' do
         expect(described_class.label_for(uri)).to eq 'Gatlinburg'
       end
     end
 
     context 'from Wikidata' do
-      before do
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:rdf_label).and_return([label])
-        allow(resource).to receive(:graph).and_return(graph)
-      end
-
-      context 'example 1' do
+      context 'example 1 (entity URI)' do
         let(:uri) { 'https://www.wikidata.org/entity/Q85304029' }
-        let(:label) { 'Dorothy Doolittle' }
 
-        it 'appends .nt and resolves' do
-          expect(ActiveTriples::Resource).to receive(:new)
-            .with(RDF::URI('https://www.wikidata.org/entity/Q85304029.nt'))
-          described_class.label_for(uri)
-        end
+        before { stub_remote_fetch('wikidata_1.nt') }
 
-        it 'resolves the label' do
+        it 'resolves to the English label' do
           expect(described_class.label_for(uri)).to eq 'Dorothy Doolittle'
         end
       end
 
-      context 'example 2 (has redirect)' do
+      context 'example 2 (redirect in RDF)' do
         let(:uri) { 'http://www.wikidata.org/entity/Q107881652' }
-        let(:label) { "Tennessee Volunteers men's tennis" }
 
-        it 'resolves the label' do
+        before { stub_remote_fetch('wikidata_2.nt') }
+
+        it 'resolves to the English label' do
           expect(described_class.label_for(uri)).to eq "Tennessee Volunteers men's tennis"
         end
       end
 
-      context 'example 3 (using "wiki" instead of "entity")' do
+      context 'example 3 (/wiki/ path instead of /entity/)' do
         let(:uri) { 'https://www.wikidata.org/wiki/Q61779863' }
-        let(:label) { 'Karen Weekly' }
 
-        it 'rewrites /wiki/ to /entity/ and appends .nt' do
-          expect(ActiveTriples::Resource).to receive(:new)
-            .with(RDF::URI('https://www.wikidata.org/entity/Q61779863.nt'))
+        before { stub_remote_fetch('wikidata_3.nt') }
+
+        it 'rewrites /wiki/ to /entity/' do
+          captured_uri = nil
+          allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, rdf_uri|
+            captured_uri = rdf_uri.to_s
+            resource = method.call(rdf_uri)
+            load_fixture('wikidata_3.nt', into: resource.graph)
+            allow(resource).to receive(:fetch).and_return(resource)
+            resource
+          end
           described_class.label_for(uri)
+          expect(captured_uri).to include('/entity/')
+          expect(captured_uri).not_to include('/wiki/')
+        end
+
+        it 'resolves to the English label' do
+          expect(described_class.label_for(uri)).to eq 'Karen Weekly'
         end
       end
     end
@@ -160,49 +196,73 @@ RSpec.describe UriLabelResolver do
     context 'from Homosaurus' do
       let(:uri) { 'https://homosaurus.org/v3/homoit0000070' }
 
-      before do
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new)
-          .with(RDF::URI('https://homosaurus.org/v3/homoit0000070.nt'))
-          .and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:rdf_label).and_return(['LGBTQ+ artists'])
-        allow(resource).to receive(:graph).and_return(graph)
-      end
+      before { stub_remote_fetch('homosaurus.nt') }
 
-      it 'resolves the label' do
+      it 'resolves to the English label' do
         expect(described_class.label_for(uri)).to eq 'LGBTQ+ artists'
       end
     end
 
-    context 'from RightsStatements (local QA)' do
+    context 'from RightsStatements' do
       let(:uri) { 'http://rightsstatements.org/vocab/InC/1.0/' }
 
-      before do
-        authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-        allow(Qa::Authorities::Local).to receive(:subauthority_for)
-          .with('rights_statements').and_return(authority)
-        allow(authority).to receive(:find).with(uri).and_return('term' => 'In Copyright')
+      context 'via local QA authority' do
+        before do
+          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
+          allow(Qa::Authorities::Local).to receive(:subauthority_for)
+            .with('rights_statements').and_return(authority)
+          allow(authority).to receive(:find).with(uri).and_return('term' => 'In Copyright')
+        end
+
+        it 'resolves from local QA' do
+          expect(described_class.label_for(uri)).to eq 'In Copyright'
+        end
       end
 
-      it 'resolves from local QA authority' do
-        expect(described_class.label_for(uri)).to eq 'In Copyright'
+      context 'via remote when local QA has no term' do
+        before do
+          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
+          allow(Qa::Authorities::Local).to receive(:subauthority_for)
+            .with('rights_statements').and_return(authority)
+          allow(authority).to receive(:find).with(uri).and_return('term' => nil)
+          stub_remote_fetch('rights.ttl')
+        end
+
+        it 'falls back to RDF and resolves the English label' do
+          expect(described_class.label_for(uri)).to eq 'In Copyright'
+        end
       end
     end
 
-    context 'from Creative Commons (local QA)' do
+    context 'from Creative Commons' do
       let(:uri) { 'http://creativecommons.org/licenses/by-nc/4.0/' }
 
-      before do
-        authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-        allow(Qa::Authorities::Local).to receive(:subauthority_for)
-          .with('licenses').and_return(authority)
-        allow(authority).to receive(:find).with(uri)
-                                          .and_return('term' => 'Attribution-NonCommercial 4.0 International')
+      context 'via local QA authority' do
+        before do
+          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
+          allow(Qa::Authorities::Local).to receive(:subauthority_for)
+            .with('licenses').and_return(authority)
+          allow(authority).to receive(:find).with(uri)
+                                            .and_return('term' => 'Attribution-NonCommercial 4.0 International')
+        end
+
+        it 'resolves from local QA' do
+          expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
+        end
       end
 
-      it 'resolves from local QA authority' do
-        expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
+      context 'via remote when local QA has no term' do
+        before do
+          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
+          allow(Qa::Authorities::Local).to receive(:subauthority_for)
+            .with('licenses').and_return(authority)
+          allow(authority).to receive(:find).with(uri).and_return('term' => nil)
+          stub_remote_fetch('licenses.rdf')
+        end
+
+        it 'falls back to RDF and resolves the English label' do
+          expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
+        end
       end
     end
 
@@ -225,49 +285,52 @@ RSpec.describe UriLabelResolver do
       let(:uri) { 'http://example.com/no-label' }
 
       before do
-        resource = instance_double(ActiveTriples::Resource)
-        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_return(resource)
-        allow(resource).to receive(:rdf_label).and_return([])
-        allow(resource).to receive(:graph).and_return(graph)
+        allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, rdf_uri|
+          resource = method.call(rdf_uri)
+          allow(resource).to receive(:fetch).and_return(resource)
+          resource
+        end
       end
 
       it 'returns the URI with a no-label annotation' do
         expect(described_class.label_for(uri)).to eq 'http://example.com/no-label (No label found)'
       end
     end
-
-    context 'UriCache integration' do
-      let(:uri) { 'http://id.loc.gov/authorities/names/n2017180154' }
-
-      before do
-        allow(UriCache).to receive(:find_by).and_call_original
-        allow(UriCache).to receive(:create!).and_call_original
+    describe 'pick_english language tag handling' do
+      it 'picks en-us labels (Getty convention)' do
+        objects = [
+          RDF::Literal.new('Postmodernisme', language: :nl),
+          RDF::Literal.new('Postmodern', language: :'en-us'),
+          RDF::Literal.new('Posmoderno', language: :es)
+        ]
+        result = described_class.send(:pick_english, objects)
+        expect(result).to eq 'Postmodern'
       end
 
-      context 'when the URI is cached' do
-        before { create(:uri_cache) }
-
-        it 'returns the cached value without fetching' do
-          expect(ActiveTriples::Resource).not_to receive(:new)
-          expect(described_class.label_for(uri)).to eq 'University of Tennessee'
-        end
+      it 'picks en-gb labels' do
+        objects = [
+          RDF::Literal.new('Farbe', language: :de),
+          RDF::Literal.new('Colour', language: :'en-GB')
+        ]
+        result = described_class.send(:pick_english, objects)
+        expect(result).to eq 'Colour'
       end
 
-      context 'when the URI is not cached' do
-        before do
-          resource = instance_double(ActiveTriples::Resource)
-          allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-          allow(resource).to receive(:fetch).and_return(resource)
-          allow(resource).to receive(:rdf_label).and_return(['University of Tennessee'])
-          allow(resource).to receive(:graph).and_return(graph)
-        end
+      it 'picks plain en labels' do
+        objects = [
+          RDF::Literal.new('Eau', language: :fr),
+          RDF::Literal.new('Water power', language: :en)
+        ]
+        result = described_class.send(:pick_english, objects)
+        expect(result).to eq 'Water power'
+      end
 
-        it 'caches the resolved label' do
-          expect { described_class.label_for(uri) }
-            .to change { UriCache.where(uri:).count }.from(0).to(1)
-          expect(UriCache.find_by(uri:).value).to eq 'University of Tennessee'
-        end
+      it 'returns nil when no English label exists' do
+        objects = [
+          RDF::Literal.new('Wasser', language: :de),
+          RDF::Literal.new('Eau', language: :fr)
+        ]
+        expect(described_class.send(:pick_english, objects)).to be_nil
       end
     end
   end
