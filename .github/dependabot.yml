@@ -8,3 +8,5 @@ updates:
       timezone: "America/Los_Angeles"
     labels:
       - "dependencies"
+    reviewers:
+      - "ShanaLMoore"
