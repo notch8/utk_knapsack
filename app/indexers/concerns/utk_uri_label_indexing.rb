@@ -37,10 +37,10 @@ module UtkUriLabelIndexing
     super(*args, **kwargs, &block).tap do |solr_doc|
       UtkUriLabelIndexing.uri_properties.each do |property|
         values = Array(resource.try(property)).map(&:to_s).select(&:present?)
-        next unless values.any? { |v| v.match?(%r{\Ahttps?://}i) }
+        next unless values.any? { |v| v.match?(%r{\Ahttps?://}) }
 
         solr_doc["#{property}_tesim"] = values.map do |v|
-          v.match?(%r{\Ahttps?://}i) ? UriLabelResolver.label_for(v) : v
+          v.match?(%r{\Ahttps?://}) ? UriLabelResolver.label_for(v) : v
         end
       end
     end

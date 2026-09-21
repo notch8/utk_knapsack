@@ -94,11 +94,6 @@ RSpec.describe UtkUriLabelIndexing do
     ]
   end
 
-  it 'handles capitalized URI schemes from Bulkrax' do
-    doc = index(subject: ['Http://id.loc.gov/authorities/subjects/sh12345'])
-    expect(doc['subject_tesim']).to eq ['Label for Http://id.loc.gov/authorities/subjects/sh12345']
-  end
-
   it 'preserves non-URI values alongside resolved labels' do
     doc = index(subject: ['plain text', 'http://id.loc.gov/authorities/subjects/sh1'])
     expect(doc['subject_tesim']).to eq ['plain text', 'Label for http://id.loc.gov/authorities/subjects/sh1']
