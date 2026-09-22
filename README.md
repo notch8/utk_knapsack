@@ -304,6 +304,12 @@ Pull in fixes from the upstream Knapsack:
 git fetch prime && git merge prime/main
 ```
 
+## Merge strategy
+
+This repo uses **merge commits only** (no squash-merge). Squash-merging can silently roll back the `hyrax-webapp` submodule pointer when a PR contains multiple commits. This happened on hykuup_knapsack PR #758, where a squash-merge reversed a security fix without anyone noticing.
+
+GitHub repo settings have "Allow squash merging" disabled. If you want a clean history, squash your commits locally before merging (`git rebase -i`).
+
 ## CI
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
