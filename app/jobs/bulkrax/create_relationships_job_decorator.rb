@@ -22,8 +22,8 @@ module Bulkrax
       members = Hyrax.query_service.find_members(resource: parent).to_a
       return if members.empty?
 
-      sorted_ids = sort_by_sequence(members)
-      return unless sorted_ids
+      sorted_ids = sort_by_sequence(members) || parent.member_ids
+      return if sorted_ids.empty?
 
       first_id = sorted_ids.first
       return if already_ordered?(parent, sorted_ids, first_id)

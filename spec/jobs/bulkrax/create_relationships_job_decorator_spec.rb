@@ -142,11 +142,30 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
     context 'when a member has no usable sequence' do
       before { allow(fs3).to receive(:try).with(:sequence).and_return(nil) }
 
-      it 'leaves member_ids untouched' do
+      it 'keeps arrival order and sets representative to the first member' do
         job.send(:sort_members_and_set_representative, parent_id)
 
-        expect(parent).not_to have_received(:member_ids=)
-        expect(persister).not_to have_received(:save)
+        expect(parent).to have_received(:member_ids=).with([fs1_id, fs2_id, fs3_id])
+        expect(parent).to have_received(:representative_id=).with(fs1_id)
+        expect(parent).to have_received(:thumbnail_id=).with(fs1_id)
+        expect(persister).to have_received(:save)
+      end
+    end
+
+    context 'when no member has a sequence value' do
+      before do
+        allow(fs1).to receive(:try).with(:sequence).and_return([])
+        allow(fs2).to receive(:try).with(:sequence).and_return([])
+        allow(fs3).to receive(:try).with(:sequence).and_return([])
+      end
+
+      it 'falls back to arrival order and sets representative' do
+        job.send(:sort_members_and_set_representative, parent_id)
+
+        expect(parent).to have_received(:member_ids=).with([fs1_id, fs2_id, fs3_id])
+        expect(parent).to have_received(:representative_id=).with(fs1_id)
+        expect(parent).to have_received(:thumbnail_id=).with(fs1_id)
+        expect(persister).to have_received(:save)
       end
     end
 
