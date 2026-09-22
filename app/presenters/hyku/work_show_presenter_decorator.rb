@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
-# OVERRIDE Hyku (submodule) to pass the query positionally so
-# Hyrax::SolrService.post merges in qt=standard - passing it as `q:` silently
-# skips that merge, which Solr 9 needs for {!join} queries to resolve correctly.
+# OVERRIDE Hyku 7.1.0 WorkShowPresenter#show_pdf_viewer,
+# #show_pdf_download_button, #authorized_member_models
 module Hyku
   module WorkShowPresenterDecorator
+    def show_pdf_viewer
+      super.presence || true
+    end
+
+    def show_pdf_download_button
+      super.presence || true
+    end
+
     def authorized_member_models
       ids = authorized_item_ids
       return {} if ids.empty?
