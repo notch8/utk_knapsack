@@ -125,6 +125,11 @@ extraEnvVars: &envVars
     value: utk-staging-repository-staging-559021623471
   - name: REPOSITORY_S3_REGION
     value: us-east-2
+  # Feature flag only -- iiif_print checks .present? to decide whether FileSets get
+  # ExternalIiifDisplayImagePresenter; the value itself is unused (per-tenant host/path is
+  # built by app/presenters/iiif_print/external_iiif_display_image_presenter_decorator.rb).
+  - name: EXTERNAL_IIIF_URL
+    value: "flag-only-see-external_iiif_display_image_presenter_decorator"
   - name: DISABLE_ANALYTICS_FEATURES
     value: "false"
   - name: GOOGLE_ANALYTICS_ID
@@ -358,9 +363,18 @@ nginx:
   image:
     repository: "ghcr.io/$REPO_LOWER/nginx"
     tag: "$TAG"
+  extraVolumes:
+    - name: iiif-origin-verify
+      secret:
+        secretName: utk-knapsack-staging-iiif-origin-verify
+  extraVolumeMounts:
+    - name: iiif-origin-verify
+      mountPath: /etc/nginx/secrets/iiif-origin-verify.conf
+      subPath: origin-verify.conf
+      readOnly: true
   # sane default server block (keepalive, open_file_cache, hoisted proxy headers, asset paths) comes from the chart; below is only what this app adds on top
   extraHttpConfig: |-
-    
+
     map ${DOLLAR}status ${DOLLAR}loggable {
         ~^444  0;
         default 1;
@@ -368,7 +382,19 @@ nginx:
 
     log_format loki 'host=${DOLLAR}host ip=${DOLLAR}http_x_forwarded_for remote_user=${DOLLAR}remote_user [${DOLLAR}time_local] '
                       'request="${DOLLAR}request" status=${DOLLAR}status bytes=${DOLLAR}body_bytes_sent '
-                      'referer="${DOLLAR}http_referer" agent="${DOLLAR}http_user_agent" request_time=${DOLLAR}request_time upstream_response_time=${DOLLAR}upstream_response_time upstream_response_length=${DOLLAR}upstream_response_length';
+                      'referer="${DOLLAR}http_referer" agent="${DOLLAR}http_user_agent" request_time=${DOLLAR}request_time upstream_response_time=${DOLLAR}upstream_response_time upstream_response_length=${DOLLAR}upstream_response_length cache_status=${DOLLAR}upstream_cache_status';
+
+    # IIIF auth-decision cache -- see location = /auth below. Keyed per tenant/session/file-set
+    # so a cached "allowed" answer can never be served to a different, unauthorized visitor.
+    proxy_cache_path /tmp/iiif_auth_cache levels=1:2 keys_zone=iiif_auth_cache:1m max_size=10m inactive=2m use_temp_path=off;
+
+    # Extracts the file-set id the same way HykuKnapsack::IiifController#file_set_id_for does --
+    # keep these regexes in sync. Falls back to the full request URI (no cross-tile cache sharing)
+    # if the path doesn't match, so an unexpected URL shape degrades to no caching, not a bad hit.
+    map ${DOLLAR}request_uri ${DOLLAR}iiif_auth_fileset_id {
+        "~^/iiif/2/(?<fsid>[\w-]+)/"  ${DOLLAR}fsid;
+        default                        ${DOLLAR}request_uri;
+    }
 
     # Cloudflare ips see for refresh
     # https://support.cloudflare.com/hc/en-us/articles/200170786-Restoring-original-visitor-IPs-logging-visitor-IP-addresses
@@ -399,3 +425,48 @@ nginx:
     real_ip_header X-Forwarded-For;
     real_ip_recursive on;
   accessLogFormat: loki
+  extraServerBlockConfig: |-
+    include /etc/nginx/secrets/iiif-origin-verify.conf;
+
+    ## Gates IIIF tile requests, then proxies to CloudFront -- see terraform/cloudfront_iiif.tf in notch8-ops.
+    location ^~ /iiif {
+        resolver         10.0.0.2 valid=30s;
+        auth_request     /auth;
+        auth_request_set ${DOLLAR}auth_status ${DOLLAR}upstream_status;
+        set ${DOLLAR}image_internal https://iiif-utk-staging.notch8.cloud;
+
+        proxy_ssl_server_name  on;
+        proxy_ssl_name         iiif-utk-staging.notch8.cloud;
+        proxy_set_header       Host             iiif-utk-staging.notch8.cloud;
+        proxy_set_header       X-Real-IP        ${DOLLAR}remote_addr;
+        proxy_set_header       X-Forwarded-For  ${DOLLAR}proxy_add_x_forwarded_for;
+        proxy_set_header       X-Forwarded-Host ${DOLLAR}host;
+        proxy_set_header       X-Forwarded-Proto https;
+        proxy_set_header       X-Origin-Verify  ${DOLLAR}iiif_origin_verify_secret;
+        proxy_pass ${DOLLAR}image_internal;
+    }
+    location = /auth {
+        internal;
+        proxy_pass http://rails_app/check-iiif;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length '0';
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        proxy_set_header Host ${DOLLAR}host;
+        proxy_set_header X-Origin-URI ${DOLLAR}request_uri;
+        proxy_set_header X-Forwarded-Host ${DOLLAR}host;
+
+        proxy_cache              iiif_auth_cache;
+        # ${DOLLAR}http_authorization is included because ApplicationController#authenticate_if_needed
+        # HTTP-Basic-gates staging/hidden tenants before the CanCan check runs, independent of
+        # the session cookie -- without it a denied decision could leak to valid Basic Auth creds.
+        proxy_cache_key          "${DOLLAR}host|${DOLLAR}http_authorization|${DOLLAR}cookie__hyku_session|${DOLLAR}iiif_auth_fileset_id";
+        proxy_cache_valid        200 401 403 20s;
+        proxy_cache_lock         on;
+        proxy_cache_lock_timeout 5s;
+        proxy_ignore_headers     Cache-Control Expires Set-Cookie;
+    }
+    location = /check-iiif {
+        allow 127.0.0.1;
+        deny all;
+    }
