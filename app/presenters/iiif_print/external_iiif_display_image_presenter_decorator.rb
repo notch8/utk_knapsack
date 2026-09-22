@@ -29,4 +29,10 @@ module IiifPrint
   end
 end
 
+# HykuKnapsack::Engine force-loads this file (any app/**/*_decorator*.rb) during
+# to_prepare, which can run before Zeitwerk has autoloaded IiifPrint::Engine's own
+# (isolated-namespace) classes -- require the target file directly instead of
+# relying on autoloading to resolve it in time.
+require File.join(IiifPrint::GEM_PATH, 'app/presenters/iiif_print/external_iiif_display_image_presenter')
+
 IiifPrint::ExternalIiifDisplayImagePresenter.prepend(IiifPrint::ExternalIiifDisplayImagePresenterDecorator)
