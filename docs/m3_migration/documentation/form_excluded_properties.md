@@ -1,24 +1,20 @@
 # Properties with no `form:` block
 
-These 5 properties are deliberately absent from every metadata form. A property
+These 3 properties are deliberately absent from every metadata form. A property
 without a `form:` block is never registered as a form field: Hyrax's
 `ResourceForm#initialize` builds fields from `form_definitions_for`, which skips
 properties whose form options are empty, so `primary_terms` and
 `secondary_terms` both miss it and it renders nowhere.
 
-Everything else in the profile (190 of 195) carries a `form:` block.
+Everything else in the profile (70 of 73) carries a `form:` block.
 
 ## Flagged in the source profile
 
 UTK records the exclusion in the definition prose rather than in a key, so the
 conversion matches on the sentence "Should not appear in metadata form"
-(`FORM_EXCLUSION_PATTERN`). Both of these are autopopulated and must never be
-user-editable.
-
-| Property | Reason given in the source |
-|---|---|
-| `frame_height` | Autopopulated on a `pcdm:File` and added to the IIIF presentation manifest as height/width data, never editable. |
-| `frame_width` | Autopopulated on a `pcdm:File` and added to the IIIF presentation manifest as height/width data, never editable. |
+(`FORM_EXCLUSION_PATTERN`). No property currently in the profile is excluded this
+way; the pattern remains in the converter for any future property whose source
+definition carries that sentence.
 
 ## System-managed core properties
 
@@ -44,7 +40,7 @@ required, not primary.
 
 `label` does carry a `form:` block, but it is `{ primary: false }` with no
 `display` key. Since `secondary_terms` selects on `definition[:display]`, that
-combination puts it in neither form section, so it behaves like the five above
+combination puts it in neither form section, so it behaves like the three above
 despite having a block. Hyku's profile declares `label` exactly the same way, so
 this mirrors the reference rather than diverging from it. If `label` should be
 editable, it needs `display: true` added.
