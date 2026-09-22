@@ -11,12 +11,8 @@ gemspec
 
 gemfile_path = File.expand_path("hyrax-webapp/Gemfile", __dir__)
 if File.exist?(gemfile_path)
-  # Also drops hyrax-webapp's own iiif_print line (~> 3.1, resolves to 3.1.0 there) --
-  # ExternalIiifDisplayImagePresenter isn't defined until 3.1.1, pinned below instead.
-  gemfile = File.read(gemfile_path).split("\n").reject { |l| l.match('knapsack') || l.match(/gem ['"]iiif_print['"]/) }
+  gemfile = File.read(gemfile_path).split("\n").reject { |l| l.match('knapsack') }
   # rubocop:disable Security/Eval
   eval(gemfile.join("\n"), binding)
   # rubocop:enable Security/Eval
 end
-
-gem 'iiif_print', '~> 3.1.1'
