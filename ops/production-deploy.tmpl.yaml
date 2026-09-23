@@ -8,10 +8,25 @@ resources:
     memory: "2Gi"
     cpu: "250m"
 
+# Chart default path "/" does a full Solr+DB-backed page render - too slow/heavy for a health check. /healthz (okcomputer, mounted by Hyrax's own config/initializers/1_healthz.rb) is cheap and dependency-free. Same config as utk-hyku production.
+startupProbe:
+  enabled: true
+  path: "/healthz"
+  failureThreshold: 30
 livenessProbe:
-  enabled: false
+  enabled: true
+  path: "/healthz"
+  initialDelaySeconds: 15
+  periodSeconds: 60
+  timeoutSeconds: 60
+  failureThreshold: 6
 readinessProbe:
-  enabled: false
+  enabled: true
+  path: "/healthz"
+  initialDelaySeconds: 15
+  periodSeconds: 60
+  timeoutSeconds: 60
+  failureThreshold: 6
 
 # No commonLabels/podLabels in this chart, so podAnnotations is the only lever for tying pods to the project/environment.
 podAnnotations:
