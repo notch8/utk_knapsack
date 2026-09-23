@@ -33,5 +33,6 @@ jobs:
         if: steps.find.outputs.found == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.find.outputs.tag }}
         run: |
-          gh release edit "${{ steps.find.outputs.tag }}" --draft=false
+          gh release edit "$TAG" --draft=false
