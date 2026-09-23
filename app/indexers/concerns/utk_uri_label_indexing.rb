@@ -43,6 +43,34 @@ module UtkUriLabelIndexing
           v.match?(%r{\Ahttps?://}i) ? UriLabelResolver.label_for(v) : v
         end
       end
+
+      resolve_compound_uris(solr_doc)
+    end
+  end
+
+  private
+
+  def resolve_compound_uris(solr_doc)
+    solr_doc.keys.grep(/_json_ss\z/).each do |json_key|
+      rows = JSON.parse(solr_doc[json_key])
+      resolve_uris_in_rows!(rows)
+
+      solr_doc[json_key] = rows.to_json
+      sync_searchable_fields(solr_doc, json_key.sub(/_json_ss\z/, ''), rows)
+    end
+  end
+
+  def resolve_uris_in_rows!(rows)
+    rows.each { |row| row.transform_values! { |v| UriLabelResolver.label_for(v) } }
+  end
+
+  def sync_searchable_fields(solr_doc, compound, rows)
+    rows.flat_map(&:keys).uniq.each do |sub_prop|
+      values = rows.filter_map { |r| r[sub_prop].presence }
+      %w[_tesim _sim _ssim].each do |sfx|
+        key = "#{compound}_#{sub_prop}#{sfx}"
+        solr_doc[key] = values if solr_doc.key?(key)
+      end
     end
   end
 end
