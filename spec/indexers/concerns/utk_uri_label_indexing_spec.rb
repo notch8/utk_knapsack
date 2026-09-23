@@ -12,7 +12,12 @@ RSpec.describe UtkUriLabelIndexing do
       end
 
       def to_solr(*_args, **_kwargs)
-        { 'title_tesim' => ['Untouched'] }
+        result = { 'title_tesim' => ['Untouched'] }
+        resource.class.members.each do |prop|
+          vals = Array(resource.try(prop)).map(&:to_s).select(&:present?)
+          result["#{prop}_tesim"] = vals if vals.any?
+        end
+        result
       end
     end
   end
@@ -43,7 +48,7 @@ RSpec.describe UtkUriLabelIndexing do
 
   before do
     described_class.reset_cache!
-    allow(UriLabelResolver).to receive(:label_for) { |uri| "Label for #{uri}" }
+    allow(UriLabelResolver).to receive(:label_for) { |uri| uri.to_s.match?(%r{\Ahttps?://}i) ? "Label for #{uri}" : uri }
   end
 
   describe '.uri_properties' do
@@ -73,9 +78,9 @@ RSpec.describe UtkUriLabelIndexing do
     end
   end
 
-  it 'writes label fields for properties with URI values' do
+  it 'replaces URI values with labels in _tesim' do
     doc = index(subject: ['http://id.loc.gov/authorities/subjects/sh12345'])
-    expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh12345']
+    expect(doc['subject_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh12345']
   end
 
   it 'handles multiple URIs on one property' do
@@ -83,54 +88,96 @@ RSpec.describe UtkUriLabelIndexing do
                   'http://id.loc.gov/authorities/subjects/sh1',
                   'http://id.loc.gov/authorities/names/n2'
                 ])
-    expect(doc['subject_label_tesim']).to eq [
+    expect(doc['subject_tesim']).to eq [
       'Label for http://id.loc.gov/authorities/subjects/sh1',
       'Label for http://id.loc.gov/authorities/names/n2'
     ]
   end
 
-  it 'skips non-URI values' do
-    doc = index(subject: ['Doe, John', 'plain text'])
-    expect(doc).not_to have_key 'subject_label_tesim'
-  end
-
   it 'handles capitalized URI schemes from Bulkrax' do
     doc = index(subject: ['Http://id.loc.gov/authorities/subjects/sh12345'])
-    expect(doc['subject_label_tesim']).to eq ['Label for Http://id.loc.gov/authorities/subjects/sh12345']
+    expect(doc['subject_tesim']).to eq ['Label for Http://id.loc.gov/authorities/subjects/sh12345']
   end
 
-  it 'resolves only the URI values in a mixed field' do
+  it 'preserves non-URI values alongside resolved labels' do
     doc = index(subject: ['plain text', 'http://id.loc.gov/authorities/subjects/sh1'])
-    expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
+    expect(doc['subject_tesim']).to eq ['plain text', 'Label for http://id.loc.gov/authorities/subjects/sh1']
   end
 
-  it 'writes labels for multiple properties' do
+  it 'resolves labels across multiple properties' do
     doc = index(
       subject: ['http://id.loc.gov/authorities/subjects/sh1'],
       spatial: ['http://sws.geonames.org/4624443']
     )
-    expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
-    expect(doc['spatial_label_tesim']).to eq ['Label for http://sws.geonames.org/4624443']
-  end
-
-  it 'omits label fields when no property has URIs' do
-    doc = index(subject: ['plain text'], spatial: ['Nashville, TN'])
-    uri_properties.each do |prop|
-      expect(doc).not_to have_key "#{prop}_label_tesim"
-    end
-  end
-
-  it 'leaves the rest of the document alone' do
-    doc = index(subject: ['http://example.com/uri'])
-    expect(doc['title_tesim']).to eq ['Untouched']
+    expect(doc['subject_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
+    expect(doc['spatial_tesim']).to eq ['Label for http://sws.geonames.org/4624443']
   end
 
   context 'with a resource missing the controlled properties' do
     let(:work_struct) { Struct.new(:title, keyword_init: true) }
 
     it 'does not raise' do
-      doc = index(title: ['No controlled fields here'])
-      expect(doc['title_tesim']).to eq ['Untouched']
+      expect { index(title: ['No controlled fields here']) }.not_to raise_error
+    end
+  end
+
+  describe '#resolve_compound_uris' do
+    let(:base_indexer) do
+      Class.new do
+        attr_reader :resource
+
+        def initialize(resource:)
+          @resource = resource
+        end
+
+        def to_solr(*_args, **_kwargs)
+          {
+            'creators_json_ss' => [{ 'name' => 'http://id.loc.gov/authorities/names/n123', 'role' => 'Photographer' }].to_json,
+            'creators_name_tesim' => ['http://id.loc.gov/authorities/names/n123'],
+            'creators_name_sim' => ['http://id.loc.gov/authorities/names/n123'],
+            'creators_role_tesim' => ['Photographer'],
+            'creators_role_sim' => ['Photographer']
+          }
+        end
+      end
+    end
+
+    let(:work_struct) { Struct.new(:title, keyword_init: true) { def try(m) = respond_to?(m) ? send(m) : nil } }
+
+    it 'resolves URIs in compound JSON blobs and searchable fields' do
+      doc = index(title: ['Test'])
+      parsed = JSON.parse(doc['creators_json_ss'])
+      expect(parsed.first['name']).to eq 'Label for http://id.loc.gov/authorities/names/n123'
+      expect(parsed.first['role']).to eq 'Photographer'
+      expect(doc['creators_name_tesim']).to eq ['Label for http://id.loc.gov/authorities/names/n123']
+      expect(doc['creators_name_sim']).to eq ['Label for http://id.loc.gov/authorities/names/n123']
+      expect(doc['creators_role_tesim']).to eq ['Photographer']
+    end
+
+    context 'when compound values are plain text' do
+      let(:base_indexer) do
+        Class.new do
+          attr_reader :resource
+
+          def initialize(resource:)
+            @resource = resource
+          end
+
+          def to_solr(*_args, **_kwargs)
+            {
+              'contributors_json_ss' => [{ 'name' => 'Jane Doe', 'role' => 'Author' }].to_json,
+              'contributors_name_tesim' => ['Jane Doe']
+            }
+          end
+        end
+      end
+
+      it 'leaves non-URI values unchanged' do
+        doc = index(title: ['Test'])
+        parsed = JSON.parse(doc['contributors_json_ss'])
+        expect(parsed.first['name']).to eq 'Jane Doe'
+        expect(doc['contributors_name_tesim']).to eq ['Jane Doe']
+      end
     end
   end
 end

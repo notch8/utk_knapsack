@@ -6,8 +6,18 @@ require 'json'
 require 'uri'
 
 TENANT = ENV.fetch('TENANT', '56e0eb81-c2d5-4d5d-9171-b251bf7299a4')
-SOLR = URI("http://#{ENV.fetch('SOLR_HOST')}:#{ENV.fetch('SOLR_PORT')}/solr/#{TENANT}/select")
-AUTH = [ENV.fetch('SOLR_ADMIN_USER'), ENV.fetch('SOLR_ADMIN_PASSWORD')].freeze
+# Inside a pod the credentials arrive as one SOLR_URL; a dev shell sets the four
+# separately. Take whichever is there so the script runs either place unchanged.
+HOST, PORT, USER, PASSWORD =
+  if (url = ENV['SOLR_URL'])
+    u = URI(url)
+    [u.host, u.port, u.user, u.password]
+  else
+    [ENV.fetch('SOLR_HOST'), Integer(ENV.fetch('SOLR_PORT')),
+     ENV.fetch('SOLR_ADMIN_USER'), ENV.fetch('SOLR_ADMIN_PASSWORD')]
+  end
+SOLR = URI("http://#{HOST}:#{PORT}/solr/#{TENANT}/select")
+AUTH = [USER, PASSWORD].freeze
 FIELDS = %w[id bulkrax_identifier_tesim digest_ssim mime_type_ssi
             file_size_lts label_tesim].join(',')
 OUT = ARGV.fetch(0, '/tmp/lookup.jsonl')
@@ -20,7 +30,7 @@ started = Time.now
 File.open(OUT, 'w') do |out|
   Net::HTTP.start(SOLR.hostname, SOLR.port) do |http|
     loop do
-      params = { q: 'bulkrax_identifier_tesim:*', rows: ROWS, fl: FIELDS,
+      params = { q: 'bulkrax_identifier_tesim:*', rows: ROWS, fl: FIELDS, qt: 'standard',
                  sort: 'id asc', wt: 'json', omitHeader: 'true', cursorMark: cursor }
       req = Net::HTTP::Get.new("#{SOLR.path}?#{URI.encode_www_form(params)}")
       req.basic_auth(*AUTH)
