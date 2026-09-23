@@ -4,5 +4,6 @@ class DigitalCollectionIndexer < Hyrax::Indexers::PcdmCollectionIndexer
   check_if_flexible(DigitalCollection)
 
   include Hyrax::IndexesThumbnails
+  include UtkUriLabelIndexing
   include HykuIndexing
 end

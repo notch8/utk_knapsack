@@ -13,4 +13,8 @@ RSpec.describe DigitalCollectionIndexer do
     expect(described_class.new(resource:).to_solr)
       .to include('account_cname_tesim' => Site.instance.account&.cname)
   end
+
+  it 'indexes URI labels for controlled vocabulary properties' do
+    expect(described_class.ancestors).to include UtkUriLabelIndexing
+  end
 end
