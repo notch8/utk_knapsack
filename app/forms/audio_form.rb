@@ -7,6 +7,7 @@
 # @see https://github.com/samvera/valkyrie/wiki/ChangeSets-and-Dirty-Tracking
 class AudioForm < Hyrax::Forms::ResourceForm(Audio)
   include VideoEmbedBehavior::Validation
+  include MediaViewerFormBehavior
 
   check_if_flexible(Audio)
 

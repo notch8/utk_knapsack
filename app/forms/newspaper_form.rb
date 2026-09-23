@@ -7,6 +7,7 @@
 # @see https://github.com/samvera/valkyrie/wiki/ChangeSets-and-Dirty-Tracking
 class NewspaperForm < Hyrax::Forms::ResourceForm(Newspaper)
   include VideoEmbedBehavior::Validation
+  include MediaViewerFormBehavior
 
   check_if_flexible(Newspaper)
 
