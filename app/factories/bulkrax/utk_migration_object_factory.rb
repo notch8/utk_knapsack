@@ -16,6 +16,7 @@ module Bulkrax
       resource = klass.new(**work_attributes(attrs))
       resource.id = ::Valkyrie::ID.new(attrs[:id]) if attrs[:id].present?
       resource.admin_set_id ||= self.class.find_or_create_default_admin_set.id
+      apply_pdf_viewer_defaults(resource)
 
       saved = Hyrax.persister.save(resource:)
       apply_permissions(saved, attrs[:visibility])
@@ -157,6 +158,11 @@ module Bulkrax
 
       resource.visibility = visibility if visibility.present?
       resource.permission_manager.acl.save
+    end
+
+    def apply_pdf_viewer_defaults(resource)
+      resource.set_value(:show_pdf_viewer, true) if resource.respond_to?(:show_pdf_viewer) && resource.show_pdf_viewer.nil?
+      resource.set_value(:show_pdf_download_button, true) if resource.respond_to?(:show_pdf_download_button) && resource.show_pdf_download_button.nil?
     end
 
     NON_METADATA = %i[id sha1 mime_type file_size label original_filename visibility

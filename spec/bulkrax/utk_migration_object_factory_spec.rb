@@ -171,6 +171,19 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       allow(described_class).to receive(:find_or_create_default_admin_set) { admin_set }
     end
 
+    it 'defaults show_pdf_viewer to true when not set' do
+      expect(work.show_pdf_viewer).to be true
+    end
+
+    it 'defaults show_pdf_download_button to true when not set' do
+      expect(work.show_pdf_download_button).to be true
+    end
+
+    it 'preserves an explicit false for show_pdf_viewer' do
+      explicit = build_factory(StillImage, attrs.merge(show_pdf_viewer: false)).send(:create_work, attrs.merge(show_pdf_viewer: false))
+      expect(explicit.show_pdf_viewer).to be false
+    end
+
     # `work_resource.apply_permission_template`. Visibility alone grants only
     # `read:group/public`, so a role held on the admin set would never reach the
     # works migrated into it.
