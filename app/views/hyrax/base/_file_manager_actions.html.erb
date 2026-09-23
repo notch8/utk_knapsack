@@ -1,0 +1,12 @@
+<%# OVERRIDE Hyrax 5.3.0 to add a sequence sort beside the alphabetical one. %>
+  <div class="actions card">
+    <div class="d-flex flex-wrap">
+      <%= button_tag t('.save'), class: "btn btn-primary disabled mr-2 mb-2", data: { action: "save-actions" }, 'aria-disabled': true %>
+      <%= button_tag t('.sort_alphabetically'), class: "btn btn-primary mr-2 mb-2", data: { action: "alpha-sort-action" } %>
+      <%= button_tag t('.sort_by_sequence'), class: "btn btn-primary mb-2", 'aria-describedby': "sequence-sort-hint", data: { action: "sequence-sort-action" } %>
+    </div>
+    <p id="sequence-sort-hint" class="text-muted small mb-0"><%= t('.sort_by_sequence_hint') %></p>
+    <p class="sr-only" role="status" aria-live="polite" data-sequence-sort-status data-message="<%= t('.sort_by_sequence_status') %>"></p>
+  </div>
+  <%= render "file_manager_resource_form" %>
+  <%= javascript_include_tag "hyku_knapsack/file_manager_sequence_sort" %>

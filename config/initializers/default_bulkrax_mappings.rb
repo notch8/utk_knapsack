@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+## Set custom bulkrax parser field mappings for app
+parser_mappings = {
+  'abstract' => { from: ['abstract'], split: /\s*[|]\s*/ },
+  'acquisition_identifier' => { from: ['acquisition_identifier'], split: /\s*[|]\s*/ },
+  'alternative_title' => { from: ['alternative_title'], split: /\s*[|]\s*/ },
+  'archival_collection' => { from: ['archival_collection'], split: /\s*[|]\s*/ },
+  'ark' => { from: ['ark'], split: /\s*[|]\s*/ },
+  'behavior' => { from: ['behavior'], split: /\s*[|]\s*/ },
+  'bibliographic_citation' => { from: ['bibliographic_citation'], split: /\s*[|]\s*/ },
+  'bits_per_sample' => { from: ['bits_per_sample'], split: /\s*[|]\s*/ },
+  'bulkrax_identifier' => { from: ['source_identifier'], source_identifier: true, generated: true, search_field: 'bulkrax_identifier_tesim' },
+  'call_number' => { from: ['call_number'], split: /\s*[|]\s*/ },
+  'capture_software' => { from: ['capture_software'], split: /\s*[|]\s*/ },
+  'children' => { from: ['children'], split: /\s*[;|]\s*/, related_children_field_mapping: true },
+  'color_profile' => { from: ['color_profile'], split: /\s*[|]\s*/ },
+  'color_space' => { from: ['color_space'], split: /\s*[|]\s*/ },
+  'compression_scheme' => { from: ['compression_scheme'], split: /\s*[|]\s*/ },
+  'coordinates' => { from: ['coordinates'], split: /\s*[|]\s*/ },
+  'creator' => { from: ['creator'], split: /\s*[|]\s*/ },
+  'creator_name' => { from: ['creator_name'], object: 'creators', nested_attributes: true, name: 'name' },
+  'creator_role' => { from: ['creator_role'], object: 'creators', nested_attributes: true, name: 'role' },
+  'contributor_name' => { from: ['contributor_name'], object: 'contributors', nested_attributes: true, name: 'name' },
+  'contributor_role' => { from: ['contributor_role'], object: 'contributors', nested_attributes: true, name: 'role' },
+  'date_created' => { from: ['date_created'], split: /\s*[|]\s*/ },
+  'date_created_d' => { from: ['date_created_d'] },
+  'date_issued' => { from: ['date_issued'], split: /\s*[|]\s*/ },
+  'date_issued_d' => { from: ['date_issued_d'] },
+  'date_modified' => { from: ['date_modified'], generated: true },
+  'date_other' => { from: ['date_other'], split: /\s*[|]\s*/ },
+  'date_other_d' => { from: ['date_other_d'], split: /\s*[|]\s*/ },
+  'date_uploaded' => { from: ['date_uploaded'], generated: true },
+  'depositor' => { from: ['depositor'], generated: true },
+  'duration' => { from: ['duration'], split: /\s*[|]\s*/ },
+  'extent' => { from: ['extent'], split: /\s*[|]\s*/ },
+  'file' => { from: ['file'], split: /\s*[|]\s*/ },
+  'file_language' => { from: ['file_language'], split: /\s*[|]\s*/ },
+  'file_size' => { from: ['file_size'], split: /\s*[|]\s*/ },
+  'first_line' => { from: ['first_line'], split: /\s*[|]\s*/ },
+  'form' => { from: ['form'], split: /\s*[|]\s*/ },
+  'form_local' => { from: ['form_local'], split: /\s*[|]\s*/ },
+  'format_name' => { from: ['format_name'], split: /\s*[|]\s*/ },
+  'frame_height' => { from: ['frame_height'], split: /\s*[|]\s*/ },
+  'frame_width' => { from: ['frame_width'], split: /\s*[|]\s*/ },
+  'has_work_type' => { from: ['has_work_type'], split: /\s*[|]\s*/ },
+  'hash_value' => { from: ['hash_value'], split: /\s*[|]\s*/ },
+  'instrumentation' => { from: ['instrumentation'], split: /\s*[|]\s*/ },
+  'intended_audience' => { from: ['intended_audience'], split: /\s*[|]\s*/ },
+  'intermediate_provider' => { from: ['intermediate_provider'], split: /\s*[|]\s*/ },
+  'is_associated_with_page' => { from: ['is_associated_with_page'], split: /\s*[|]\s*/ },
+  'is_part_of' => { from: ['is_part_of'], split: /\s*[|]\s*/ },
+  'isbn' => { from: ['isbn'], split: /\s*[|]\s*/ },
+  'issn' => { from: ['issn'], split: /\s*[|]\s*/ },
+  'keyword' => { from: ['keyword'], split: /\s*[|]\s*/ },
+  'label' => { from: ['label'], generated: true },
+  'language' => { from: ['language'], split: /\s*[|]\s*/ },
+  'language_local' => { from: ['language_local'], split: /\s*[|]\s*/ },
+  'license' => { from: ['license'], split: /\s*[|]\s*/ },
+  'local_identifier' => { from: ['local_identifier'], split: /\s*[|]\s*/ },
+  'media_viewer' => { from: ['media_viewer'] },
+  'note' => { from: ['note'], split: /\s*[|]\s*/ },
+  'oclc' => { from: ['oclc'], split: /\s*[|]\s*/ },
+  'other_version' => { from: ['other_version'], split: /\s*[|]\s*/ },
+  'parents' => { from: ['parents'], split: /\s*[;|]\s*/, related_parents_field_mapping: true },
+  'primary_identifier' => { from: ['primary_identifier'], split: /\s*[|]\s*/ },
+  'provider' => { from: ['provider'], split: /\s*[|]\s*/ },
+  'publication_place' => { from: ['publication_place'], split: /\s*[|]\s*/ },
+  'path' => { from: ['redirect_path'], object: 'redirects', nested_attributes: true },
+  'is_display_url' => { from: ['redirect_is_display_url'], object: 'redirects', nested_attributes: true },
+  'rdf_type' => { from: ['rdf_type'], split: /\s*[|]\s*/ },
+  'remote_files' => { from: ['remote_files'], split: /\s*[|]\s*/ },
+  'repository' => { from: ['repository'], split: /\s*[|]\s*/ },
+  'resource_link' => { from: ['resource_link'], split: /\s*[|]\s*/ },
+  'resource_type' => { from: ['resource_type'], split: /\s*[|]\s*/ },
+  'resource_type_local' => { from: ['resource_type_local'], split: /\s*[|]\s*/ },
+  'rights_statement' => { from: ['rights', 'rights_statement'], split: /\s*[|]\s*/ },
+  'sequence' => { from: ['sequence'], split: /\s*[|]\s*/ },
+  'sheetmusic_hostitem' => { from: ['sheetmusic_hostitem'], split: /\s*[|]\s*/ },
+  'spatial' => { from: ['spatial'], split: /\s*[|]\s*/ },
+  'spatial_local' => { from: ['spatial_local'], split: /\s*[|]\s*/ },
+  'subject' => { from: ['subject'], split: /\s*[|]\s*/ },
+  'table_of_contents' => { from: ['table_of_contents'], split: /\s*[|]\s*/ },
+  'temporal' => { from: ['temporal'], split: /\s*[|]\s*/ },
+  'title' => { from: ['title'], split: /\s*[|]\s*/ },
+  'utk_minute_taker' => { from: ['utk_minute_taker'], split: /\s*[|]\s*/ },
+  'utk_place_of_publication' => { from: ['utk_place_of_publication'], split: /\s*[|]\s*/ },
+  'xresolution' => { from: ['xresolution'], split: /\s*[|]\s*/ }
+}
+
+# currently Bulkrax does not support headers with spaces
+# here we add the key but with the underscore turned into a space to accommodate
+parser_mappings.each do |key, value|
+  value[:from] += ([key.tr('_', ' ')] + value[:from].map { |f| f.is_a?(String) ? f.tr('_', ' ') : f })
+  value[:from].uniq!
+end
+
+# all parsers use the same mappings:
+mappings = {}
+mappings["Bulkrax::BagitParser"] = parser_mappings
+mappings["Bulkrax::CsvParser"] = parser_mappings
+mappings["Bulkrax::UtkMigrationCsvParser"] = parser_mappings
+Hyku.default_bulkrax_field_mappings = mappings

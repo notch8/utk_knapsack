@@ -1,0 +1,512 @@
+<title>Allinson Flex to M3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+  :root {
+    --paper:      #faf9f7;
+    --surface:    #f2f0ec;
+    --ink:        #161a1d;
+    --ink-soft:   #3d454d;
+    --slate:      #5c6672;
+    --rule:       #ddd9d2;
+    --signal:     #a3342a;
+    --signal-bg:  #f7ebe9;
+    --valid:      #1f6f68;
+    --valid-bg:   #e7f1ef;
+    --code-bg:    #f4f2ee;
+
+    --display: "Newsreader", Georgia, "Times New Roman", serif;
+    --body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --measure: 68ch;
+    --step-0: 1.0625rem;
+    --step-1: 1.25rem;
+    --step-2: 1.5rem;
+    --step-3: 2rem;
+    --step-4: 2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #14171a;
+      --surface:   #1c2024;
+      --ink:       #e8e6e2;
+      --ink-soft:  #b6bcc4;
+      --slate:     #8c96a3;
+      --rule:      #2c3238;
+      --signal:    #e08076;
+      --signal-bg: #2a1d1c;
+      --valid:     #5fb5aa;
+      --valid-bg:  #162523;
+      --code-bg:   #1a1e22;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:     #14171a;
+    --surface:   #1c2024;
+    --ink:       #e8e6e2;
+    --ink-soft:  #b6bcc4;
+    --slate:     #8c96a3;
+    --rule:      #2c3238;
+    --signal:    #e08076;
+    --signal-bg: #2a1d1c;
+    --valid:     #5fb5aa;
+    --valid-bg:  #162523;
+    --code-bg:   #1a1e22;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.5rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--measure);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+  }
+
+  /* ---- masthead ---- */
+  header.masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 4.5rem 0 2rem;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 1rem;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin: 0;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: var(--step-4);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .standfirst {
+    font-family: var(--display);
+    font-size: var(--step-1);
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    text-wrap: pretty;
+    margin: 0;
+    max-width: 54ch;
+  }
+
+  /* ---- headings ---- */
+  h2 {
+    font-family: var(--display);
+    font-size: var(--step-3);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 2.75rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  h3 {
+    font-family: var(--body);
+    font-size: var(--step-1);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+    margin: 1.75rem 0 0;
+  }
+  h3 .num {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--slate);
+    margin-right: 0.6rem;
+  }
+
+  p { margin: 0; text-wrap: pretty; }
+  strong { font-weight: 600; }
+  a { color: var(--signal); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ul, ol { margin: 0; padding-left: 1.35rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  li { padding-left: 0.2rem; }
+  li::marker { color: var(--slate); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.855em;
+    background: var(--code-bg);
+    padding: 0.12em 0.36em;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    word-break: break-word;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--slate);
+    border-radius: 3px;
+    padding: 0.9rem 1.1rem;
+    margin: 0;
+    overflow-x: auto;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+  /* ---- the headline finding ---- */
+  .finding {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+  }
+  .finding div {
+    background: var(--surface);
+    padding: 1.1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .finding .n {
+    font-family: var(--mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+  .finding .before .n { color: var(--signal); }
+  .finding .after .n  { color: var(--valid); }
+  .finding .lbl {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    line-height: 1.4;
+  }
+
+  /* ---- callouts ---- */
+  .note {
+    background: var(--surface);
+    border-left: 3px solid var(--slate);
+    border-radius: 0 3px 3px 0;
+    padding: 0.95rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .note.warn { background: var(--signal-bg); border-left-color: var(--signal); }
+  .note .tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+  .note.warn .tag { color: var(--signal); }
+
+  /* ---- tables ---- */
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.875rem; min-width: 34rem; }
+  th, td { text-align: left; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { font-size: 0.8rem; }
+  .kill { color: var(--signal); font-weight: 600; }
+  .keep { color: var(--valid); font-weight: 600; }
+
+  /* ---- footer ---- */
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--ink);
+    font-size: 0.85rem;
+    color: var(--slate);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  @media (max-width: 34rem) {
+    :root { --step-4: 2.1rem; --step-3: 1.6rem; }
+    .finding { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Hyrax 5.3+ · Flexible Metadata</p>
+    <h1>Allinson Flex to M3</h1>
+    <p class="standfirst">The two formats share a skeleton and a version string. That is precisely why a profile can read correctly, parse cleanly, and still fail validation hundreds of times.</p>
+  </header>
+
+  <p>Hyrax v5.3 replaced the Allinson Flex gem with built-in flexible metadata (<code>HYRAX_FLEXIBLE=true</code>). Profiles live in the <code>hyrax_flexible_schemas</code> table and are validated by <code>Hyrax::FlexibleSchemaValidatorService</code>.</p>
+
+  <p>Both formats declare <code>m3_version: 1.0.beta2</code> and share the same top-level blocks — <code>profile</code>, <code>classes</code>, <code>contexts</code>, <code>mappings</code>, <code>properties</code>. The substantive difference sits in one key. Allinson Flex used <code>indexing:</code> for <em>behavioral hints</em>. Hyrax M3 uses it for <strong>literal Solr field names</strong>. A profile whose <code>indexing:</code> says <code>displayable</code> is declaring a Solr field that does not exist.</p>
+
+  <div class="finding">
+    <div class="before">
+      <span class="n">378</span>
+      <span class="lbl">Schema errors<br>as written</span>
+    </div>
+    <div class="before">
+      <span class="n">189</span>
+      <span class="lbl">of 191 properties<br>affected</span>
+    </div>
+    <div class="after">
+      <span class="n">1</span>
+      <span class="lbl">Root cause<br><code>displayable</code></span>
+    </div>
+  </div>
+
+  <p>Those numbers come from converting a real profile: UTK Digital Collections v54, 191 properties across 9 classes. Every error traced to a single key. Only two properties validated as written. The converted profile is 195 properties across 10 classes.</p>
+
+  <p>But <code>displayable</code> was only the loud failure. The quiet ones pass every validator: a <code>range</code> with no Valkyrie type raises when a work type builds its attributes, and a literal <code>display_label</code> is valid but never localizes. Counting errors measures the first kind and not the second.</p>
+
+  <h2>Where the contract lives</h2>
+
+  <p>The profile contract is defined in code, not prose. Verified against <code>samvera/hyrax</code> at <code>ca9ccf8</code>.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Concern</th><th>File</th></tr></thead>
+      <tbody>
+        <tr><td>Formal JSON schema</td><td><code>config/metadata_profiles/m3_json_schema.json</code></td></tr>
+        <tr><td>Validator orchestration</td><td><code>app/services/hyrax/flexible_schema_validator_service.rb</code></td></tr>
+        <tr><td>Individual validators</td><td><code>app/services/hyrax/flexible_schema_validators/</code></td></tr>
+        <tr><td>Key translation</td><td><code>app/models/hyrax/flexible_schema.rb</code></td></tr>
+        <tr><td>Schema loading</td><td><code>app/services/hyrax/m3_schema_loader.rb</code></td></tr>
+        <tr><td>Required core properties</td><td><code>config/metadata/core_metadata.yaml</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>A known-good reference: <code>hyku/config/metadata_profiles/m3_profile.yaml</code>. Copy its conventions rather than inventing them.</p>
+
+  <h2>Key mapping</h2>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Allinson Flex</th><th>M3 outcome</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>indexing: [displayable]</code></td><td class="kill">Remove</td><td>No equivalent. Record intent in <code>index_documentation</code>.</td></tr>
+        <tr><td><code>stored_searchable</code>, <code>facetable</code>, <code>admin_only</code></td><td class="keep">Keep</td><td>Legal enum flags.</td></tr>
+        <tr><td><em>absent</em></td><td><code>[&lt;name&gt;_sim, &lt;name&gt;_tesim]</code></td><td><strong>Must be added.</strong> Nothing else produces real Solr keys.</td></tr>
+        <tr><td><code>multi_value</code></td><td><code>data_type: array|string</code></td><td>Legacy key still read, but <code>data_type</code> is checked first.</td></tr>
+        <tr><td><code>cardinality.minimum</code></td><td>Required flag</td><td><code>&gt;= 1</code> means required.</td></tr>
+        <tr><td><code>cardinality.maximum</code></td><td>Multiplicity fallback</td><td>Only when <code>data_type</code> and <code>multi_value</code> are absent.</td></tr>
+        <tr><td><code>range</code></td><td><code>type</code> (Dry type)</td><td><code>#dateTime</code>→<code>date_time</code>. Must resolve to a real <code>Valkyrie::Types::*</code>; <code>rdf-schema#Literal</code> does not, and <code>#anyURI</code> resolves to a type Solr cannot store. Both become <code>#string</code>.</td></tr>
+        <tr><td><code>property_uri</code></td><td><code>predicate</code></td><td>Renamed by <code>values_map</code>.</td></tr>
+        <tr><td><code>display_label</code> (literal)</td><td><code>display_label.default</code></td><td>Passed through <code>I18n.t</code>, so only a Blacklight key localizes.</td></tr>
+        <tr><td><code>available_on.class</code></td><td>Class scope</td><td>Must name registered curation concerns.</td></tr>
+        <tr><td><code>definition</code>, <code>sample_values</code>, <code>mappings</code>, <code>controlled_values</code></td><td class="keep">Passed through</td><td>Legal and preserved.</td></tr>
+        <tr><td><em>absent</em></td><td><code>form: {…}</code></td><td><strong>Required to reach the deposit form at all.</strong> No block means the field is never registered.</td></tr>
+        <tr><td><em>absent</em></td><td><code>view: {…}</code></td><td><strong>Required for show-page rendering.</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Strict blocks and loose blocks</h3>
+
+  <p>A frequent misreading: the <code>properties.*</code> subschema lists allowed keys but does <strong>not</strong> set <code>additionalProperties: false</code>. Extra keys are legal, and Hyrax reads several of them. Do not strip <code>controlled_values</code>, <code>mappings</code>, or <code>sample_values</code> to "conform".</p>
+
+  <p>The <code>profile:</code> block <em>is</em> strict. Only <code>date_modified</code>, <code>responsibility</code>, <code>responsibility_statement</code>, <code>type</code>, and <code>version</code> are permitted.</p>
+
+  <h2>Decision points</h2>
+
+  <p>Eight calls that a mechanical conversion cannot make for you. They are numbered because later ones depend on earlier ones.</p>
+
+  <h3><span class="num">01</span>Class naming: Valkyrie or ActiveFedora</h3>
+  <p><code>ClassValidator</code> requires every class to be a registered curation concern, compared against <code>Valkyrie.config.resource_class_resolver</code>. A mismatch reads:</p>
+  <pre><code>Mismatched Valkyrie classes found: 'Image' should be 'ImageResource'.</code></pre>
+  <p>Flexible metadata is <strong>Valkyrie-only</strong>. An ActiveFedora app cannot load a flexible profile no matter how the profile is written. Keeping ActiveFedora names yields a structurally valid profile that will not load until models migrate; using <code>...Resource</code> names yields one that loads on a migrated app and misleads before then. Either way the model migration is a prerequisite, not a follow-up.</p>
+
+  <h3><span class="num">02</span>Renaming and removing classes</h3>
+  <p>A source profile's work types rarely match the ones the application registers. Two declarative maps drive this, and both apply to <code>classes</code> <em>and</em> to every <code>available_on.class</code> list — the half that is easy to miss by hand. For UTK: <code>Image</code> becomes <code>StillImage</code>, while <code>Attachment</code> and <code>GenericWork</code> are dropped.</p>
+  <p>A rename also updates the class's own <code>display_label</code> when the label merely echoed the old name, or the UI keeps showing "Image" under the key <code>StillImage</code>.</p>
+  <div class="note warn">
+    <span class="tag">Dropping a class can orphan properties</span>
+    <p>A property scoped only to a dropped class ends up with an empty <code>available_on.class</code> — a silently broken property, not a validation error. Check exclusive scopes before dropping, and let the conversion fail loudly rather than write the orphan.</p>
+  </div>
+
+  <h3><span class="num">03</span>Required classes</h3>
+  <p>Every profile must declare <code>admin_set_model</code>, <code>collection_model</code>, and <code>file_set_model</code> — in Hyku, <code>AdminSetResource</code>, <code>CollectionResource</code>, and <code>Hyrax::FileSet</code>. Allinson Flex profiles usually declare only work types, so all three are typically missing. This cascades: core properties must be available on <em>every</em> class, so adding three classes edits <code>available_on</code> on every core property.</p>
+
+  <h3><span class="num">04</span>FileSet-level metadata</h3>
+  <p>Hyrax expects file-level technical metadata — checksums, dimensions, format — on the FileSet, and requires a <code>label</code> property available on <code>file_set_model</code>. Allinson Flex profiles often model this as a work type instead.</p>
+  <div class="note warn">
+    <span class="tag">Not a mechanical edit</span>
+    <p>Re-scoping properties to <code>Hyrax::FileSet</code> is a <strong>data-model change</strong>. Existing records hold that metadata at the work level and need migration. Confirm with the metadata owners before shipping.</p>
+  </div>
+
+  <h3><span class="num">05</span>Core metadata conformance</h3>
+  <p><code>CoreMetadataValidator</code> enforces <code>title</code>, <code>date_modified</code>, <code>date_uploaded</code>, <code>depositor</code>, and <code>creator</code> — the last injected even when absent from the YAML. Each must exist, cover every class, and match the exact predicate and index keys in <code>core_metadata.yaml</code>.</p>
+  <p><code>creator</code> is the usual conflict. Hyrax demands <code>http://purl.org/dc/elements/1.1/creator</code>, while many profiles use a MARC relator such as <code>.../relators/cre</code>. Satisfying the validator <strong>changes an existing predicate</strong>, affecting indexing, OAI-PMH output, and downstream consumers. If the relator must survive, keep it under a separate key and let <code>creator</code> take the DC predicate. This is a metadata-governance decision, not a technical one.</p>
+
+  <h3><span class="num">06</span>Multiplicity contradictions</h3>
+  <p>Profiles commonly declare <code>multi_value: true</code> alongside <code>cardinality.maximum: 1</code>. Hyrax checks <code>data_type</code>, then <code>multi_value</code>, then cardinality — so the field is multi-valued and the <code>maximum: 1</code> is inert. In the UTK profile, 38 properties carried this contradiction.</p>
+  <p>Normalize onto <code>data_type</code> and drop the contradicted maximum. Preserving current behavior means <code>array</code>, but some fields are semantically single-valued — an EXIF resolution, a checksum — and were multi-valued only by accident. Surface the list for review rather than silently freezing it.</p>
+
+  <h3><span class="num">07</span>Show-page visibility</h3>
+  <div class="note warn">
+    <span class="tag">Most easily missed regression</span>
+    <p>Show-page rendering is <strong>opt-in</strong>. A property renders only when it declares a meaningful <code>view:</code> block such as <code>view: {html_dl: true}</code>. Allinson Flex profiles have none — so a mechanical conversion produces a profile where <em>every field disappears from show pages</em> while still validating and indexing correctly.</p>
+  </div>
+  <p>Restricted fields (<code>admin_only</code> / <code>editor_only</code>) are excluded from the attribute table anyway and need no <code>view:</code> block.</p>
+
+  <h3><span class="num">08</span>YAML aliases</h3>
+  <p>If the profile is generated programmatically, Ruby's YAML emitter writes anchors and aliases (<code>&amp;1</code> / <code>*1</code>) whenever one object is reachable from several places — a shared <code>available_on.class</code> array, for instance. Hyrax loads profiles with <code>YAML.safe_load_file</code>, which rejects aliases:</p>
+  <pre><code>Psych::BadAlias: Unknown alias: 1</code></pre>
+  <p>Round-trip through JSON before dumping, so every value is written literally. Hand-edited profiles are unaffected.</p>
+
+  <h2>Validation error catalog</h2>
+
+  <p><code>validate!</code> runs these in order. Errors block the save; warnings do not.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Validator</th><th>Checks</th><th>Representative message</th></tr></thead>
+      <tbody>
+        <tr><td><code>SchemaValidator</code></td><td>The JSON schema</td><td>Schema error at <code>/properties/x/indexing/0</code>: invalid value <code>"displayable"</code></td></tr>
+        <tr><td>required classes</td><td>Admin set, collection, file set</td><td><code>Missing required classes: Hyrax::FileSet.</code></td></tr>
+        <tr><td><code>ClassValidator</code></td><td>Registered + Valkyrie-named</td><td><code>Mismatched Valkyrie classes found: …</code></td></tr>
+        <tr><td><code>ClassValidator</code></td><td><code>available_on</code> ⊆ <code>classes</code></td><td><code>Classes referenced in available_on but not defined…</code></td></tr>
+        <tr><td><code>ExistingRecordsValidator</code></td><td>No in-use class removed</td><td>Blocks dropping a class still holding records</td></tr>
+        <tr><td>label</td><td>Exists, on file set model</td><td><code>Label must be available on Hyrax::FileSet.</code></td></tr>
+        <tr><td><code>CoreMetadataValidator</code></td><td>Typed, indexed, predicated, everywhere</td><td><code>Missing required property: depositor.</code></td></tr>
+        <tr><td><code>SortPropertiesValidator</code></td><td>Sort fields on work types</td><td><em>warning</em></td></tr>
+        <tr><td><code>RedirectsValidator</code></td><td><code>redirects</code> when enabled</td><td>Error only when config and Flipflop are both on</td></tr>
+        <tr><td><code>RichTextValidator</code></td><td>Not on controlled vocab</td><td><em>warning</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Indexing rules</h3>
+  <p>Each <code>indexing:</code> entry must match this pattern, or be one of <code>facetable</code>, <code>admin_only</code>, <code>editor_only</code>, <code>stored_searchable</code>:</p>
+  <pre><code>^[a-z_]+_(tesi|tesim|teim|ssi|sim|ssm|bsi|isi|dts|dtsi|ti|si|ss|is|bs|dt|ssim)$</code></pre>
+  <p><code>displayable</code> satisfies neither, which is why each occurrence produces two errors — one <code>pattern</code>, one <code>enum</code>. Hence 189 properties yielding 378 errors.</p>
+  <ul>
+    <li><code>&lt;name&gt;_tesim</code> — stored, searchable, multi-valued text. Effectively always.</li>
+    <li><code>&lt;name&gt;_sim</code> — string form for faceting and display.</li>
+    <li><code>facetable</code> — adds the field to facets.</li>
+    <li><code>admin_only</code> / <code>editor_only</code> — restrict visibility; also removes the field from the catalog entirely.</li>
+  </ul>
+
+  <h2>Procedure</h2>
+
+  <p><strong>Convert with a script, not by hand.</strong> At ~200 properties manual editing is unreliable; a script is auditable and rerunnable for the next version. <code>convert_allinson_to_m3.rb</code> never writes to its input:</p>
+
+  <pre><code>ruby docs/m3_migration/scripts/convert_allinson_to_m3.rb</code></pre>
+
+  <p>It reports what it changed. Read that summary — several transforms are judgment calls made on your behalf. What it applies:</p>
+
+  <ol>
+    <li><strong>Detab the source</strong> if tab-indented, in memory only.</li>
+    <li><strong>Rewrite <code>indexing:</code></strong> — drop <code>displayable</code>, generate real keys, retain enum flags.</li>
+    <li><strong>Normalize multiplicity</strong> onto <code>data_type</code>; drop contradicted maximums.</li>
+    <li><strong>Add required classes</strong>, drop and rename per decisions 01–03.</li>
+    <li><strong>Add missing core metadata</strong> and conform <code>title</code>, <code>creator</code>, <code>keyword</code>.</li>
+    <li><strong>Add <code>view:</code> blocks</strong> so fields still render.</li>
+    <li><strong>Fix the <code>profile:</code> block</strong> — allowed keys only; quote <code>date_modified</code>.</li>
+    <li><strong>Normalize unmappable <code>range</code> values</strong>, keeping <code>controlled_values.format</code> in step.</li>
+    <li><strong>Apply Blacklight <code>display_label</code> keys</strong> where one resolves.</li>
+    <li><strong>Add <code>form:</code> blocks</strong> so properties reach the deposit form, minus the ones flagged autopopulated.</li>
+    <li><strong>Order the keys</strong> within each property: <code>name</code> first, then alphabetical.</li>
+  </ol>
+
+  <div class="note warn">
+    <span class="tag">The quiet one</span>
+    <p>A property with no <code>form:</code> block never reaches a metadata form. <code>form_definitions_for</code> skips properties whose form options are empty, so the field is never registered and the <code>display: true</code> default never applies — <code>primary_terms</code> and <code>secondary_terms</code> both miss it. Everything validates; the deposit form is just empty. Hyku's own profile gives 70 of 80 properties a form block, and the 10 without are all system-managed.</p>
+  </div>
+
+  <p>Then verify, in order:</p>
+
+  <ol start="12">
+    <li><strong>Validate against the JSON schema.</strong> This is the objective gate.</li>
+    <li><strong>Validate in a booted app.</strong> Schema-clean is necessary but not sufficient.</li>
+    <li><strong>Review the semantic diff</strong> — no property dropped, no key lost, every predicate change intended.</li>
+  </ol>
+
+  <p>The schema gate, runnable without booting Rails:</p>
+  <pre><code>cd /path/to/hyrax &amp;&amp; ruby -ryaml -rjson_schemer -e '
+schemer = JSONSchemer.schema(
+  Pathname.new("config/metadata_profiles/m3_json_schema.json"))
+errs = schemer.validate(YAML.safe_load_file("m3_profile.yaml")).to_a
+puts errs.empty? ? "VALID" : "#{errs.size} errors"
+errs.first(20).each { |e|
+  puts "  #{e["data_pointer"]}: #{e["data"].inspect} (#{e["type"]})" }'</code></pre>
+
+  <p>Then the validators that need Rails:</p>
+  <pre><code>bundle exec rails r 'p Hyrax::FlexibleSchema.new(
+  profile: YAML.safe_load_file("m3_profile.yaml")
+).tap(&amp;:valid?).errors.full_messages'</code></pre>
+
+  <h2>What validation cannot tell you</h2>
+
+  <p>A profile can pass every validator and still be wrong.</p>
+
+  <ul>
+    <li><strong>Missing <code>view:</code> blocks</strong> — fields validate and index, then vanish from show pages.</li>
+    <li><strong>Predicate changes</strong> — retargeting <code>creator</code> is structurally fine and semantically significant.</li>
+    <li><strong>Class re-scoping</strong> — validates instantly, may strand existing records.</li>
+    <li><strong>Accidental multiplicity</strong> — <code>data_type: array</code> on a checksum is legal and wrong.</li>
+    <li><strong>Unmappable <code>range</code> values</strong> — <code>rdf-schema#Literal</code> 500s the deposit form; <code>#anyURI</code> renders fine and 500s on <em>save</em>, with an error naming Solr rather than the profile.</li>
+    <li><strong>Unresolved <code>display_label</code> keys</strong> — an i18n key with no translation renders as its own raw text.</li>
+    <li><strong>Missing <code>form:</code> blocks</strong> — the profile validates, the schema seeds, the work type instantiates, and the deposit form comes up nearly empty. The one that silently loses most of a converted profile.</li>
+  </ul>
+
+  <p>The last two share a shape: both validators check the profile's <em>structure</em>, and neither resolves a value against the running application. A profile is verified when a work type instantiates and its form builds, not when it saves.</p>
+
+  <div class="note">
+    <span class="tag">The through-line</span>
+    <p>Treat validation as a floor, not a finish line. The errors tell you the profile will load. Only a semantic diff tells you it still means what it used to.</p>
+  </div>
+
+  <footer>
+    <p>Verified against <code>samvera/hyrax</code> @ <code>ca9ccf8</code> · reference profile from <code>samvera/hyku</code></p>
+    <p>Worked example: UTK Digital Collections v54 — 191 properties, 9 classes, 378 errors to zero.</p>
+  </footer>
+
+</div>

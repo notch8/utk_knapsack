@@ -1,0 +1,102 @@
+inherit_gem:
+  bixby: bixby_default.yml
+
+AllCops:
+  NewCops: disable
+  TargetRubyVersion: 3.2.2
+  DisplayCopNames: true
+  SuggestExtensions: false
+  Exclude:
+  # NOTE: When we run knapsack's rubocop, we don't want to check the submodule
+  #       for Hyku.  We'll assume it's okay and has it's own policing policies.
+  - "hyrax-webapp/**/*"
+  - "gems/**/*"
+  - "tmp/**/*"
+
+# The m3 migration scripts are standalone plain-Ruby utilities run with `ruby`,
+# never loaded by Rails, so the Rails cops do not apply: Time.zone is nil there
+# and ActiveSupport's index_with is unavailable. They stay under every other cop.
+Rails/TimeZone:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
+  - "bin/migration/*.rb"
+
+Rails/IndexWith:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
+
+# The conversion's top-level loop transforms one property at a time; splitting it
+# would scatter a sequence that is meant to be read in order.
+Metrics/BlockLength:
+  AllowedMethods: ['included', 'describe', 'it', 'context']
+  Exclude:
+  - "spec/**/*.rb"
+  - "docs/m3_migration/scripts/*.rb"
+  - "bin/migration/*.rb"
+
+# core_property assembles an m3 property from its parts; each is a distinct field.
+Metrics/ParameterLists:
+  Exclude:
+  - "docs/m3_migration/scripts/*.rb"
+
+Style/AsciiComments:
+  Enabled: false
+
+# rubocop suggests !thing.nil? instead, but that is NOT equivalent
+Style/DoubleNegation:
+  Enabled: false
+
+Style/CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    collect!: 'map!'
+    inject: 'reduce'
+    detect: 'find'
+    find_all: 'select'
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Rails/ApplicationJob:
+  Enabled: false
+
+Rails/ApplicationMailer:
+  Enabled: false
+
+Rails/ApplicationRecord:
+  Enabled: false
+
+Rails/RakeEnvironment:
+  Enabled: false
+
+# We define custom methods like `find_by_user_key`,
+# `find_by_created_date`, etc
+Rails/DynamicFindBy:
+  Enabled: false
+
+# # By default RSpec/MessageSpies has the following:
+# #   Prefer have_received for setting message expectations. Setup form as a spy using allow or instance_spy.
+# # The default assumes EnforcedStyle is 'have_received'. Most of our specs are 'receive'
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/ExpectActual:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/MessageExpectation:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/LeadingSubject:
+  Enabled: false

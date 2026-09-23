@@ -1,0 +1,180 @@
+x-app: &app
+  build:
+    context: .
+    target: hyku-web
+    cache_from:
+      - ghcr.io/samvera-labs/hyku_knapsack/web:latest
+    args:
+      BUILDKIT_INLINE_CACHE: 1
+      APP_PATH: ./hyrax-webapp
+  image: ghcr.io/samvera-labs/hyku_knapsack/web:${TAG:-latest}
+  env_file:
+    - .env
+    - .env.development
+  environment:
+    # This line is what makes the knapsack include use the local code instead of the remote gem
+    - BUNDLE_LOCAL__HYKU_KNAPSACK=/app/samvera
+    - BUNDLE_DISABLE_LOCAL_BRANCH_CHECK=true
+    - HYRAX_FLEXIBLE=true
+  volumes:
+    - node_modules:/app/samvera/hyrax-webapp/node_modules:cached
+    - uploads:/app/samvera/hyrax-webapp/public/uploads:cached
+    - assets:/app/samvera/hyrax-webapp/public/assets:cached
+    - cache:/app/samvera/hyrax-webapp/tmp/cache:cached
+    - .:/app/samvera
+
+volumes:
+  assets:
+  cache:
+  db:
+  fcrepo:
+  node_modules:
+  redis:
+  solr:
+  uploads:
+  zk:
+  zoo:
+
+networks:
+  default:
+    name: stackcar
+
+services:
+  adminer:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: adminer
+
+  zoo:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: zoo
+
+  # Forked from hyrax-webapp/docker-compose.yml's solr service (can't extend
+  # and still drop its `build:`) to run plain solr:9 with no custom image.
+  solr:
+    image: solr:9
+    environment:
+      - OOM=script
+      - SOLR_ADMIN_USER=solr
+      - SOLR_ADMIN_PASSWORD=SolrRocks
+      - SOLR_COLLECTION=hydra-development
+      - SOLR_CLOUD_BOOTSTRAP=yes
+      - SOLR_ENABLE_CLOUD_MODE=yes
+      - SOLR_ENABLE_AUTHENTICATION=yes
+      - ZK_HOST=zoo:2181
+      - SOLR_HOST=solr
+      - VIRTUAL_PORT=8983
+      - VIRTUAL_HOST=solr.hyku.test
+      # solrconfig.xml's cache classes default to solr.search.{FastLRU,LRU}Cache, removed in Solr 9.
+      - SOLR_OPTS=-Dsolr.config.lib.enabled=true -Dsolr.filterCache.class=solr.CaffeineCache -Dsolr.queryResultCache.class=solr.CaffeineCache -Dsolr.documentCache.class=solr.CaffeineCache
+    user: root
+    # security.json is bind-mounted read-only, so it's copied into the writable
+    # /var/solr volume before chown rather than chowned in place.
+    command: bash -c "
+      cp /tmp/security.json /var/solr/data/security.json
+      && chown -R 8983:8983 /var/solr
+      && ./bin/solr zk cp file:/var/solr/data/security.json zk:/security.json
+      && runuser -u solr -- solr-foreground"
+    expose:
+      - 8983
+    volumes:
+      - solr:/var/solr
+      - ./solr/security.json:/tmp/security.json:ro
+    healthcheck:
+      test: curl -sf http://$$SOLR_ADMIN_USER:$$SOLR_ADMIN_PASSWORD@solr:8983/solr/admin/cores?action=STATUS || exit 1
+      start_period: 3s
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      zoo:
+        condition: service_healthy
+
+  fcrepo:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: fcrepo
+
+  fits:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: fits
+
+  # Forked from hyrax-webapp/docker-compose.yml's db service: extends merges
+  # `volumes:` instead of replacing it, so overriding the mount path on top of
+  # extends would leave both the old and new paths mounted.
+  db:
+    image: postgres:18
+    env_file:
+      - .env
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - VIRTUAL_PORT=5432
+      - VIRTUAL_HOST=db.hyku.test
+    volumes:
+      - db:/var/lib/postgresql
+
+  web:
+    <<: *app
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: web
+    # Uncomment command to access container with out starting bin/web. Useful for debugging or updating Gemfile.lock
+    # command: sleep infinity
+
+  worker:
+    <<: *app
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: worker
+    build:
+      context: .
+      target: hyku-worker
+      cache_from:
+        - ghcr.io/samvera-labs/hyku_knapsack/worker:latest
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        APP_PATH: ./hyrax-webapp
+    image: ghcr.io/samvera-labs/hyku_knapsack/worker:${TAG:-latest}
+    # Uncomment command to access container with out starting bin/worker. Useful for debugging or updating Gemfile.lock
+    # command: sleep infinity
+    volumes:
+      - node_modules:/app/samvera/hyrax-webapp/node_modules:cached
+      - uploads:/app/samvera/hyrax-webapp/public/uploads:cached
+      - assets:/app/samvera/hyrax-webapp/public/assets:cached
+      - cache:/app/samvera/hyrax-webapp/tmp/cache:cached
+      - .:/app/samvera
+
+  check_volumes:
+    <<: *app
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: check_volumes
+
+  initialize_app:
+    <<: *app
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: initialize_app
+    command:
+      - >
+        /app/samvera/bin/solrcloud-upload-configset.sh /app/samvera/solr/conf &&
+        /app/samvera/bin/solrcloud-assign-configset.sh &&
+        SOLR_COLLECTION_NAME=hydra-test /app/samvera/bin/solrcloud-assign-configset.sh &&
+        bundle &&
+        /app/samvera/bin/db-migrate-seed.sh
+
+  redis:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: redis
+
+  chrome:
+    extends:
+      file: hyrax-webapp/docker-compose.yml
+      service: chrome
