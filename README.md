@@ -307,8 +307,12 @@ git fetch prime && git merge prime/main
 ## CI
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
-build, test, lint, and reporting. Deploys are `workflow_dispatch`-only, against the templates in
-`ops/`.
+build, test, lint, and reporting. Successful pushes to `main` and `staging` auto-deploy after CI
+passes; production is not yet wired into the deploy workflow. Helm templates live in `ops/`.
+
+## Branching and Releases
+
+See [docs/branching-and-releases.md](./docs/branching-and-releases.md) for the GitLab Flow branching model, promotion process, auto-deploy mapping, and release automation.
 
 ## License
 
