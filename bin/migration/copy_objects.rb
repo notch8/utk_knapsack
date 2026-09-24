@@ -9,10 +9,12 @@ require 'aws-sdk-s3'
 require_relative '../../app/factories/bulkrax/utk_migration_object_key'
 
 SRC = ENV.fetch('SRC_BUCKET', 'besties-fcrepo')
+SRC_REGION = ENV.fetch('SRC_REGION', 'us-west-2')
 DST = ENV.fetch('DST_BUCKET', 'utk-poc')
 REGION = ENV.fetch('AWS_REGION', 'us-east-2')
 MANIFEST = ENV.fetch('COPY_MANIFEST', File.expand_path("../../tmp/migration/manifests/objects-#{DST}.txt", __dir__))
 THREADS = Integer(ENV.fetch('THREADS', 8))
+SINGLE_COPY_LIMIT = 5 * 1024**3
 abort 'THREADS must be at least 1' if THREADS < 1
 
 sheet = ARGV.fetch(0)
@@ -24,9 +26,9 @@ warn "manifest holds #{done.size} objects already copied"
 
 copies = CSV.read(sheet, headers: true)
             .select { |row| row['model'] == 'FileSet' }
-            .map { |row| [row['id'].to_s.strip, row['sha1'].to_s.strip] }
-            .reject { |id, sha1| id.empty? || sha1.empty? }
-            .to_h { |id, sha1| [Bulkrax::UtkMigrationObjectKey.for(file_set_id: id, sha1:), sha1] }
+            .map { |row| [row['id'].to_s.strip, row['sha1'].to_s.strip, row['file_size'].to_i] }
+            .reject { |id, sha1, _| id.empty? || sha1.empty? }
+            .to_h { |id, sha1, size| [Bulkrax::UtkMigrationObjectKey.for(file_set_id: id, sha1:), [sha1, size]] }
 
 todo = copies.reject { |key, _| done.include?(key) }.to_a
 warn "#{sheet}: #{copies.size} objects, #{todo.size} to copy"
@@ -44,9 +46,14 @@ queue.close
 workers = Array.new(THREADS) do
   Thread.new do
     while (job = queue.pop)
-      key, sha1 = job
+      key, (sha1, size) = job
       begin
-        client.copy_object(bucket: DST, key:, copy_source: "#{SRC}/#{sha1}")
+        if size > SINGLE_COPY_LIMIT
+          Aws::S3::Object.new(DST, key, client:)
+                         .copy_from("#{SRC}/#{sha1}", multipart_copy: true, copy_source_region: SRC_REGION)
+        else
+          client.copy_object(bucket: DST, key:, copy_source: "#{SRC}/#{sha1}")
+        end
         mutex.synchronize do
           log.puts(key)
           copied += 1
@@ -54,7 +61,7 @@ workers = Array.new(THREADS) do
       rescue StandardError => e
         mutex.synchronize do
           failed += 1
-          warn "  FAILED #{key} from #{sha1}: #{e.class}"
+          warn "  FAILED #{key} from #{sha1}: #{e.class}: #{e.message}"
         end
       end
     end

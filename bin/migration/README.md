@@ -89,6 +89,6 @@ run is a cross-region copy and billable egress.  Set the region deliberately.
 | | Used by |
 | --- | --- |
 | `SOLR_HOST`, `SOLR_PORT`, `SOLR_ADMIN_USER`, `SOLR_ADMIN_PASSWORD`, `TENANT` | the two lookup scripts |
-| `SRC_BUCKET`, `DST_BUCKET`, `AWS_REGION`, `THREADS`, `COPY_MANIFEST` | `copy_objects.rb` |
+| `SRC_BUCKET`, `SRC_REGION`, `DST_BUCKET`, `AWS_REGION`, `THREADS`, `COPY_MANIFEST` | `copy_objects.rb` |
 | `SRC_ROOT`, `DST_ROOT`, `DERIVATIVE_MANIFEST` | `copy_derivatives.rb` |
 | `UTK_NAMESPACE`, `UTK_DEPLOYMENT`, `UTK_CONTAINER`, `UTK_CNAME`, `UTK_TENANT`, `BATCH` | `pull_derivatives.rb` |
