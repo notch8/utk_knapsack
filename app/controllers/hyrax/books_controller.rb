@@ -14,5 +14,6 @@ module Hyrax
     # Use a Valkyrie aware form service to generate Valkyrie::ChangeSet style
     # forms.
     self.work_form_service = Hyrax::FormFactory.new
+    self.iiif_manifest_presenter_class = Hyrax::BookIiifManifestPresenter
   end
 end
