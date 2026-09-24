@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+sheet_arg=${1:?usage: bin/migration/prepare_sheet tmp/migration/sheets/<name>.csv [--dry-run]}
+dry_run=${2:-}
+sheet="$(cd "$(dirname "$sheet_arg")" && pwd)/$(basename "$sheet_arg")"
+cd "$(dirname "$0")/../.."
+
+name=$(basename "$sheet" .csv)
+lookup_output=tmp/migration/lookup/$name.jsonl
+import_csv=tmp/migration/out/$name.csv
+mkdir -p tmp/migration/lookup tmp/migration/out
+
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+  echo "🛑 No AWS credentials. Run it as: AWS_PROFILE=n8 bin/migration/prepare_sheet ..."
+  exit 1
+fi
+
+step=""
+trap 'echo "🛑 Stopped at: $step. Fix what it reported above, then run again."' ERR
+begin() { step=$1; echo; echo "▶️  $1"; }
+passed() { echo "✅ $step"; }
+
+begin "1. lookup -> $lookup_output"
+kubectl --context "${UTK_CONTEXT:-r2-besties}" exec -i -n "${UTK_NAMESPACE:-utk-hyku-production}" \
+  "${UTK_DEPLOYMENT:-deploy/utk-hyku-production-hyrax}" -c "${UTK_CONTAINER:-hyrax}" -- \
+  bash -lc "cat > /tmp/sheet.csv; echo $(base64 < bin/migration/collection_lookup.rb) | base64 -d > /tmp/l.rb; ruby /tmp/l.rb /tmp/sheet.csv /dev/stdout" \
+  < "$sheet" > "$lookup_output"
+passed
+
+begin "2. transform -> $import_csv"
+ruby bin/migration/sheet_transform.rb "$sheet" "$lookup_output" "$import_csv"
+passed
+
+begin "3. copy originals: ${SRC_BUCKET:-besties-fcrepo} -> s3://${DST_BUCKET:-utk-poc}"
+ruby bin/migration/copy_objects.rb "$import_csv" $dry_run
+passed
+
+begin "4. stage derivatives: legacy EFS -> s3://${DERIVATIVES_BUCKET:-utk-poc}/derivatives"
+ruby bin/migration/stage_derivatives.rb "$import_csv" $dry_run
+passed
+
+begin "5. fill derivatives: s3://${DERIVATIVES_BUCKET:-utk-poc}/derivatives -> ${DST_ROOT:-hyrax-webapp/tmp/derivatives}"
+DST_ROOT=${DST_ROOT:-hyrax-webapp/tmp/derivatives} ruby bin/migration/fill_derivatives.rb "$import_csv" $dry_run
+passed
+
+echo
+if [ "$dry_run" = "--dry-run" ]; then
+  echo "🧪 Dry run passed. Nothing was copied; run again without --dry-run."
+else
+  echo "🎉 Ready to import: $import_csv"
+fi

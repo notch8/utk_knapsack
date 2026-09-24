@@ -4,6 +4,24 @@ Operator scripts for the UTK migration.  They run by hand, outside the applicati
 at a time.  `MIGRATION_PLAN.md` at the repo root is the design record; this file is the operating
 manual.
 
+## TL;DR: one collection, locally
+
+You need: `aws --profile n8` working, a kubectl context named `r2-besties`, the local stack up, the
+collection's `DigitalCollection` record already imported, and UTK's sheet for the collection,
+downloaded as CSV from the shared Google Drive into `tmp/migration/sheets/`.
+
+```bash
+AWS_PROFILE=n8 bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --dry-run
+AWS_PROFILE=n8 bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv
+```
+
+It looks the sheet up in legacy Solr, transforms it, copies the originals, and stages and fills the
+derivatives, then prints the file to import.  It stops at the first failure, including any stop
+line in the transform's report (unmatched identifiers, missing required properties, file sets with
+no digest, unknown role columns).  Use `BATCH=1` for a sheet heavy in audio or video.
+
+Then import that file at `/importers/new` with the **UTK Migration - CSV** parser.
+
 **Code lives here, data does not.**  Sheets, lookups, transform output and copy manifests all live
 in `tmp/migration/`, which is gitignored.  Nothing here writes into the repository.
 

@@ -169,7 +169,7 @@ else
   warn "  #{originals.size} are OBJ, so that many works arrive with no preservation master" if originals.any?
 end
 
-unknown_roles = out_rows.first&.keys.to_a.select do |header|
+unknown_roles = headers.select do |header|
   header.start_with?('utk_') && !PROFILE['properties'].key?(header) &&
     !PROFILE['properties'].key?(header.delete_prefix('utk_'))
 end
@@ -177,3 +177,5 @@ warn "UNKNOWN ROLE COLUMNS, passed through untouched: #{unknown_roles.join(', ')
 
 duplicate_digests = file_set_rows.map { |row| row['sha1'] }.compact.tally.select { |_, n| n > 1 }
 warn "shared digests within this sheet: #{duplicate_digests.size}" if duplicate_digests.any?
+
+exit 1 if unmatched.any? || missing.any? || no_digest.any? || unknown_roles.any?
