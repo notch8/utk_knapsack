@@ -1,8 +1,9 @@
 # UTK migration plan
 
 **BLUF.**  UTK's Hyrax 3 repository moves into this knapsack by minting metadata that points at the
-bytes it already has.  Preservation files stay in S3 under their sha1, derivatives are copied by
-pairtree, and nothing is uploaded or regenerated.  One collections sheet is ingested first, then one
+bytes it already has.  Preservation files are copied server side into each environment's bucket under
+the key an upload would get, derivatives are copied by pairtree, and nothing is uploaded or
+regenerated.  One collections sheet is ingested first, then one
 work sheet per collection, each through Bulkrax with a migration-only object factory that persists
 directly.  Measured against a real UI deposit, the result is identical on every field that matters
 except the two the migration exists to change.  Two things stand between here and the real run:
@@ -149,6 +150,7 @@ Derivative uses follow Hyrax's own `MigrateFilesToValkyrieJob`: `thumbnail` to `
 | Do not attach file sets in the factory | Lock contention.  See **Member order** |
 | Migrate the latest file version only | No history is carried across |
 | Solr's `date_uploaded`/`system_create` become the migration date | Those fields record when a record entered *this* system.  The dates a reader wants travel in descriptive metadata |
+| Originals are keyed like an upload | `<file set id>/<uuid>`, the shape `Valkyrie::Storage::Shrine` gives a deposit, so one bucket holds one shape.  The IIIF auth gate reads the file set id from the first segment, and each file set owns its object, so a delete touches nothing else.  The uuid is v5 of `<file set id>/<sha1>` under `URL_NAMESPACE` (`Bulkrax::UtkMigrationObjectKey`), so the copy and the factory derive it independently and a re-run lands on the same key.  Costs a copy per file set where 98,310 share a sha1 |
 | Derivatives stay on a mounted volume | `derivatives_storage_adapter` defaults to disk and every deployment checked runs it that way.  S3 would mean genuinely moving bytes, since `ValkyrieUpload` mints its own key |
 
 ## Traps
@@ -156,8 +158,8 @@ Derivative uses follow Hyrax's own `MigrateFilesToValkyrieJob`: `thumbnail` to `
 Each of these fails silently.
 
 - **`checksum` must hold the sha1.**  iiif_print builds `digest_ssim` from `checksum`, and that is
-  the IIIF identifier.  Get it wrong and the bytes are intact while every image is permanently
-  unresolvable, with nothing failing at ingest.
+  the IIIF identifier for any file set without `storage_file_identifier_ss` indexed.  Get it wrong
+  and the bytes are intact while those images are unresolvable, with nothing failing at ingest.
 - **Pass `parser_mapping: Hydra::Works::Characterization.mapper`**, the unmerged default.  Hyrax
   merges `original_checksum: :checksum`, which writes FITS's md5 over the sha1.
 - **Pass `**Hyrax.config.characterization_options`.**  Without it the default is the FITS CLI, which
@@ -165,12 +167,12 @@ Each of these fails silently.
 - **A derivative is a `FileMetadata`, not a file on disk.**  `FileSet#thumbnail_id` is not stored;
   it is `find_thumbnail`, a query for the first file with the `ThumbnailImage` use.  A file set
   with none shows the placeholder no matter what sits on disk.
-- **Deleting a migrated work deletes UTK's preservation master.**
+- **Deleting a migrated work deletes its copy of the master.**
   `file_set.delete_all_file_metadata` ends with
-  `Valkyrie::StorageAdapter.delete(id: resource.file_identifier)`.  A migrated file set's
-  `file_identifier` is `shrine://<sha1>`, pointing at bytes in the shared bucket that the legacy
-  application is still serving, and that 98,310 file sets share with another file set.  Untested,
-  and not to be tested against `besties-fcrepo`.
+  `Valkyrie::StorageAdapter.delete(id: resource.file_identifier)`.  The object is that file set's
+  alone and the destination buckets are versioned, so the delete leaves a recoverable delete marker
+  and `besties-fcrepo` is never touched.  File sets imported before the rekey still point at
+  `shrine://<sha1>`, which other file sets may share.
 - **Three derivatives share `ExtractedText` (from IIIF Print)**, and `find_extracted_text` returns
   the first, so `#extracted_text` usually answers with word-coordinate JSON rather than text.  Read
   the `text/plain` one explicitly.  Upstream's mapping, not ours.
@@ -223,7 +225,8 @@ Per file set:
    row is found at its preserved id and takes Bulkrax's update path, leaving files untouched.
 3. `file_identifier` is `shrine://`.  The `disk://` fallback exists for local runs; in a deployment
    it means S3 was misconfigured and every file set points at nothing.
-4. The identifier's remainder equals the sheet's `sha1`.
+4. The identifier's remainder equals `Bulkrax::UtkMigrationObjectKey.for` of the row's `id` and
+   `sha1`.
 5. `checksum` equals that same `sha1`.  The silent one.
 6. The object exists in the destination bucket, as a set difference against a bucket listing.
 7. Every derivative on the source pairtree has a `FileMetadata` with the matching `pcdm_use`, and
@@ -259,9 +262,9 @@ Per work:
   So ~316 works arrive with no master, against 20,302 missing only a derivative the new system
   generates anyway.  ALTO is a derivative rather than a file set in the new model, which may mean
   most of these should not migrate as file sets at all.
-- **Which bucket does the new application read?**  The IIIF Lambda reads `besties-fcrepo`, not the
-  destination.  Either the function changes or the destination is `besties-fcrepo`.  Whoever owns
-  that function has to make the change; `DeveloperAccess` cannot read Lambda config.
+- **Which bucket does the IIIF service read?**  The legacy Lambda reads `besties-fcrepo`.  Originals
+  are copied under new keys, so the destination cannot be `besties-fcrepo`, and whatever serves
+  IIIF has to read the destination bucket.  `DeveloperAccess` cannot read Lambda config.
 - **Region.**  `besties-fcrepo` is us-west-2, `utk-poc` is us-east-2.  Cross-region copy of 7.79 TiB
   is billable egress.
 - **`xresolution` holds `"9"`** on every Attachment sampled, which is not a plausible dpi.  Ask UTK

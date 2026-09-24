@@ -37,11 +37,11 @@ not move them.  Both copy scripts take `--dry-run`.
 
 ### The manifests are global
 
-`tmp/migration/manifests/objects.txt` and `derivatives.txt` are append-only logs of what has been
-copied, shared by every collection rather than one per sheet.  98,310 file sets share a sha1 with
-another file set and those pairs cross collection boundaries, so a per-sheet log would re-copy them
-and could not tell a re-copy from a first copy when resuming.  Both copy scripts skip what the
-manifest already holds, which is what makes an interrupted run safe to repeat.
+`tmp/migration/manifests/objects-<bucket>.txt` and `derivatives.txt` are append-only logs of what
+has been copied, shared by every collection rather than one per sheet.  The object manifest is named
+after `DST_BUCKET` because a line records a key, not where it went, so one file per destination is
+what keeps a copy to dev from skipping keys that only exist locally.  Both copy scripts skip what
+the manifest already holds, which is what makes an interrupted run safe to repeat.
 
 ### Collections before their members
 
@@ -67,8 +67,10 @@ the collection exists.
   compounds.  The role map comes from `config/authorities/{creator,contributor}_roles.yml`, so the
   emitted `role` is the term the form validates against, and a new term is picked up automatically.
 - **`copy_objects.rb`** copies a sheet's originals into the destination bucket with server-side
-  `copy_object`, so no bytes pass through the application.  Threaded, resumable, and skips anything
-  the global manifest already holds.
+  `copy_object`, so no bytes pass through the application.  Each file set gets its own copy at
+  `<file set id>/<uuid>`, the key `Bulkrax::UtkMigrationObjectKey` derives and the factory writes
+  into `file_identifier`, so the two cannot disagree.  Threaded, resumable, and skips anything the
+  per-bucket manifest already holds.
 - **`copy_derivatives.rb`** copies a sheet's derivatives between derivative stores.  Both roots come
   from the environment (`SRC_ROOT`, `DST_ROOT`) because they differ per deployment: production sets
   `HYRAX_DERIVATIVES_PATH`, a local stack leaves it unset and Hyrax defaults to `tmp/derivatives`.
