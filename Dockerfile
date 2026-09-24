@@ -29,14 +29,6 @@ CMD ["./bin/web"]
 FROM hyku-web AS hyku-worker
 CMD ["./bin/worker"]
 
-# Use a Solr version with patched Log4j to address CVE-2021-44228
-FROM solr:8.11.2 AS hyku-solr
-ENV SOLR_USER="solr" \
-    SOLR_GROUP="solr"
-USER root
-COPY --chown=solr:solr solr/security.json /var/solr/data/security.json
-USER $SOLR_USER
-
 FROM nginxinc/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/pdf.js /app/samvera/hyrax-webapp/public/pdf.js

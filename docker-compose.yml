@@ -3,11 +3,11 @@ x-app: &app
     context: .
     target: hyku-web
     cache_from:
-      - ghcr.io/samvera-labs/hyku_knapsack/web:latest
+      - ghcr.io/notch8/utk_knapsack/web:${TAG:-latest}
     args:
       BUILDKIT_INLINE_CACHE: 1
       APP_PATH: ./hyrax-webapp
-  image: ghcr.io/samvera-labs/hyku_knapsack/web:${TAG:-latest}
+  image: ghcr.io/notch8/utk_knapsack/web:${TAG:-latest}
   env_file:
     - .env
     - .env.development
@@ -136,11 +136,11 @@ services:
       context: .
       target: hyku-worker
       cache_from:
-        - ghcr.io/samvera-labs/hyku_knapsack/worker:latest
+        - ghcr.io/notch8/utk_knapsack/worker:${TAG:-latest}
       args:
         BUILDKIT_INLINE_CACHE: 1
         APP_PATH: ./hyrax-webapp
-    image: ghcr.io/samvera-labs/hyku_knapsack/worker:${TAG:-latest}
+    image: ghcr.io/notch8/utk_knapsack/worker:${TAG:-latest}
     # Uncomment command to access container with out starting bin/worker. Useful for debugging or updating Gemfile.lock
     # command: sleep infinity
     volumes:
