@@ -10,6 +10,7 @@ Hyrax.config do |config|
   config.admin_set_model = 'AdminControl'
 
   config.flexible = ActiveModel::Type::Boolean.new.cast(ENV.fetch('HYRAX_FLEXIBLE', 'true'))
+  config.derivative_options[:video].reject! { |output| output[:label] == 'webm' }
 
   # Prepend to ensure knapsack profile is checked before the host app's profiles.
   config.schema_loader_config_search_paths.unshift(HykuKnapsack::Engine.root) \
