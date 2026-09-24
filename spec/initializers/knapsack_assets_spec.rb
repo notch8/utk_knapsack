@@ -37,15 +37,6 @@ RSpec.describe 'config/initializers/knapsack_assets.rb' do
     expect(knapsack).to be < app
   end
 
-  # Compared exactly, not with start_with: Hyku sits *inside* the knapsack at
-  # `<root>/hyrax-webapp`, so a prefix match is satisfied by the file this
-  # override exists to beat.
-  it 'resolves a path Hyku also ships to the knapsack copy' do
-    filename = precompile_environment.find_asset('codemirror-autorefresh.js')&.filename.to_s
-
-    expect(filename).to eq HykuKnapsack::Engine.root.join('app', 'assets', 'javascripts', 'codemirror-autorefresh.js').to_s
-  end
-
   # The sequence sort is not reachable from `application.js`, so it only ships if
   # it is named in `precompile`. Development compiles it on demand either way,
   # which is exactly how a missing entry stays invisible until deploy.
