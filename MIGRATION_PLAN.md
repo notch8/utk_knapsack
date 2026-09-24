@@ -6,9 +6,8 @@ the key an upload would get, derivatives are copied by pairtree, and nothing is 
 regenerated.  One collections sheet is ingested first, then one
 work sheet per collection, each through Bulkrax with a migration-only object factory that persists
 directly.  Measured against a real UI deposit, the result is identical on every field that matters
-except the two the migration exists to change.  Two things stand between here and the real run:
-collection rows cannot yet be imported, and members are not ordered by `sequence` and get no
-thumbnail until a post-import pass exists.
+except the two the migration exists to change.  One thing stands between here and the real run:
+members are not ordered by `sequence` and get no thumbnail until a post-import pass exists.
 
 The source is the `utk-hyku-production` namespace, where UTK is the `digitalcollections.lib.utk.edu`
 tenant of a shared deployment.
@@ -50,8 +49,9 @@ tenant-wide pass run once and reused by every sheet after it.
 
 **The first sheet is the collections sheet.**  UTK supplies one sheet carrying every
 `DigitalCollection` record, and it is ingested before any other.  Every work sheet after it
-references them by identifier (`parents: collections:ruskin`).  The parser cannot route collection
-rows yet, so this step is blocked; work sheets wait on it.
+references them by identifier (`parents: collections:ruskin`).  The migration parser cannot route
+collection rows, so the collections sheet goes through Bulkrax's stock `CSV - Comma Separated
+Values` parser instead, which imports `DigitalCollection` rows as they are.
 
 **Local first, then staging, then production, on the same file.**  A sheet is transformed once,
 locally.  The result is imported locally and checked, and then that CSV is promoted unchanged: the
@@ -59,6 +59,12 @@ file Bulkrax holds from the local import is what staging imports, and staging's 
 imports.  Nothing is re-transformed between environments.  The copy steps run in every environment
 before its import, since the CSV carries pointers and they have to resolve where it runs; a copy
 that was skipped fails characterization with `FileNotFound` rather than passing.
+
+**Local proves the sheet, not the viewer.**  A local import checks what the migration decides:
+keys, bytes, checksums, characterization, thumbnails, membership.  The IIIF viewer is checked on a
+deployed environment only.  Locally nothing serves `/iiif/2/`, since the tenant-host IIIF URLs
+depend on the deployed nginx proxy, and the legacy Lambda reads `besties-fcrepo`, which holds no
+object under the new keys.
 
 Per sheet:
 
@@ -99,7 +105,7 @@ and which bucket that is remains open; see **Open questions**.
 | | Store | Addressed by | Size |
 | --- | --- | --- | --- |
 | Preservation files | S3 `besties-fcrepo`, us-west-2 | bare sha1 hex | 7.79 TiB / 1,177,142 objects are UTK's |
-| Derivatives | EFS at `/app/samvera/derivatives` | pairtree of the **file set id** | unmeasured; EFS reports the whole filesystem to every tenant |
+| Derivatives | EFS at `/app/samvera/derivatives` | pairtree of the **file set id** | ~140 GB are UTK's, measured 2026-09-23; see below |
 | IIIF | Lambda function URL, us-west-2 | the sha1 | derives per request |
 
 The derivative pairtree is the file set id chopped every two characters, hyphens included, kind as
@@ -109,6 +115,31 @@ this application computes the identical path, so derivatives lift across unchang
 Per image file set the derivatives are `-thumbnail.jpeg` plus `-txt.txt`, `-xml.xml`, `-json.json`
 (OCR output from iiif_print).  A IIIF server cannot produce those, and the set must be copied all or
 nothing, since the coordinates only match the text they came from.
+
+Sizes, measured 2026-09-23 from UTK's Solr and the EFS: every audio and video file set, and a sample
+of 300 (200 for PDF) of each other type.  Image and PDF derivatives average 70 to 150 KB per file set,
+about 55 GB extrapolated.  Audio and video are few but large, about 83 GB.  The largest single file is
+a 2.4 GB `-mp4.mp4` beside a 2.2 GB `-webm.webm`.
+
+| Type | File sets | With derivatives | Size | Kinds |
+| --- | --- | --- | --- | --- |
+| `video/mp4` | 106 | 81 | 30.1 GB | mp4, webm, thumbnail |
+| `audio/mpeg` | 869 | 819 | 48.9 GB | mp3, ogg |
+| `audio/x-wave` | 733 | 66 | 4.3 GB | mp3, ogg |
+| quicktime, matroska, dv, mp4a | 66 | 0 | | |
+| `image/jp2`, `image/jpeg` | sample | all | 70 to 110 KB each | thumbnail, OCR |
+| `image/tiff` | sample | 72% | 82 KB each | thumbnail, OCR |
+| `application/pdf` | sample | 73% | 152 KB each | thumbnail |
+
+**A file set without derivatives is usually correct.**  The legacy application builds them only when
+the parent Attachment's `rdf_type` contains `IntermediateFile`, or the work is a `Pdf` or
+`GenericWork` (`Hyrax::ConditionalDerivativeDecorator` in utk-hyku, since 2023-02).  Preservation
+masters are skipped by design: 731 of 733 WAVs and every QuickTime and DV file are
+`PreservationFile`, and their mp3 or mp4 sibling carries the derivatives.  The migration copies
+what exists and generates nothing for the rest.  The exception is about 24 intermediate mp4s with no
+derivatives, which the rule says should have them.  They are treated as broken, and their derivatives
+are generated by hand after import.  `rdf_type` is stored on the Attachment as
+`rdf_type_ssm`, which Solr can return but not facet.
 
 ## Shape change
 
@@ -267,6 +298,9 @@ Per work:
   IIIF has to read the destination bucket.  `DeveloperAccess` cannot read Lambda config.
 - **Region.**  `besties-fcrepo` is us-west-2, `utk-poc` is us-east-2.  Cross-region copy of 7.79 TiB
   is billable egress.
+- **66 WAVs have derivatives** although the rule skips preservation files, possibly from before the
+  rule existed.  Not verified; harmless either way, since they copy like any other.
+- **13 m4a files are tagged `ExtractedText`**, which looks like a mislabel.  Ask UTK.
 - **`xresolution` holds `"9"`** on every Attachment sampled, which is not a plausible dpi.  Ask UTK
   before carrying it forward.
 
