@@ -5,8 +5,10 @@ RSpec.shared_examples 'a UTK work indexer' do
     expect(described_class.ancestors[1]).to eq HykuIndexing
   end
 
-  it 'indexes a date range year, so the work reaches the catalog date facet' do
-    expect(described_class.ancestors).to include UtkDateRangeIndexing
+  it 'indexes creation and publication years for the date range facet, but not other dates' do
+    dated = Hyrax.persister.save(resource: resource.class.new(date_created_d: ['1911'], date_other_d: ['1850']))
+
+    expect(described_class.new(resource: dated).to_solr[DateRangeIndexing::SOLR_FIELD]).to eq [1911]
   end
 
   it 'indexes URI labels for controlled vocabulary properties' do

@@ -5,7 +5,7 @@
 class BookIndexer < Hyrax::ValkyrieWorkIndexer
   check_if_flexible(Book)
 
-  include UtkDateRangeIndexing
+  include UtkDateRangeProperties
   include UtkUriLabelIndexing
   include HykuIndexing
 

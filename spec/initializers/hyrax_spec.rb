@@ -13,6 +13,10 @@ RSpec.describe 'config/initializers/hyrax.rb' do
     expect(registered).not_to include('GenericWork', 'Image', 'Etd', 'Oer')
   end
 
+  it 'makes mp4 video derivatives but not webm, which only Hyku still adds' do
+    expect(Hyrax.config.derivative_options[:video].map { |output| output[:label] }).to eq [:thumbnail, 'mp4']
+  end
+
   it 'points Bulkrax at a registered work type' do
     expect(registered).to include(Bulkrax::Entry.default_work_type)
   end

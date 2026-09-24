@@ -5,7 +5,7 @@
 class NewspaperIndexer < Hyrax::ValkyrieWorkIndexer
   check_if_flexible(Newspaper)
 
-  include UtkDateRangeIndexing
+  include UtkDateRangeProperties
   include UtkUriLabelIndexing
   include HykuIndexing
 

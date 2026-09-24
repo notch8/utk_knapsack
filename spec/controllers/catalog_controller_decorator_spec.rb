@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe CatalogController do
   let(:config) { described_class.blacklight_config }
-  let(:facet) { config.facet_fields[UtkDateRangeIndexing::SOLR_FIELD] }
+  let(:facet) { config.facet_fields[DateRangeIndexing::SOLR_FIELD] }
 
   describe 'the date range facet' do
     it 'is configured on the field the indexers write' do
@@ -12,39 +12,11 @@ RSpec.describe CatalogController do
     end
 
     it 'is labeled for both senses of date' do
-      expect(facet.label).to eq 'Date Created/Issued'
+      expect(facet.display_label('facet')).to eq 'Date Created/Issued'
     end
 
-    it 'is a range facet' do
-      expect(facet.range).to be true
-    end
-
-    # Without these the chart's domain is the data's own min and max, 101 to the
-    # current year, which blacklight_range_limit divides into ten ~190-year
-    # buckets and piles almost everything into the last one. Supported in the
-    # installed 8.5.0 at range_limit_builder.rb:28.
-    it 'pins the chart to a readable window rather than the full data range' do
-      expect(facet.range_config[:assumed_boundaries]).to eq [1800, Time.zone.now.year + 2]
-    end
-
-    it 'still renders a slider, which reads its bounds from Solr stats' do
-      expect(facet.range_config[:slider_js]).to be true
-    end
-
-    it 'renders a slider' do
-      expect(facet.range_config[:slider_js]).to be true
-    end
-
-    it 'renders a distribution histogram' do
-      expect(facet.range_config[:chart_js]).to be true
-    end
-
-    it 'reaches Solr, though it is added after Hyku calls add_facet_fields_to_solr_request!' do
+    it 'sends the facets the knapsack adds to Solr, though they are added after Hyku calls add_facet_fields_to_solr_request!' do
       expect(config.add_facet_fields_to_solr_request).to be true
-    end
-
-    it 'stays out of the advanced search facet selects, which cannot render a range' do
-      expect(facet.include_in_advanced_search).to be false
     end
   end
 
@@ -78,7 +50,7 @@ RSpec.describe CatalogController do
     it 'keeps the range facet renderable alongside them' do
       described_class.load_flexible_schema
 
-      expect(config.facet_fields[UtkDateRangeIndexing::SOLR_FIELD].if).not_to be false
+      expect(config.facet_fields[DateRangeIndexing::SOLR_FIELD].if).not_to be false
     end
   end
 
@@ -98,7 +70,7 @@ RSpec.describe CatalogController do
     end
 
     it 'keeps the numeric range field out of qf, where it can never match a term' do
-      expect(field.solr_local_parameters[:qf]).not_to include UtkDateRangeIndexing::SOLR_FIELD
+      expect(field.solr_local_parameters[:qf]).not_to include DateRangeIndexing::SOLR_FIELD
     end
 
     it 'is labeled for both senses of date' do

@@ -36,15 +36,6 @@ module CatalogControllerDecorator
     config.facet_fields.replace(rebuilt)
   end
 
-  def add_date_range_facet(config)
-    return if config.facet_fields.key?(UtkDateRangeIndexing::SOLR_FIELD)
-
-    config.add_facet_field UtkDateRangeIndexing::SOLR_FIELD,
-                           label: 'Date Created/Issued',
-                           range: { assumed_boundaries: [1800, Time.zone.now.year + 2] },
-                           include_in_advanced_search: false
-  end
-
   def edtf_properties
     profile = YAML.safe_load_file(Hyrax::Schema.m3_schema_loader.config_paths.first.to_s)
 
@@ -77,7 +68,6 @@ end
 
 CatalogController.configure_blacklight do |config|
   CatalogControllerDecorator.swap_in_compound_facets(config)
-  CatalogControllerDecorator.add_date_range_facet(config)
   CatalogControllerDecorator.hide_machine_readable_date_facets(config)
   CatalogControllerDecorator.search_machine_readable_dates(config)
   config.add_facet_fields_to_solr_request!

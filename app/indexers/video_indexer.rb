@@ -5,7 +5,7 @@
 class VideoIndexer < Hyrax::ValkyrieWorkIndexer
   check_if_flexible(Video)
 
-  include UtkDateRangeIndexing
+  include UtkDateRangeProperties
   include UtkUriLabelIndexing
   include HykuIndexing
 

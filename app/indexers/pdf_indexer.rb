@@ -5,7 +5,7 @@
 class PdfIndexer < Hyrax::ValkyrieWorkIndexer
   check_if_flexible(Pdf)
 
-  include UtkDateRangeIndexing
+  include UtkDateRangeProperties
   include UtkUriLabelIndexing
   include HykuIndexing
 

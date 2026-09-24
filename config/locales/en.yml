@@ -3,6 +3,9 @@ en:
     search:
       facets:
         missing: Unknown
+      fields:
+        facet:
+          date_range_isim: Date Created/Issued
   hyrax:
     base:
       file_manager_actions:
