@@ -86,8 +86,8 @@ and which bucket that is remains open; see **Open questions**.
 
 ## Before the real run
 
-- **The derivative root is the one the destination reads.**  `SRC_ROOT` and `DST_ROOT` differ per
-  deployment, and writing to the wrong one looks exactly like success.
+- **The derivative root is the one the destination reads.**  `fill_derivatives.rb`'s `DST_ROOT`
+  differs per deployment, and writing to the wrong one looks exactly like success.
 - **The collections sheet has been ingested.**  A work sheet run before it accumulates a
   relationship backlog that only resolves once the collections exist.
 - **The importer form's Visibility is set deliberately.**  A row with no `visibility` takes that
@@ -104,7 +104,7 @@ and which bucket that is remains open; see **Open questions**.
 
 The derivative pairtree is the file set id chopped every two characters, hyphens included, kind as
 suffix: `96/0e/8d/cb/-b/f4/2-/44/6d/.../6b/7c-thumbnail.jpeg`.  Because file set ids are preserved,
-this application computes the identical path, so derivatives lift across with an rsync.
+this application computes the identical path, so derivatives lift across unchanged.
 
 Per image file set the derivatives are `-thumbnail.jpeg` plus `-txt.txt`, `-xml.xml`, `-json.json`
 (OCR output from iiif_print).  A IIIF server cannot produce those, and the set must be copied all or
