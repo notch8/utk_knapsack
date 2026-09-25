@@ -1,0 +1,105 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('Gemfile', __dir__)
+ENV['AWS_EC2_METADATA_DISABLED'] ||= 'true'
+require 'bundler/setup'
+require 'aws-sdk-core'
+require_relative 'lib/migration'
+
+$stdout.sync = true
+
+module Migration
+  options = Options.parse(ARGV)
+
+  begin
+    Aws::STS::Client.new(region: ENV.fetch('AWS_REGION', 'us-east-2')).get_caller_identity
+  rescue StandardError
+    abort "🛑 No AWS credentials#{" for profile #{ENV['AWS_PROFILE']}" if ENV['AWS_PROFILE']}. Pass --profile <name>."
+  end
+
+  report = Report.new
+  target = Target.for(options[:target])
+  sheet = Sheet.read(File.expand_path(ARGV[0]))
+  name = File.basename(ARGV[0], '.csv')
+  %w[sheets lookup out].each { |dir| FileUtils.mkdir_p(File.join(WORK_DIR, dir)) }
+
+  Confirmation.new(options, target, sheet, File.basename(ARGV[0])).ask!
+
+  if options[:limit]
+    name = "#{name}-first#{options[:limit]}"
+    sheet = sheet.first_works(options[:limit])
+    sheet.write(File.join(WORK_DIR, 'sheets', "#{name}.csv"))
+    warn "tmp/migration/sheets/#{name}.csv: #{sheet.work_count == 1 ? 'first work' : "first #{sheet.work_count} works"}, " \
+         "#{sheet.rows.size} rows"
+  end
+
+  lookup_path = "tmp/migration/lookup/#{name}.jsonl"
+  import_path = "tmp/migration/out/#{name}.csv"
+  flagged_path = "tmp/migration/out/#{name}-flagged.csv"
+  legacy = Pod.legacy
+  tenant = ENV.fetch('UTK_TENANT', '56e0eb81-c2d5-4d5d-9171-b251bf7299a4')
+  lookup = {}
+  result = nil
+
+  write_result = lambda do |transformed|
+    result = transformed
+    CSV.open(File.join(ROOT, import_path), 'w') do |csv|
+      csv << result.headers
+      result.rows.each { |row| csv << result.headers.map { |h| row[h] } }
+    end
+    FileUtils.rm_f(File.join(ROOT, flagged_path))
+    if result.flagged.any?
+      CSV.open(File.join(ROOT, flagged_path), 'w') do |csv|
+        csv << %w[bulkrax_identifier reasons]
+        result.flagged.each { |root, list| csv << [root, list.map { |id, why| "#{id}: #{why.join(', ')}" }.join(' | ')] }
+      end
+      warn "SKIPPED #{result.flagged.size} works and everything under them -> #{flagged_path}"
+    end
+    warn "#{import_path}: #{result.rows.size} rows, #{result.headers.size} columns"
+    raise Stop, result.stops.join("\n") if result.stops.any?
+  end
+
+  report.step("1. lookup -> #{lookup_path}") do
+    out, err, status = legacy.run('lookup', 'lookup', tenant, stdin: sheet.identifiers.join("\n"))
+    raise Stop, "lookup in #{legacy} failed: #{err[-300..] || err}" unless status.success?
+
+    File.write(File.join(ROOT, lookup_path), out)
+    out.each_line { |line| JSON.parse(line).then { |doc| Array(doc['bulkrax_identifier_tesim']).each { |id| lookup[id] ||= doc } } }
+    unmatched = sheet.identifiers - lookup.keys
+    warn "DONE #{lookup.size} matched of #{sheet.identifiers.size} identifiers (#{unmatched.size} unmatched)"
+    raise Stop, "unmatched: #{unmatched.first(5).inspect}" if unmatched.any? && !options[:skip_missing]
+  end
+
+  report.step("2. transform -> #{import_path}") do
+    write_result.call(Transform.new(sheet, lookup, skip_missing: options[:skip_missing]).call)
+  end
+
+  originals = Originals.new(target, report, dry_run: options[:dry_run])
+  report.step("3. copy originals: #{Originals::SRC} -> s3://#{target.bucket}") do
+    raise Stop unless originals.copy(result.rows)
+    raise Stop if originals.missing.any? && !options[:skip_missing]
+  end
+
+  if originals.missing.any?
+    report.step("3b. drop works whose originals are missing -> #{flagged_path}") do
+      write_result.call(Transform.new(sheet, lookup, skip_missing: true, excluded: originals.missing).call)
+    end
+  end
+
+  file_set_ids = result.rows.select { |row| row['model'] == 'FileSet' }.map { |row| row['id'] }
+  report.step("4. stage derivatives: legacy EFS -> s3://#{target.derivatives_bucket}/#{PREFIX}") do
+    cname, = legacy.run('lookup', 'cname', tenant)
+    expected = ENV.fetch('UTK_CNAME', 'digitalcollections.lib.utk.edu')
+    raise Stop, "#{legacy} does not answer as #{expected}" unless cname.strip == expected
+    raise Stop unless Derivatives::Stage.new(target, report, dry_run: options[:dry_run]).call(file_set_ids, legacy)
+  end
+
+  report.step("5. fill derivatives: s3://#{target.derivatives_bucket}/#{PREFIX} -> #{target.fill_destination}") do
+    raise Stop unless Derivatives::Fill.new(target, report, dry_run: options[:dry_run]).call(file_set_ids)
+  end
+
+  puts
+  puts "⚠️  #{result.flagged.size} works flagged and left out, for a normal import: #{flagged_path}" if result.flagged.any?
+  puts options[:dry_run] ? '🧪 Dry run passed. Nothing was copied; run again without --dry-run.' : "🎉 Ready to import: #{import_path}"
+end
