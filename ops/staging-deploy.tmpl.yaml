@@ -316,11 +316,19 @@ extraInitContainers:
   - name: load-solr-config
     image: "ghcr.io/$REPO_LOWER/web:$TAG"
     imagePullPolicy: IfNotPresent
-    envFrom:
-      - configMapRef:
-          name: utk-knapsack-staging-hyrax-env
-      - secretRef:
-          name: utk-knapsack-staging-hyrax
+    env:
+      - name: SOLR_ADMIN_USER
+        value: admin
+      - name: SOLR_ADMIN_PASSWORD
+        value: $SOLR_ADMIN_PASSWORD
+      - name: SOLR_COLLECTION_NAME
+        value: utk-knapsack-staging
+      - name: SOLR_CONFIGSET_NAME
+        value: utk-knapsack-staging
+      - name: SOLR_HOST
+        value: solr.solr
+      - name: SOLR_PORT
+        value: "8983"
     command:
       - sh
       - -c
