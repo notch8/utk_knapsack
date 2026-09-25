@@ -50,9 +50,8 @@ module UtkUriLabelIndexing
         values = Array(resource.try(property)).map(&:to_s).select(&:present?)
         next unless values.any? { |v| v.match?(%r{\Ahttps?://}i) }
 
-        solr_doc["#{property}_tesim"] = values.map do |v|
-          v.match?(%r{\Ahttps?://}i) ? UriLabelResolver.label_for(v) : v
-        end
+        labels = values.map { |v| v.match?(%r{\Ahttps?://}i) ? UriLabelResolver.label_for(v) : v }
+        write_labels(solr_doc, property, labels)
       end
 
       resolve_compound_uris(solr_doc)
@@ -60,6 +59,18 @@ module UtkUriLabelIndexing
   end
 
   private
+
+  # Beside the stored URI rather than over it, matching how Hyrax indexes a local
+  # vocabulary: the id stays as the link target and what OAI harvests, and the catalog
+  # and show page read the label companion. Every index key the property already has
+  # gets one, so a facet resolves as well as a row.
+  def write_labels(solr_doc, property, labels)
+    keys = solr_doc.keys.select { |key| key.to_s.match?(/\A#{Regexp.escape(property.to_s)}_[^_]+\z/) }
+    keys.each do |key|
+      label_key = Hyrax::ControlledVocabularyFieldValues.label_key(key.to_s)
+      solr_doc[label_key] = labels unless label_key == key.to_s
+    end
+  end
 
   def resolve_compound_uris(solr_doc)
     solr_doc.keys.grep(/_json_ss\z/).each do |json_key|

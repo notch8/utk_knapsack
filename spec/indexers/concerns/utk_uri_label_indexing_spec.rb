@@ -58,6 +58,10 @@ RSpec.describe UtkUriLabelIndexing do
       )
     end
 
+    it 'excludes properties without controlled_values sources' do
+      expect(uri_properties).not_to include(:title, :abstract, :description)
+    end
+
     # A seeded tenant answers `resolvable?` for these, where the test database has no
     # vocabularies and answers false for everything, so the service is stubbed rather
     # than relying on which of the two this runs against.
@@ -68,10 +72,6 @@ RSpec.describe UtkUriLabelIndexing do
 
       expect(described_class.uri_properties).to include(:subject, :spatial)
       expect(described_class.uri_properties).not_to include(:rights_statement, :license, :resource_type)
-    end
-
-    it 'excludes properties without controlled_values sources' do
-      expect(uri_properties).not_to include(:title, :abstract, :description)
     end
 
     it 'returns an empty array when no schema exists' do
@@ -89,9 +89,34 @@ RSpec.describe UtkUriLabelIndexing do
     end
   end
 
-  it 'replaces URI values with labels in _tesim' do
+  # The stored URI is the link target and what OAI harvests, so it stays put and the
+  # label goes in a companion field, which is where Hyrax indexes a local vocabulary's
+  # label and where the catalog and show page read it from.
+  it 'writes the label beside the URI rather than over it' do
     doc = index(subject: ['http://id.loc.gov/authorities/subjects/sh12345'])
-    expect(doc['subject_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh12345']
+    expect(doc['subject_tesim']).to eq ['http://id.loc.gov/authorities/subjects/sh12345']
+    expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh12345']
+  end
+
+  # A property declaring a facet key gets a label companion for it too, or the facet
+  # lists raw URIs while the row beside it reads as a label.
+  context 'with a property indexed to a facet as well as a row' do
+    let(:faceting_base) do
+      Class.new(base_indexer) do
+        def to_solr(*args, **kwargs)
+          super.tap { |doc| doc['subject_sim'] = doc['subject_tesim'] if doc.key?('subject_tesim') }
+        end
+      end
+    end
+    let(:indexer_class) { Class.new(faceting_base) { include UtkUriLabelIndexing } }
+
+    it 'labels every index key the property declares' do
+      doc = index(subject: ['http://id.loc.gov/authorities/subjects/sh1'])
+
+      expect(doc['subject_label_sim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
+      expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
+      expect(doc['subject_sim']).to eq ['http://id.loc.gov/authorities/subjects/sh1']
+    end
   end
 
   it 'handles multiple URIs on one property' do
@@ -99,7 +124,7 @@ RSpec.describe UtkUriLabelIndexing do
                   'http://id.loc.gov/authorities/subjects/sh1',
                   'http://id.loc.gov/authorities/names/n2'
                 ])
-    expect(doc['subject_tesim']).to eq [
+    expect(doc['subject_label_tesim']).to eq [
       'Label for http://id.loc.gov/authorities/subjects/sh1',
       'Label for http://id.loc.gov/authorities/names/n2'
     ]
@@ -107,12 +132,15 @@ RSpec.describe UtkUriLabelIndexing do
 
   it 'handles capitalized URI schemes from Bulkrax' do
     doc = index(subject: ['Http://id.loc.gov/authorities/subjects/sh12345'])
-    expect(doc['subject_tesim']).to eq ['Label for Http://id.loc.gov/authorities/subjects/sh12345']
+    expect(doc['subject_label_tesim']).to eq ['Label for Http://id.loc.gov/authorities/subjects/sh12345']
   end
 
+  # Positional, so a reader pairing the two fields by index does not shift a label onto
+  # the wrong value.
   it 'preserves non-URI values alongside resolved labels' do
     doc = index(subject: ['plain text', 'http://id.loc.gov/authorities/subjects/sh1'])
-    expect(doc['subject_tesim']).to eq ['plain text', 'Label for http://id.loc.gov/authorities/subjects/sh1']
+    expect(doc['subject_tesim']).to eq ['plain text', 'http://id.loc.gov/authorities/subjects/sh1']
+    expect(doc['subject_label_tesim']).to eq ['plain text', 'Label for http://id.loc.gov/authorities/subjects/sh1']
   end
 
   it 'resolves labels across multiple properties' do
@@ -120,8 +148,8 @@ RSpec.describe UtkUriLabelIndexing do
       subject: ['http://id.loc.gov/authorities/subjects/sh1'],
       spatial: ['http://sws.geonames.org/4624443']
     )
-    expect(doc['subject_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
-    expect(doc['spatial_tesim']).to eq ['Label for http://sws.geonames.org/4624443']
+    expect(doc['subject_label_tesim']).to eq ['Label for http://id.loc.gov/authorities/subjects/sh1']
+    expect(doc['spatial_label_tesim']).to eq ['Label for http://sws.geonames.org/4624443']
   end
 
   context 'with a resource missing the controlled properties' do
