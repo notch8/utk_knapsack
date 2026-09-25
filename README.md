@@ -222,8 +222,8 @@ bundle exec rails db:migrate
 ```
 
 Rake tasks are the exception to the run-from-the-root rule: they need `Rails.root`, and
-`bin/rails db:migrate` from `/app/samvera` fails with `Unrecognized command`. The Knapsack has no
-`db/` of its own, so the migrations are Hyku's.
+`bin/rails db:migrate` from `/app/samvera` fails with `Unrecognized command`. Most migrations are
+Hyku's; the Knapsack's own `db/migrate` is picked up by the same command.
 
 ## Tests and lint
 
@@ -237,6 +237,9 @@ RAILS_ENV=test bundle exec rails db:create db:migrate
 Without it every spec dies in `rails_helper.rb` at `maintain_test_schema!` with
 `database "hyku_test" does not exist`. Note that `db:migrate` rewrites `hyrax-webapp/db/schema.rb`,
 which shows up as a dirty submodule.
+
+Re-run the same command when a Knapsack migration lands, or specs touching the new table fail with
+`PG::UndefinedTable` while the rest of the suite stays green.
 
 Then, from the Knapsack root (`/app/samvera`), not the submodule:
 
