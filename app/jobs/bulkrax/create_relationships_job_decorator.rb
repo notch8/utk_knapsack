@@ -2,8 +2,8 @@
 
 # OVERRIDE Bulkrax 9.5.1: after the relationship pass assembles a work's
 # member_ids, rewrite them in sequence order and set representative_id /
-# thumbnail_id to the first member. The migration factory bypasses the
-# transaction that normally does this.
+# thumbnail_id to the member the legacy app would have shown. The migration
+# factory bypasses the transaction that normally does this.
 module Bulkrax
   module CreateRelationshipsJobDecorator
     private
@@ -22,34 +22,56 @@ module Bulkrax
       members = Hyrax.query_service.find_members(resource: parent).to_a
       return if members.empty?
 
-      sorted_ids = sort_by_sequence(members) || parent.member_ids
-      return if sorted_ids.empty?
-
-      first_id = sorted_ids.first
-      return if already_ordered?(parent, sorted_ids, first_id)
+      sorted = sort_by_sequence(members)
+      sorted_ids = sorted.map(&:id)
+      representative_id = representative_for(sorted)&.id
+      return if already_ordered?(parent, sorted_ids, representative_id)
 
       parent.member_ids = sorted_ids
-      parent.representative_id = first_id
-      parent.thumbnail_id = first_id
+      if representative_id
+        parent.representative_id = representative_id
+        parent.thumbnail_id = representative_id
+      end
       saved_parent = Hyrax.persister.save(resource: parent)
       Bulkrax.object_factory.update_index(resources: [saved_parent])
     end
 
-    def already_ordered?(parent, sorted_ids, first_id)
-      parent.member_ids == sorted_ids &&
-        parent.representative_id == first_id &&
-        parent.thumbnail_id == first_id
+    def already_ordered?(parent, sorted_ids, representative_id)
+      return false unless parent.member_ids == sorted_ids
+      return true if representative_id.nil?
+
+      parent.representative_id == representative_id &&
+        parent.thumbnail_id == representative_id
     end
 
     def sort_by_sequence(members)
-      keyed = members.map do |member|
+      members.each_with_index.sort_by do |member, arrival|
         key = HykuKnapsack::SequenceSortKey.call(member.try(:sequence))
-        return nil if key.nil?
+        [key ? 0 : 1, key || 0, arrival]
+      end.map(&:first)
+    end
 
-        [key, member.id]
+    def representative_for(members)
+      members.find { |member| intermediate_file?(member) } || first_with_thumbnail(members)
+    end
+
+    def first_with_thumbnail(members)
+      file_sets_with_thumbnail = file_set_ids_with_thumbnail(members)
+      members.find do |member|
+        member.file_set? ? file_sets_with_thumbnail.include?(member.id) : member.try(:thumbnail_id).present?
       end
+    end
 
-      keyed.sort_by(&:first).map(&:last)
+    def file_set_ids_with_thumbnail(members)
+      file_ids = members.select(&:file_set?).flat_map(&:file_ids)
+      return [] if file_ids.empty?
+
+      Hyrax.query_service.find_many_by_ids(ids: file_ids).select(&:thumbnail_file?).map(&:file_set_id)
+    end
+
+    def intermediate_file?(member)
+      fragment = Hyrax::FileMetadata::Use::INTERMEDIATE_FILE.fragment
+      Array(member.try(:rdf_type)).any? { |type| type.to_s.split(%r{[#/:]}).last.to_s.casecmp?(fragment) }
     end
   end
 end
