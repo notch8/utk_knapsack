@@ -27,9 +27,20 @@ module UtkUriLabelIndexing
         sources = Array(config.dig('controlled_values', 'sources'))
                   .reject { |s| s.nil? || s == 'null' }
         next if sources.empty?
+        # A local vocabulary already holds the label, and Hyrax indexes it beside the id.
+        # Resolving one here would fetch a URI we ship the term for, which is a network
+        # call per value during a reindex and caches a label we already have.
+        next if sources.all? { |source| locally_resolvable?(source) }
 
         result << name.to_sym
       end
+    end
+
+    def locally_resolvable?(source)
+      Hyrax.config.controlled_vocabulary_label_service.resolvable?(source)
+    rescue StandardError => e
+      Hyrax.logger.debug { "Unable to classify controlled vocabulary #{source}: #{e.message}" }
+      false
     end
   end
 

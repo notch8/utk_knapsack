@@ -54,9 +54,20 @@ RSpec.describe UtkUriLabelIndexing do
   describe '.uri_properties' do
     it 'includes properties with controlled_values sources from the profile' do
       expect(uri_properties).to include(
-        :subject, :spatial, :form, :publication_place,
-        :rights_statement, :license, :language, :rdf_type
+        :subject, :spatial, :form, :publication_place, :language, :rdf_type
       )
+    end
+
+    # A seeded tenant answers `resolvable?` for these, where the test database has no
+    # vocabularies and answers false for everything, so the service is stubbed rather
+    # than relying on which of the two this runs against.
+    it 'excludes properties whose vocabulary is held locally' do
+      allow(Hyrax.config.controlled_vocabulary_label_service)
+        .to receive(:resolvable?) { |source| %w[rights_statements licenses resource_types].include?(source) }
+      described_class.reset_cache!
+
+      expect(described_class.uri_properties).to include(:subject, :spatial)
+      expect(described_class.uri_properties).not_to include(:rights_statement, :license, :resource_type)
     end
 
     it 'excludes properties without controlled_values sources' do
