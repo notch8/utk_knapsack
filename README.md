@@ -238,6 +238,10 @@ Without it every spec dies in `rails_helper.rb` at `maintain_test_schema!` with
 `database "hyku_test" does not exist`. Note that `db:migrate` rewrites `hyrax-webapp/db/schema.rb`,
 which shows up as a dirty submodule.
 
+Run the same `db:migrate` again whenever a Knapsack migration lands (`db/migrate/` here, not in the
+submodule). An existing test database does not pick it up on its own, and the symptom is a block of
+failures in one model's specs with `PG::UndefinedTable: ERROR: relation "<table>" does not exist`.
+
 Then, from the Knapsack root (`/app/samvera`), not the submodule:
 
 ```bash
