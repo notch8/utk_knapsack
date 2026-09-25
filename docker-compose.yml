@@ -16,6 +16,11 @@ x-app: &app
     - BUNDLE_LOCAL__HYKU_KNAPSACK=/app/samvera
     - BUNDLE_DISABLE_LOCAL_BRANCH_CHECK=true
     - HYRAX_FLEXIBLE=true
+    - DISABLE_WINGS=true
+    - HYRAX_SKIP_WINGS=true
+    - HYRAX_SKIP_FREYJA=false
+    - HYRAX_SKIP_FRIGG=true
+    - VALKYRIE_TRANSITION=false
   volumes:
     - node_modules:/app/samvera/hyrax-webapp/node_modules:cached
     - uploads:/app/samvera/hyrax-webapp/public/uploads:cached
@@ -27,7 +32,6 @@ volumes:
   assets:
   cache:
   db:
-  fcrepo:
   node_modules:
   redis:
   solr:
@@ -91,11 +95,6 @@ services:
       zoo:
         condition: service_healthy
 
-  fcrepo:
-    extends:
-      file: hyrax-webapp/docker-compose.yml
-      service: fcrepo
-
   fits:
     extends:
       file: hyrax-webapp/docker-compose.yml
@@ -124,6 +123,17 @@ services:
     extends:
       file: hyrax-webapp/docker-compose.yml
       service: web
+    depends_on: !override
+      db: {condition: service_started}
+      adminer: {condition: service_started}
+      solr: {condition: service_started}
+      fits: {condition: service_started}
+      redis: {condition: service_started}
+      zoo: {condition: service_started}
+      chrome: {condition: service_started}
+      check_volumes: {condition: service_started}
+      worker: {condition: service_started}
+      initialize_app: {condition: service_completed_successfully}
     # Uncomment command to access container with out starting bin/web. Useful for debugging or updating Gemfile.lock
     # command: sleep infinity
 
@@ -132,6 +142,15 @@ services:
     extends:
       file: hyrax-webapp/docker-compose.yml
       service: worker
+    depends_on: !override
+      db: {condition: service_started}
+      adminer: {condition: service_started}
+      solr: {condition: service_started}
+      fits: {condition: service_started}
+      redis: {condition: service_started}
+      zoo: {condition: service_started}
+      check_volumes: {condition: service_completed_successfully}
+      initialize_app: {condition: service_completed_successfully}
     build:
       context: .
       target: hyku-worker
@@ -161,6 +180,10 @@ services:
     extends:
       file: hyrax-webapp/docker-compose.yml
       service: initialize_app
+    depends_on: !override
+      db: {condition: service_started}
+      solr: {condition: service_healthy}
+      redis: {condition: service_started}
     command:
       - >
         /app/samvera/bin/solrcloud-upload-configset.sh /app/samvera/solr/conf &&
