@@ -196,7 +196,7 @@ extraEnvVars: &envVars
   - name: IN_DOCKER
     value: "true"
   - name: INITIAL_ADMIN_EMAIL
-    value: admin@example.com
+    value: support@notch8.com
   - name: INITIAL_ADMIN_PASSWORD
     value: $INITIAL_ADMIN_PASSWORD
   - name: LD_LIBRARY_PATH
@@ -330,11 +330,7 @@ extraInitContainers:
   - name: load-solr-config
     image: "ghcr.io/$REPO_LOWER/web:$TAG"
     imagePullPolicy: IfNotPresent
-    envFrom:
-      - configMapRef:
-          name: utk-knapsack-production-hyrax-env
-      - secretRef:
-          name: utk-knapsack-production-hyrax
+    env: *envVars
     command:
       - sh
       - -c

@@ -316,11 +316,7 @@ extraInitContainers:
   - name: load-solr-config
     image: "ghcr.io/$REPO_LOWER/web:$TAG"
     imagePullPolicy: IfNotPresent
-    envFrom:
-      - configMapRef:
-          name: utk-knapsack-dev-hyrax-env
-      - secretRef:
-          name: utk-knapsack-dev-hyrax
+    env: *envVars
     command:
       - sh
       - -c
