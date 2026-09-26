@@ -1,13 +1,13 @@
 # UTK migration plan
 
 **BLUF.**  UTK's Hyrax 3 repository moves into this knapsack by minting metadata that points at the
-bytes it already has.  Preservation files stay in S3 under their sha1, derivatives are copied by
-pairtree, and nothing is uploaded or regenerated.  One collections sheet is ingested first, then one
+bytes it already has.  Preservation files are copied server side into each environment's bucket under
+the key an upload would get, derivatives are copied by pairtree, and nothing is uploaded or
+regenerated.  One collections sheet is ingested first, then one
 work sheet per collection, each through Bulkrax with a migration-only object factory that persists
 directly.  Measured against a real UI deposit, the result is identical on every field that matters
-except the two the migration exists to change.  Two things stand between here and the real run:
-collection rows cannot yet be imported, and members are not ordered by `sequence` and get no
-thumbnail until a post-import pass exists.
+except the two the migration exists to change.  One thing stands between here and the real run:
+members are not ordered by `sequence` and get no thumbnail until a post-import pass exists.
 
 The source is the `utk-hyku-production` namespace, where UTK is the `digitalcollections.lib.utk.edu`
 tenant of a shared deployment.
@@ -49,8 +49,9 @@ tenant-wide pass run once and reused by every sheet after it.
 
 **The first sheet is the collections sheet.**  UTK supplies one sheet carrying every
 `DigitalCollection` record, and it is ingested before any other.  Every work sheet after it
-references them by identifier (`parents: collections:ruskin`).  The parser cannot route collection
-rows yet, so this step is blocked; work sheets wait on it.
+references them by identifier (`parents: collections:ruskin`).  The migration parser cannot route
+collection rows, so the collections sheet goes through Bulkrax's stock `CSV - Comma Separated
+Values` parser instead, which imports `DigitalCollection` rows as they are.
 
 **Local first, then staging, then production, on the same file.**  A sheet is transformed once,
 locally.  The result is imported locally and checked, and then that CSV is promoted unchanged: the
@@ -59,13 +60,19 @@ imports.  Nothing is re-transformed between environments.  The copy steps run in
 before its import, since the CSV carries pointers and they have to resolve where it runs; a copy
 that was skipped fails characterization with `FileNotFound` rather than passing.
 
+**Local proves the sheet, not the viewer.**  A local import checks what the migration decides:
+keys, bytes, checksums, characterization, thumbnails, membership.  The IIIF viewer is checked on a
+deployed environment only.  Locally nothing serves `/iiif/2/`, since the tenant-host IIIF URLs
+depend on the deployed nginx proxy, and the legacy Lambda reads `besties-fcrepo`, which holds no
+object under the new keys.
+
 Per sheet:
 
 1. **Extract** identity and file info from the legacy Solr.  `pull_lookup.rb` reads six fields:
    `id`, `bulkrax_identifier_tesim`, `digest_ssim`, `mime_type_ssi`, `file_size_lts` and
    `label_tesim`.  That is the join key and the file pointer, and nothing else.  Once per tenant,
    locally, reused by every sheet.
-2. **Transform** the client's CSV.  `sheet_transform.rb` joins their sheet to the extract and adds
+2. **Transform** the client's CSV.  `prepare_sheet`'s transform joins their sheet to the extract and adds
    `sha1`, `mime_type`, `file_size`, `original_filename`.  It also reports rows missing a property
    the profile requires, which is the only place such a gap is caught: the factory saves resources
    directly, so a missing required value persists silently.  Once, locally; its output is the
@@ -85,8 +92,9 @@ and which bucket that is remains open; see **Open questions**.
 
 ## Before the real run
 
-- **The derivative root is the one the destination reads.**  `SRC_ROOT` and `DST_ROOT` differ per
-  deployment, and writing to the wrong one looks exactly like success.
+- **The derivative root is the one the destination reads.**  The fill writes to the destination's
+  own `HYRAX_DERIVATIVES_PATH` or, locally, `DST_ROOT`; writing to the wrong one looks exactly like
+  success.
 - **The collections sheet has been ingested.**  A work sheet run before it accumulates a
   relationship backlog that only resolves once the collections exist.
 - **The importer form's Visibility is set deliberately.**  A row with no `visibility` takes that
@@ -98,16 +106,41 @@ and which bucket that is remains open; see **Open questions**.
 | | Store | Addressed by | Size |
 | --- | --- | --- | --- |
 | Preservation files | S3 `besties-fcrepo`, us-west-2 | bare sha1 hex | 7.79 TiB / 1,177,142 objects are UTK's |
-| Derivatives | EFS at `/app/samvera/derivatives` | pairtree of the **file set id** | unmeasured; EFS reports the whole filesystem to every tenant |
+| Derivatives | EFS at `/app/samvera/derivatives` | pairtree of the **file set id** | ~140 GB are UTK's, measured 2026-09-23; see below |
 | IIIF | Lambda function URL, us-west-2 | the sha1 | derives per request |
 
 The derivative pairtree is the file set id chopped every two characters, hyphens included, kind as
 suffix: `96/0e/8d/cb/-b/f4/2-/44/6d/.../6b/7c-thumbnail.jpeg`.  Because file set ids are preserved,
-this application computes the identical path, so derivatives lift across with an rsync.
+this application computes the identical path, so derivatives lift across unchanged.
 
 Per image file set the derivatives are `-thumbnail.jpeg` plus `-txt.txt`, `-xml.xml`, `-json.json`
 (OCR output from iiif_print).  A IIIF server cannot produce those, and the set must be copied all or
 nothing, since the coordinates only match the text they came from.
+
+Sizes, measured 2026-09-23 from UTK's Solr and the EFS: every audio and video file set, and a sample
+of 300 (200 for PDF) of each other type.  Image and PDF derivatives average 70 to 150 KB per file set,
+about 55 GB extrapolated.  Audio and video are few but large, about 83 GB.  The largest single file is
+a 2.4 GB `-mp4.mp4` beside a 2.2 GB `-webm.webm`.
+
+| Type | File sets | With derivatives | Size | Kinds |
+| --- | --- | --- | --- | --- |
+| `video/mp4` | 106 | 81 | 30.1 GB | mp4, webm, thumbnail |
+| `audio/mpeg` | 869 | 819 | 48.9 GB | mp3, ogg |
+| `audio/x-wave` | 733 | 66 | 4.3 GB | mp3, ogg |
+| quicktime, matroska, dv, mp4a | 66 | 0 | | |
+| `image/jp2`, `image/jpeg` | sample | all | 70 to 110 KB each | thumbnail, OCR |
+| `image/tiff` | sample | 72% | 82 KB each | thumbnail, OCR |
+| `application/pdf` | sample | 73% | 152 KB each | thumbnail |
+
+**A file set without derivatives is usually correct.**  The legacy application builds them only when
+the parent Attachment's `rdf_type` contains `IntermediateFile`, or the work is a `Pdf` or
+`GenericWork` (`Hyrax::ConditionalDerivativeDecorator` in utk-hyku, since 2023-02).  Preservation
+masters are skipped by design: 731 of 733 WAVs and every QuickTime and DV file are
+`PreservationFile`, and their mp3 or mp4 sibling carries the derivatives.  The migration copies
+what exists and generates nothing for the rest.  The exception is about 24 intermediate mp4s with no
+derivatives, which the rule says should have them.  They are treated as broken, and their derivatives
+are generated by hand after import.  `rdf_type` is stored on the Attachment as
+`rdf_type_ssm`, which Solr can return but not facet.
 
 ## Shape change
 
@@ -126,7 +159,7 @@ bytes untouched.
 
 **Relator columns collapse into two compounds.**  The client's sheets carry one flat column per
 role; the profile replaced those with `creators` and `contributors`, each a list of
-`{name, role}`.  `sheet_transform.rb` builds its role map from the two role authorities: a
+`{name, role}`.  The transform builds its role map from the two role authorities: a
 column whose name, minus an optional `utk_` prefix, names a term in `creator_roles.yml` or
 `contributor_roles.yml` is a role column, the file decides the compound, and the term's `id` is the
 `role` value, `Photographer` not `photographer`, since the field is controlled and validated against
@@ -149,6 +182,7 @@ Derivative uses follow Hyrax's own `MigrateFilesToValkyrieJob`: `thumbnail` to `
 | Do not attach file sets in the factory | Lock contention.  See **Member order** |
 | Migrate the latest file version only | No history is carried across |
 | Solr's `date_uploaded`/`system_create` become the migration date | Those fields record when a record entered *this* system.  The dates a reader wants travel in descriptive metadata |
+| Originals are keyed like an upload | `<file set id>/<uuid>`, the shape `Valkyrie::Storage::Shrine` gives a deposit, so one bucket holds one shape.  The IIIF auth gate reads the file set id from the first segment, and each file set owns its object, so a delete touches nothing else.  The uuid is v5 of `<file set id>/<sha1>` under `URL_NAMESPACE` (`Bulkrax::UtkMigrationObjectKey`), so the copy and the factory derive it independently and a re-run lands on the same key.  Costs a copy per file set where 98,310 share a sha1 |
 | Derivatives stay on a mounted volume | `derivatives_storage_adapter` defaults to disk and every deployment checked runs it that way.  S3 would mean genuinely moving bytes, since `ValkyrieUpload` mints its own key |
 
 ## Traps
@@ -156,8 +190,8 @@ Derivative uses follow Hyrax's own `MigrateFilesToValkyrieJob`: `thumbnail` to `
 Each of these fails silently.
 
 - **`checksum` must hold the sha1.**  iiif_print builds `digest_ssim` from `checksum`, and that is
-  the IIIF identifier.  Get it wrong and the bytes are intact while every image is permanently
-  unresolvable, with nothing failing at ingest.
+  the IIIF identifier for any file set without `storage_file_identifier_ss` indexed.  Get it wrong
+  and the bytes are intact while those images are unresolvable, with nothing failing at ingest.
 - **Pass `parser_mapping: Hydra::Works::Characterization.mapper`**, the unmerged default.  Hyrax
   merges `original_checksum: :checksum`, which writes FITS's md5 over the sha1.
 - **Pass `**Hyrax.config.characterization_options`.**  Without it the default is the FITS CLI, which
@@ -165,12 +199,12 @@ Each of these fails silently.
 - **A derivative is a `FileMetadata`, not a file on disk.**  `FileSet#thumbnail_id` is not stored;
   it is `find_thumbnail`, a query for the first file with the `ThumbnailImage` use.  A file set
   with none shows the placeholder no matter what sits on disk.
-- **Deleting a migrated work deletes UTK's preservation master.**
+- **Deleting a migrated work deletes its copy of the master.**
   `file_set.delete_all_file_metadata` ends with
-  `Valkyrie::StorageAdapter.delete(id: resource.file_identifier)`.  A migrated file set's
-  `file_identifier` is `shrine://<sha1>`, pointing at bytes in the shared bucket that the legacy
-  application is still serving, and that 98,310 file sets share with another file set.  Untested,
-  and not to be tested against `besties-fcrepo`.
+  `Valkyrie::StorageAdapter.delete(id: resource.file_identifier)`.  The object is that file set's
+  alone and the destination buckets are versioned, so the delete leaves a recoverable delete marker
+  and `besties-fcrepo` is never touched.  File sets imported before the rekey still point at
+  `shrine://<sha1>`, which other file sets may share.
 - **Three derivatives share `ExtractedText` (from IIIF Print)**, and `find_extracted_text` returns
   the first, so `#extracted_text` usually answers with word-coordinate JSON rather than text.  Read
   the `text/plain` one explicitly.  Upstream's mapping, not ours.
@@ -223,7 +257,8 @@ Per file set:
    row is found at its preserved id and takes Bulkrax's update path, leaving files untouched.
 3. `file_identifier` is `shrine://`.  The `disk://` fallback exists for local runs; in a deployment
    it means S3 was misconfigured and every file set points at nothing.
-4. The identifier's remainder equals the sheet's `sha1`.
+4. The identifier's remainder equals `Bulkrax::UtkMigrationObjectKey.for` of the row's `id` and
+   `sha1`.
 5. `checksum` equals that same `sha1`.  The silent one.
 6. The object exists in the destination bucket, as a set difference against a bucket listing.
 7. Every derivative on the source pairtree has a `FileMetadata` with the matching `pcdm_use`, and
@@ -259,11 +294,14 @@ Per work:
   So ~316 works arrive with no master, against 20,302 missing only a derivative the new system
   generates anyway.  ALTO is a derivative rather than a file set in the new model, which may mean
   most of these should not migrate as file sets at all.
-- **Which bucket does the new application read?**  The IIIF Lambda reads `besties-fcrepo`, not the
-  destination.  Either the function changes or the destination is `besties-fcrepo`.  Whoever owns
-  that function has to make the change; `DeveloperAccess` cannot read Lambda config.
+- **Which bucket does the IIIF service read?**  The legacy Lambda reads `besties-fcrepo`.  Originals
+  are copied under new keys, so the destination cannot be `besties-fcrepo`, and whatever serves
+  IIIF has to read the destination bucket.  `DeveloperAccess` cannot read Lambda config.
 - **Region.**  `besties-fcrepo` is us-west-2, `utk-poc` is us-east-2.  Cross-region copy of 7.79 TiB
   is billable egress.
+- **66 WAVs have derivatives** although the rule skips preservation files, possibly from before the
+  rule existed.  Not verified; harmless either way, since they copy like any other.
+- **13 m4a files are tagged `ExtractedText`**, which looks like a mislabel.  Ask UTK.
 - **`xresolution` holds `"9"`** on every Attachment sampled, which is not a plausible dpi.  Ask UTK
   before carrying it forward.
 
@@ -280,5 +318,5 @@ here; the two upstream bugs that discarded it are samvera/hyku#3294 and notch8/i
 - UTK's Solr collection is `56e0eb81-c2d5-4d5d-9171-b251bf7299a4`.  `SOLR_COLLECTION_NAME` names an
   empty collection and reads as "there is no data".  `_ssm` fields are stored but not indexed, so
   any census must read stored fields off documents rather than count query hits.
-- Scripts live in `bin/migration/`.  Their working data (sheets, lookups, output, manifests) lives
+- Scripts live in `bin/migration/`.  Their working data (sheets, lookups, output) lives
   in `tmp/migration/`, which is gitignored.

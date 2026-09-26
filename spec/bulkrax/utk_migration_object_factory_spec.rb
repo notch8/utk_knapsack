@@ -40,8 +40,8 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       expect(Array(metadata.checksum).map(&:to_s)).to eq [digest]
     end
 
-    it 'addresses the bytes already in the repository rather than uploading' do
-      expect(metadata.file_identifier.to_s).to eq "shrine://#{digest}"
+    it 'addresses the copied object under a key shaped like an upload rather than uploading' do
+      expect(metadata.file_identifier.to_s).to eq 'shrine://fake-file-set/c9d9d202-8d41-58e3-9a3e-33c5a6f4620f'
     end
 
     it 'marks the file as the original' do
@@ -54,13 +54,15 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
   end
 
   describe 'the file identifier' do
-    subject(:identifier) { bare_factory.send(:file_identifier_for, digest) }
+    subject(:identifier) { bare_factory.send(:file_identifier_for, file_set, digest) }
+
+    let(:file_set) { Hyrax::FileSet.new(id: ::Valkyrie::ID.new(file_set_id)) }
 
     context 'with the storage adapter production uses' do
       before { allow(Hyrax).to receive(:storage_adapter).and_return(Valkyrie::Storage::Memory.new) }
 
-      it 'addresses the object by its digest, which is the S3 key' do
-        expect(identifier).to eq "shrine://#{digest}"
+      it 'addresses the key copy_objects.rb wrote, the file set id then a uuid' do
+        expect(identifier).to eq "shrine://#{file_set_id}/a24a03d2-20e9-534a-9619-7420574d878e"
       end
     end
 

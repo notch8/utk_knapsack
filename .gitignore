@@ -14,6 +14,7 @@ file_cache/
 /.cache
 
 Gemfile.lock
+!bin/migration/Gemfile.lock
 pry_history
 docker-compose*.override.yml
 .claude

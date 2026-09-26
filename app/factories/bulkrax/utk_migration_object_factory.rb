@@ -71,7 +71,7 @@ module Bulkrax
 
     def file_metadata_for(file_set, attrs, digest)
       Hyrax::FileMetadata.new(
-        file_identifier: ::Valkyrie::ID.new(file_identifier_for(digest)),
+        file_identifier: ::Valkyrie::ID.new(file_identifier_for(file_set, digest)),
         file_set_id: file_set.id,
         original_filename: file_label(attrs),
         mime_type: attrs[:mime_type],
@@ -104,12 +104,12 @@ module Bulkrax
       end
     end
 
-    def file_identifier_for(digest)
+    def file_identifier_for(file_set, digest)
       adapter = Hyrax.storage_adapter
       if adapter.is_a?(::Valkyrie::Storage::Disk)
         "disk://#{adapter.base_path.join(digest)}"
       else
-        "shrine://#{digest}"
+        "shrine://#{UtkMigrationObjectKey.for(file_set_id: file_set.id, sha1: digest)}"
       end
     end
 
