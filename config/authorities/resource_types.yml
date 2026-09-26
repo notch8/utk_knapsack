@@ -1,0 +1,46 @@
+description: >-
+  The form a work takes, from the Library of Congress resource types vocabulary
+  at http://id.loc.gov/vocabulary/resourceTypes.
+terms:
+  - id: http://id.loc.gov/vocabulary/resourceTypes/art
+    term: Artifact
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/aud
+    term: Audio
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/car
+    term: Cartographic
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/col
+    term: Collection
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/dat
+    term: Dataset
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/dig
+    term: Digital
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/man
+    term: Manuscript
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/mix
+    term: Mixed material
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/mov
+    term: Moving image
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/mul
+    term: Multimedia
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/not
+    term: Notated music
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/img
+    term: Still image
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/tac
+    term: Tactile
+    active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/txt
+    term: Text
+    active: true
