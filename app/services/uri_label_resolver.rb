@@ -26,14 +26,22 @@ class UriLabelResolver
     'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/').delete_suffix('/about.rdf') + '/' }
   }.freeze
 
+  PERMANENT_HTTP_STATUSES = %w[404 410].freeze
+  HTTP_STATUS_IN_ERROR = /(?:\((\d{3})\)|: (\d{3}))\z/
+
+  Outcome = Struct.new(:label, :reason, :permanent, keyword_init: true)
+
   class << self
-    def label_for(uri)
-      return uri unless uri.to_s.match?(/\Ahttps?:/i)
+    def lookup(uri)
+      return unless uri.to_s.match?(/\Ahttps?:/i)
 
       cached = UriCache.find_by(uri:)
-      return cached.value if cached
+      return cached.value if cached&.resolved?
+      return if cached && !cached.due?
 
-      resolve_remote(uri)
+      outcome = resolve_remote(uri)
+      record(uri, outcome)
+      outcome.label
     end
 
     def resolve_remote(uri)
@@ -44,24 +52,36 @@ class UriLabelResolver
       resource = ActiveTriples::Resource.new(RDF::URI(fetch_uri))
       resource.fetch(headers: { 'Accept' => 'application/n-triples, application/rdf+xml;q=0.8, text/turtle;q=0.6' })
 
-      label = extract_label(resource, host, subject_uri, uri)
-      return "#{uri} (No label found)" if label.blank?
+      deletion = deletion_note_for(resource.graph, RDF::URI(subject_uri))
+      return Outcome.new(reason: deletion, permanent: true) if deletion
 
-      cache_label(uri, label)
-      label
+      label = extract_label(resource, host, subject_uri)
+      return Outcome.new(reason: 'No label found', permanent: true) if label.blank?
+
+      Outcome.new(label:)
     rescue StandardError => e
-      Rails.logger.error("Failed to load RDF data: #{e.message}")
-      "#{uri} (Failed to load URI)"
+      Rails.logger.warn("Failed to load RDF data for #{uri}: #{e.message}")
+      Outcome.new(reason: e.message, permanent: PERMANENT_HTTP_STATUSES.include?(http_status(e)))
     end
 
     private
 
-    def extract_label(resource, host, subject_uri, original_uri)
+    def record(uri, outcome)
+      if outcome.label
+        UriCache.record_success(uri, outcome.label)
+      else
+        UriCache.record_failure(uri, reason: outcome.reason, permanent: outcome.permanent)
+      end
+    end
+
+    def http_status(error)
+      match = error.message.match(HTTP_STATUS_IN_ERROR)
+      match && (match[1] || match[2])
+    end
+
+    def extract_label(resource, host, subject_uri)
       subject = RDF::URI(subject_uri)
       graph = resource.graph
-
-      deletion = deletion_note_for(graph, subject)
-      return "#{original_uri} (Failed to load URI) - #{deletion}" if deletion
 
       predicate = LABEL_PREDICATES[host]
       return predicate_label(graph, predicate) if predicate
@@ -110,12 +130,6 @@ class UriLabelResolver
         o.language.to_s.match?(/\Aen([-_]|\z)/i)
       end
       english&.to_s
-    end
-
-    def cache_label(uri, label)
-      UriCache.create!(uri:, value: label)
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
-      nil
     end
   end
 end

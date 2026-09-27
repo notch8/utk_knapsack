@@ -25,7 +25,7 @@ module UtkUriLabelIndexing
   end
 
   def resolve_uris_in_rows!(rows)
-    rows.each { |row| row.transform_values! { |v| UriLabelResolver.label_for(v) } }
+    rows.each { |row| row.transform_values! { |v| UriLabelResolver.lookup(v) || v } }
   end
 
   def sync_searchable_fields(solr_doc, compound, rows)

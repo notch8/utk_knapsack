@@ -24,8 +24,8 @@ RSpec.describe UtkUriLabelIndexing do
   end
 
   before do
-    allow(UriLabelResolver).to receive(:label_for) do |uri|
-      uri.to_s.match?(%r{\Ahttps?://}i) ? "Label for #{uri}" : uri
+    allow(UriLabelResolver).to receive(:lookup) do |uri|
+      "Label for #{uri}" if uri.to_s.match?(%r{\Ahttps?://}i)
     end
   end
 
@@ -52,6 +52,22 @@ RSpec.describe UtkUriLabelIndexing do
   # gains a key nothing reads and Solr has no dynamic rule for.
   it 'leaves a derived field the document does not already have' do
     expect(index).not_to have_key 'creators_role_sim'
+  end
+
+  context 'when a URI in the compound does not resolve' do
+    before do
+      resource = instance_double(ActiveTriples::Resource)
+      allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
+      allow(resource).to receive(:fetch).and_raise(IOError, 'Not Found(404)')
+      allow(UriLabelResolver).to receive(:lookup).and_call_original
+    end
+
+    it 'indexes the stored URI rather than a failure message' do
+      doc = index
+
+      expect(JSON.parse(doc['creators_json_ss']).first).to include('name' => 'http://id.loc.gov/authorities/names/n123')
+      expect(doc['creators_name_sim']).to eq ['http://id.loc.gov/authorities/names/n123']
+    end
   end
 
   context 'with plain text in the compound' do
