@@ -40,13 +40,7 @@ class UriLabelResolver
     def lookup(uri)
       return unless uri.to_s.match?(/\Ahttps?:/i)
 
-      cached = UriCache.find_by(uri:)
-      return cached.value if cached&.resolved?
-      return if cached && !cached.due?
-
-      outcome = resolve_remote(uri)
-      record(uri, outcome)
-      outcome.label
+      cached_or_resolved_label(uri).tap { |label| Utk::IndexingContext.failed_uris&.add(uri) unless label }
     end
 
     def resolve_remote(uri)
@@ -70,6 +64,16 @@ class UriLabelResolver
     end
 
     private
+
+    def cached_or_resolved_label(uri)
+      cached = UriCache.find_by(uri:)
+      return cached.value if cached&.resolved?
+      return if cached && !cached.due?
+
+      outcome = resolve_remote(uri)
+      record(uri, outcome)
+      outcome.label
+    end
 
     def record(uri, outcome)
       if outcome.label

@@ -9,7 +9,13 @@
 # This resolves those, leaving every flat property to Hyrax.
 module UtkUriLabelIndexing
   def to_solr(*args, **kwargs, &block)
-    super(*args, **kwargs, &block).tap { |solr_doc| resolve_compound_uris(solr_doc) }
+    work_id = resource.id.to_s
+    Utk::IndexingContext.set(failed_uris: Set.new) do
+      super(*args, **kwargs, &block).tap do |solr_doc|
+        resolve_compound_uris(solr_doc)
+        UriCitation.replace_for(work_id, Utk::IndexingContext.failed_uris)
+      end
+    end
   end
 
   private
