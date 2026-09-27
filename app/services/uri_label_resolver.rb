@@ -15,7 +15,7 @@ class UriLabelResolver
     'id.loc.gov' => ->(uri) { uri.sub(/\.html\z/, '') },
     'vocab.getty.edu' => ->(uri) { uri.sub('/page/', '/') },
     'www.wikidata.org' => ->(uri) { uri.sub('/wiki/', '/entity/').chomp('/') + '.nt' },
-    'sws.geonames.org' => ->(uri) { uri.chomp('/') + '/about.rdf' },
+    'sws.geonames.org' => ->(uri) { uri.chomp('/').delete_suffix('/about.rdf') + '/about.rdf' },
     'creativecommons.org' => ->(uri) { uri.chomp('/') + '/rdf' }
   }.freeze
 
@@ -23,7 +23,7 @@ class UriLabelResolver
     'id.loc.gov' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub(/\.html\z/, '') },
     'vocab.getty.edu' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub('/page/', '/') },
     'www.wikidata.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub('/wiki/', '/entity/').chomp('/') },
-    'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/') + '/' }
+    'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/').delete_suffix('/about.rdf') + '/' }
   }.freeze
 
   class << self

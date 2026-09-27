@@ -145,6 +145,24 @@ RSpec.describe UriLabelResolver do
       it 'resolves to the English label via geonames:name predicate' do
         expect(described_class.label_for(uri)).to eq 'Gatlinburg'
       end
+
+      context 'when the value already ends in /about.rdf' do
+        let(:uri) { 'http://sws.geonames.org/4624443/about.rdf' }
+
+        it 'fetches the RDF document once, not a doubled path' do
+          fetched = []
+          allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, rdf_uri|
+            fetched << rdf_uri.to_s
+            resource = method.call(rdf_uri)
+            load_fixture('geonames.rdf', into: resource.graph)
+            allow(resource).to receive(:fetch).and_return(resource)
+            resource
+          end
+
+          expect(described_class.label_for(uri)).to eq 'Gatlinburg'
+          expect(fetched).to eq ['http://sws.geonames.org/4624443/about.rdf']
+        end
+      end
     end
 
     context 'from Wikidata' do
