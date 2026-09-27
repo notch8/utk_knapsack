@@ -106,6 +106,21 @@ RSpec.describe UriLabelResolver do
       end
     end
 
+    context 'when the remote answers with something that is not RDF' do
+      let(:uri) { 'https://example.org/a-web-page' }
+
+      before do
+        resource = instance_double(ActiveTriples::Resource)
+        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
+        allow(resource).to receive(:fetch).and_raise(RDF::FormatError, 'unknown RDF format: {:content_type=>"text/html"}')
+      end
+
+      it 'records a permanent failure' do
+        expect(described_class.lookup(uri)).to be_nil
+        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true)
+      end
+    end
+
     context 'when the remote answers 499' do
       let(:uri) { 'http://vocab.getty.edu/aat/300264679' }
 
@@ -220,6 +235,24 @@ RSpec.describe UriLabelResolver do
 
       it 'resolves to the English label via geonames:name predicate' do
         expect(described_class.lookup(uri)).to eq 'Gatlinburg'
+      end
+
+      context 'when the value is a www.geonames.org page' do
+        let(:uri) { 'https://www.geonames.org/4624443/gatlinburg.html' }
+
+        it 'fetches the RDF document for the same place' do
+          fetched = []
+          allow(ActiveTriples::Resource).to receive(:new).and_wrap_original do |method, rdf_uri|
+            fetched << rdf_uri.to_s
+            resource = method.call(rdf_uri)
+            load_fixture('geonames.rdf', into: resource.graph)
+            allow(resource).to receive(:fetch).and_return(resource)
+            resource
+          end
+
+          expect(described_class.lookup(uri)).to eq 'Gatlinburg'
+          expect(fetched).to eq ['https://sws.geonames.org/4624443/about.rdf']
+        end
       end
 
       context 'when the value already ends in /about.rdf' do

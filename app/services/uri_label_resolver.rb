@@ -5,9 +5,12 @@ class UriLabelResolver
   SKOS_PREF_LABEL = RDF::URI('http://www.w3.org/2004/02/skos/core#prefLabel')
   DELETION_NOTE = RDF::URI('http://www.loc.gov/mads/rdf/v1#deletionNote')
   OWL_SAME_AS = RDF::URI('http://www.w3.org/2002/07/owl#sameAs')
+  GEONAMES_NAME = RDF::URI('http://www.geonames.org/ontology#name')
+  GEONAMES_PAGE = %r{\Ahttps?://www\.geonames\.org/(\d+)(?:/.*)?\z}i
 
   LABEL_PREDICATES = {
-    'sws.geonames.org' => RDF::URI('http://www.geonames.org/ontology#name'),
+    'sws.geonames.org' => GEONAMES_NAME,
+    'www.geonames.org' => GEONAMES_NAME,
     'creativecommons.org' => RDF::URI('http://purl.org/dc/terms/title')
   }.freeze
 
@@ -16,6 +19,7 @@ class UriLabelResolver
     'vocab.getty.edu' => ->(uri) { uri.sub('/page/', '/') },
     'www.wikidata.org' => ->(uri) { uri.sub('/wiki/', '/entity/').chomp('/') + '.nt' },
     'sws.geonames.org' => ->(uri) { uri.chomp('/').delete_suffix('/about.rdf') + '/about.rdf' },
+    'www.geonames.org' => ->(uri) { uri.sub(GEONAMES_PAGE, 'https://sws.geonames.org/\\1/about.rdf') },
     'creativecommons.org' => ->(uri) { uri.chomp('/') + '/rdf' }
   }.freeze
 
@@ -23,7 +27,8 @@ class UriLabelResolver
     'id.loc.gov' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub(/\.html\z/, '') },
     'vocab.getty.edu' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub('/page/', '/') },
     'www.wikidata.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'http:').sub('/wiki/', '/entity/').chomp('/') },
-    'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/').delete_suffix('/about.rdf') + '/' }
+    'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/').delete_suffix('/about.rdf') + '/' },
+    'www.geonames.org' => ->(uri) { uri.sub(GEONAMES_PAGE, 'https://sws.geonames.org/\\1/') }
   }.freeze
 
   PERMANENT_HTTP_STATUSES = %w[404 410].freeze
@@ -61,7 +66,7 @@ class UriLabelResolver
       Outcome.new(label:)
     rescue StandardError => e
       Rails.logger.warn("Failed to load RDF data for #{uri}: #{e.message}")
-      Outcome.new(reason: e.message, permanent: PERMANENT_HTTP_STATUSES.include?(http_status(e)))
+      Outcome.new(reason: e.message, permanent: permanent_error?(e))
     end
 
     private
@@ -72,6 +77,10 @@ class UriLabelResolver
       else
         UriCache.record_failure(uri, reason: outcome.reason, permanent: outcome.permanent)
       end
+    end
+
+    def permanent_error?(error)
+      error.is_a?(RDF::FormatError) || PERMANENT_HTTP_STATUSES.include?(http_status(error))
     end
 
     def http_status(error)
