@@ -206,63 +206,20 @@ RSpec.describe UriLabelResolver do
     context 'from RightsStatements' do
       let(:uri) { 'http://rightsstatements.org/vocab/InC/1.0/' }
 
-      context 'via local QA authority' do
-        before do
-          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-          allow(Qa::Authorities::Local).to receive(:subauthority_for)
-            .with('rights_statements').and_return(authority)
-          allow(authority).to receive(:find).with(uri).and_return('term' => 'In Copyright')
-        end
+      before { stub_remote_fetch('rights.ttl') }
 
-        it 'resolves from local QA' do
-          expect(described_class.label_for(uri)).to eq 'In Copyright'
-        end
-      end
-
-      context 'via remote when local QA has no term' do
-        before do
-          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-          allow(Qa::Authorities::Local).to receive(:subauthority_for)
-            .with('rights_statements').and_return(authority)
-          allow(authority).to receive(:find).with(uri).and_return('term' => nil)
-          stub_remote_fetch('rights.ttl')
-        end
-
-        it 'falls back to RDF and resolves the English label' do
-          expect(described_class.label_for(uri)).to eq 'In Copyright'
-        end
+      it 'resolves the English label' do
+        expect(described_class.label_for(uri)).to eq 'In Copyright'
       end
     end
 
     context 'from Creative Commons' do
       let(:uri) { 'http://creativecommons.org/licenses/by-nc/4.0/' }
 
-      context 'via local QA authority' do
-        before do
-          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-          allow(Qa::Authorities::Local).to receive(:subauthority_for)
-            .with('licenses').and_return(authority)
-          allow(authority).to receive(:find).with(uri)
-                                            .and_return('term' => 'Attribution-NonCommercial 4.0 International')
-        end
+      before { stub_remote_fetch('licenses.rdf') }
 
-        it 'resolves from local QA' do
-          expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
-        end
-      end
-
-      context 'via remote when local QA has no term' do
-        before do
-          authority = instance_double(Qa::Authorities::Local::FileBasedAuthority)
-          allow(Qa::Authorities::Local).to receive(:subauthority_for)
-            .with('licenses').and_return(authority)
-          allow(authority).to receive(:find).with(uri).and_return('term' => nil)
-          stub_remote_fetch('licenses.rdf')
-        end
-
-        it 'falls back to RDF and resolves the English label' do
-          expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
-        end
+      it 'resolves the English label' do
+        expect(described_class.label_for(uri)).to eq 'Attribution-NonCommercial 4.0 International'
       end
     end
 
