@@ -65,6 +65,12 @@ namespace 'utk:uri_cache' do # rubocop:disable Metrics/BlockLength
     puts "Imported #{upserted + inserted} URI cache entries from #{file}"
   end
 
+  desc "Print a tenant's failed URI lookups and the works citing them as CSV (TENANT=cname)"
+  task failures: :environment do
+    AccountElevator.switch!(ENV.fetch('TENANT') { abort 'Usage: rake utk:uri_cache:failures TENANT=<cname>' })
+    puts Utk::UriLookupFailureReport.new.to_csv
+  end
+
   desc 'Re-resolve all cached URIs from their remote sources'
   task refresh: :environment do
     UriCache.update_all_caches!

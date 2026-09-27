@@ -62,6 +62,22 @@ RSpec.describe 'utk:uri_cache rake tasks' do
     end
   end
 
+  describe 'utk:uri_cache:failures' do
+    after { ENV.delete('TENANT') }
+
+    it "prints the tenant's failed lookups as CSV" do
+      allow(AccountElevator).to receive(:switch!)
+      create(:uri_cache, uri: 'http://example.com/gone', status: 'failed', value: nil, reason: 'Not Found(404)',
+                         permanent: true)
+      UriCitation.create!(tenant: Apartment::Tenant.current, work_id: 'w1', uri: 'http://example.com/gone')
+      ENV['TENANT'] = 'cat-utk-knapsack.localhost.direct'
+
+      expect { Rake::Task['utk:uri_cache:failures'].invoke }
+        .to output(%r{\Auri,kind,.*\nhttp://example.com/gone,permanent,Not Found\(404\)}m).to_stdout
+      expect(AccountElevator).to have_received(:switch!).with('cat-utk-knapsack.localhost.direct')
+    end
+  end
+
   describe 'utk:uri_cache:export' do
     it 'carries a failure with its retry state' do
       create(:uri_cache, uri: 'http://example.com/gone', status: 'failed', value: nil, reason: 'Not Found(404)',
