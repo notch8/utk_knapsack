@@ -26,23 +26,12 @@ class UriLabelResolver
     'sws.geonames.org' => ->(uri) { uri.sub(/\Ahttps?:/i, 'https:').chomp('/') + '/' }
   }.freeze
 
-  LOCAL_AUTHORITIES = {
-    'rightsstatements.org' => 'rights_statements',
-    'creativecommons.org' => 'licenses'
-  }.freeze
-
   class << self
     def label_for(uri)
       return uri unless uri.to_s.match?(/\Ahttps?:/i)
 
       cached = UriCache.find_by(uri:)
       return cached.value if cached
-
-      local_label = resolve_local(uri)
-      if local_label
-        cache_label(uri, local_label)
-        return local_label
-      end
 
       resolve_remote(uri)
     end
@@ -66,19 +55,6 @@ class UriLabelResolver
     end
 
     private
-
-    def resolve_local(uri)
-      host = URI(uri).host
-      authority_name = LOCAL_AUTHORITIES[host]
-      return unless authority_name
-
-      authority = Qa::Authorities::Local.subauthority_for(authority_name)
-      result = authority.find(uri)
-      term = result.is_a?(Hash) ? result[:term] || result['term'] : nil
-      term.presence
-    rescue StandardError
-      nil
-    end
 
     def extract_label(resource, host, subject_uri, original_uri)
       subject = RDF::URI(subject_uri)

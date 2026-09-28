@@ -21,10 +21,15 @@ agree on one identifier:
 | `license` | `creativecommons` | `licenses` |
 | `resource_type` | `resourceTypes` | `resource_types` |
 
-Hyku ships eleven authority files in `config/authorities/`. The knapsack has no
-such directory of its own yet; `config/initializers/knapsack_authorities.rb`
-makes QA search the knapsack's first, so a same-named YAML placed there
-overrides Hyku's.
+Hyku ships eleven authority files in `config/authorities/`, and the knapsack has
+its own directory alongside them. `config/initializers/knapsack_authorities.rb`
+makes QA search the knapsack's first, so a same-named YAML there overrides
+Hyku's, which is how `resource_types.yml` replaces Hyku's vocabulary.
+
+A YAML edit alone does not reach a tenant that already has the vocabulary: terms
+are seeded into `qa_local_authorities` when the tenant is created, and served
+from those rows afterwards. Apply a change with
+`rake utk:vocabularies:reload NAME=<vocabulary>`.
 
 ## Ranges are all `xsd:string`
 
@@ -110,9 +115,9 @@ The conversion renames these three from the source's own shorthand
 authority filenames, via `CONTROLLED_VALUE_SOURCES`, so `sources` and
 `config/authorities/` agree on one identifier.
 
-With every range now `xsd:string`, `resource_type` also agrees with Hyku's
-`resource_types.yml`, which uses bare string ids (`Article`, `Audio`) rather
-than URIs. That mismatch is resolved.
+`resource_type` resolves against the knapsack's own `resource_types.yml`, whose
+ids are Library of Congress resource type URIs. Hyku's copy, with bare string
+ids such as `Article` and `Audio`, is overridden and unused.
 
 ### Structural and local
 
