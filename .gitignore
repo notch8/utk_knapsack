@@ -21,3 +21,4 @@ docker-compose*.override.yml
 /CLAUDE.md
 /branding
 .lesshst
+__pycache__/
