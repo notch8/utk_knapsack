@@ -313,6 +313,12 @@ git fetch prime && git merge prime/main
 build, test, lint, and reporting. Deploys are `workflow_dispatch`-only, against the templates in
 `ops/`.
 
+`.github/workflows/roll_sprint.yml` runs every Monday at 14:00 UTC and moves every Team Violet
+Board 2.0 item from the previous sprint into the current one, except items in Done. It needs the
+`VIOLET_BOARD_TOKEN` repository secret: a classic personal access token with the `project` and
+`read:org` scopes. Run it by hand from the Actions tab; the `dry_run` input lists what would move
+without changing the board.
+
 ## License
 
 Available as open source under the terms of the [Apache 2.0](https://opensource.org/license/apache-2-0/) license.

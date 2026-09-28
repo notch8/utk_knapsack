@@ -1,0 +1,24 @@
+name: Roll sprint
+on:
+  schedule:
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: List what would move without changing the board
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  roll_sprint:
+    runs-on: ubuntu-latest
+    name: Move last sprint's unfinished items into the current sprint
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: python3 .github/scripts/roll_sprint.py ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          GH_TOKEN: ${{ secrets.VIOLET_BOARD_TOKEN }}
