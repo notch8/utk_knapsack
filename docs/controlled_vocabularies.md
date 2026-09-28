@@ -18,13 +18,13 @@ agree on one identifier:
 | Property | Source shorthand | Authority named |
 |---|---|---|
 | `rights_statement` | `rightsstatements` | `rights_statements` |
-| `license` | `creativecommons` | `licenses` |
 | `resource_type` | `resourceTypes` | `resource_types` |
 
 Hyku ships eleven authority files in `config/authorities/`, and the knapsack has
 its own directory alongside them. `config/initializers/knapsack_authorities.rb`
 makes QA search the knapsack's first, so a same-named YAML there overrides
-Hyku's, which is how `resource_types.yml` replaces Hyku's vocabulary.
+Hyku's, which is how `resource_types.yml` and `rights_statements.yml` replace
+Hyku's vocabularies.
 
 A YAML edit alone does not reach a tenant that already has the vocabulary: terms
 are seeded into `qa_local_authorities` when the tenant is created, and served
@@ -58,7 +58,7 @@ shape how this could ever be implemented.
 | `geonames`, `naf`, `lcsh` | `spatial` |
 | `aat`, `lcsh`, `lcgft` | `form` |
 | `pcdm`, `pcdmuse`, `pcdmff` | `rdf_type` |
-| *(single)* | `language`, `language_local`, `resource_type`, `resource_type_local`, `publication_place`, `rights_statement`, `license`, `has_work_type` |
+| *(single)* | `language`, `language_local`, `resource_type`, `resource_type_local`, `publication_place`, `rights_statement`, `has_work_type` |
 
 `naf` appears in four different combinations, more than any other.
 
@@ -101,23 +101,28 @@ highest-value target if authority lookup is ever wired up.
 
 ### Fields with an existing Hyku authority
 
-These three name vocabularies Hyku already ships a local authority for, so they
+These two name vocabularies Hyku already ships a local authority for, so they
 are the cheapest to wire up.
 
 | Property | Sources | Hyku authority |
 |---|---|---|
 | `rights_statement` | `rights_statements` | `rights_statements.yml` |
-| `license` | `licenses` | `licenses.yml` |
 | `resource_type` | `resource_types` | `resource_types.yml` |
 
-The conversion renames these three from the source's own shorthand
-(`rightsstatements`, `creativecommons`, `resourceTypes`) to the shipped
-authority filenames, via `CONTROLLED_VALUE_SOURCES`, so `sources` and
-`config/authorities/` agree on one identifier.
+The conversion renames these two from the source's own shorthand
+(`rightsstatements`, `resourceTypes`) to the shipped authority filenames, via
+`CONTROLLED_VALUE_SOURCES`, so `sources` and `config/authorities/` agree on one
+identifier.
 
-`resource_type` resolves against the knapsack's own `resource_types.yml`, whose
-ids are Library of Congress resource type URIs. Hyku's copy, with bare string
-ids such as `Article` and `Audio`, is overridden and unused.
+Both resolve against the knapsack's own copies, which override Hyku's:
+
+- `rights_statement` uses the knapsack's `rights_statements.yml`, which holds
+  the 12 rightsstatements.org statements and the Creative Commons licenses in
+  one list. There is no separate `license` property; a work's Creative Commons
+  license is recorded as its rights statement.
+- `resource_type` uses the knapsack's `resource_types.yml`, whose ids are
+  Library of Congress resource type URIs. Hyku's copy, with bare string ids
+  such as `Article` and `Audio`, is unused.
 
 ### Structural and local
 
