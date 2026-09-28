@@ -13,11 +13,7 @@ module HykuKnapsack
 
     def generate_derivatives_for?(file_set_id, file_id)
       Hyrax.custom_queries.find_file_metadata_by(id: file_id).pdf? ||
-        intermediate_file?(Hyrax.query_service.find_by(id: file_set_id))
-    end
-
-    def intermediate_file?(file_set)
-      Array(file_set.try(:rdf_type)).any? { |type| type.to_s.split(%r{[#/:]}).last.to_s.casecmp?('IntermediateFile') }
+        HykuKnapsack::IntermediateFile.match?(Hyrax.query_service.find_by(id: file_set_id).try(:rdf_type))
     end
   end
 end
