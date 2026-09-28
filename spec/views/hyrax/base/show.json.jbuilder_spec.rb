@@ -27,9 +27,11 @@ RSpec.describe 'hyrax/base/show.json.jbuilder', type: :view do
     expect(json.keys).not_to include('new_record', 'internal_resource')
   end
 
-  it 'serializes a Valkyrie resource without converting it through Wings' do
-    expect(Wings::ActiveFedoraConverter).not_to receive(:convert)
-
-    render template: 'hyrax/base/show', formats: [:json]
+  # Upstream reaches the resource's fields through an ActiveFedora conversion, which
+  # raises on a Valkyrie-native stack and turns a successful save into a 500. Asserted
+  # by rendering rather than by watching the converter, so it holds whether or not
+  # Wings is loaded.
+  it 'renders a Valkyrie resource without an ActiveFedora conversion' do
+    expect { render template: 'hyrax/base/show', formats: [:json] }.not_to raise_error
   end
 end

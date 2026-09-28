@@ -31,9 +31,7 @@ Three things have to be true before the stack boots:
 ## Running the stack
 
 This is a Fedora-free stack. Wings is off, so Hyrax stores everything in Postgres through Valkyrie
-and no `fcrepo` container starts. It sits behind a `fedora` compose profile, waiting for anyone who
-needs the old path back. `docker-compose.override-nofcrepo4.yml` is what turns Wings off, so keep it
-in `COMPOSE_FILE` below.
+and no `fcrepo` container starts. `docker-compose.yml` is what turns Wings off.
 
 "Off" means no Fedora and no ActiveFedora storage. It does **not** mean the `Wings` constant is
 gone: `Object.const_defined?("Wings")` is still true, and Hyrax branches on exactly that in places,
@@ -52,8 +50,7 @@ by hand. It is also where compose overrides belong: name every file you want in 
 # .env.development
 WEB_PORT=3000:80   # if you are not using dory
 
-# no-Fedora stack; drop the last file to run with Fedora again
-COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.override-nofcrepo4.yml
+COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml
 ```
 
 Setting `COMPOSE_FILE` replaces the default list, so `docker-compose.yml` and the implicit
@@ -77,7 +74,6 @@ so the local Knapsack is used instead of the released gem.
 
 `docker-compose.override.yml` parks `web` and `worker` on `sleep infinity`, mounts `../gems/` for
 working on checked-out gems. Start Rails yourself from `sc sh`.
-`docker-compose.override-nofcrepo4.yml` runs Wings off: Hyrax on Postgres alone, no Fedora container.
 
 ### Compose overrides
 
@@ -105,9 +101,6 @@ services:
   shared `x-app` block, so everyone gets it. Kept in older personal overrides harmlessly. It turns on
   flexible (M3) metadata, and UTK's work types ship no static
   schema YAML, so a non-flexible boot dies with `Hyrax::SchemaLoader::UndefinedSchemaError`.
-
-`docker-compose.override-nofcrepo4.yml` *is* committed, and is what turns Wings off. Both belong in
-`COMPOSE_FILE`.
 
 ### Running the app
 
