@@ -32,6 +32,8 @@ class UriLabelResolver
   }.freeze
 
   PERMANENT_HTTP_STATUSES = %w[404 410].freeze
+  HTTP_STATUS_REASONS = { '404' => 'Not found', '410' => 'Removed' }.freeze
+  NO_LABEL = "No label in the vocabulary's data"
   HTTP_STATUS_IN_ERROR = /(?:\((\d{3})\)|: (\d{3}))\z/
 
   Outcome = Struct.new(:label, :reason, :permanent, keyword_init: true)
@@ -55,12 +57,12 @@ class UriLabelResolver
       return Outcome.new(reason: deletion, permanent: true) if deletion
 
       label = extract_label(resource, host, subject_uri)
-      return Outcome.new(reason: 'No label found', permanent: true) if label.blank?
+      return Outcome.new(reason: NO_LABEL, permanent: true) if label.blank?
 
       Outcome.new(label:)
     rescue StandardError => e
       Rails.logger.warn("Failed to load RDF data for #{uri}: #{e.message}")
-      Outcome.new(reason: e.message, permanent: permanent_error?(e))
+      Outcome.new(reason: failure_reason(e), permanent: permanent_error?(e))
     end
 
     private
@@ -85,6 +87,26 @@ class UriLabelResolver
 
     def permanent_error?(error)
       error.is_a?(RDF::FormatError) || PERMANENT_HTTP_STATUSES.include?(http_status(error))
+    end
+
+    def failure_reason(error)
+      status = http_status(error)
+      return "#{HTTP_STATUS_REASONS.fetch(status, 'Server error')} (HTTP #{status})" if status
+
+      case error
+      when RDF::FormatError then not_rdf_reason(error)
+      when Faraday::TimeoutError then 'Timed out'
+      when Faraday::ConnectionFailed then 'Could not connect'
+      when Faraday::SSLError then 'Secure connection failed'
+      when RDF::ReaderError then "Could not read the vocabulary's data"
+      when Faraday::FollowRedirects::RedirectLimitReached then 'Too many redirects'
+      else 'Lookup failed (details in log)'
+      end
+    end
+
+    def not_rdf_reason(error)
+      content_type = error.message[/content_type(?:=>|: )"([^"]+)"/, 1]
+      content_type ? "Not vocabulary data (received #{content_type})" : 'Not vocabulary data'
     end
 
     def http_status(error)

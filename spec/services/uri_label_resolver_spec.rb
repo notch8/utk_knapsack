@@ -91,7 +91,7 @@ RSpec.describe UriLabelResolver do
       it 'records a permanent failure' do
         expect(described_class.lookup(uri)).to be_nil
         expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true,
-                                                          reason: "<#{uri}>: Not Found(404)")
+                                                          reason: 'Not found (HTTP 404)')
       end
     end
 
@@ -102,7 +102,19 @@ RSpec.describe UriLabelResolver do
 
       it 'records a permanent failure' do
         expect(described_class.lookup(uri)).to be_nil
-        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true)
+        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true,
+                                                          reason: 'Not found (HTTP 404)')
+      end
+    end
+
+    context 'when the remote answers 410' do
+      let(:uri) { 'http://vocab.getty.edu/aat/30004630' }
+
+      before { stub_fetch_error("<#{uri}>: 410") }
+
+      it 'records a permanent failure' do
+        expect(described_class.lookup(uri)).to be_nil
+        expect(UriCache.find_by(uri:)).to have_attributes(permanent: true, reason: 'Removed (HTTP 410)')
       end
     end
 
@@ -117,7 +129,8 @@ RSpec.describe UriLabelResolver do
 
       it 'records a permanent failure' do
         expect(described_class.lookup(uri)).to be_nil
-        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true)
+        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true,
+                                                          reason: 'Not vocabulary data (received text/html)')
       end
     end
 
@@ -128,7 +141,8 @@ RSpec.describe UriLabelResolver do
 
       it 'records a temporary failure' do
         expect(described_class.lookup(uri)).to be_nil
-        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: false, attempts: 1)
+        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: false, attempts: 1,
+                                                          reason: 'Server error (HTTP 499)')
       end
     end
 
@@ -138,12 +152,48 @@ RSpec.describe UriLabelResolver do
       before do
         resource = instance_double(ActiveTriples::Resource)
         allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
-        allow(resource).to receive(:fetch).and_raise(Net::ReadTimeout)
+        allow(resource).to receive(:fetch).and_raise(Faraday::TimeoutError, 'Net::ReadTimeout with #<TCPSocket:(closed)>')
       end
 
       it 'records a temporary failure' do
         expect(described_class.lookup(uri)).to be_nil
-        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: false)
+        expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: false, reason: 'Timed out')
+      end
+    end
+
+    {
+      'the certificate is refused' => [Faraday::SSLError, 'Secure connection failed'],
+      "the vocabulary's data cannot be parsed" => [RDF::ReaderError, "Could not read the vocabulary's data"],
+      'the redirects never end' => [Faraday::FollowRedirects::RedirectLimitReached, 'Too many redirects']
+    }.each do |situation, (error_class, reason)|
+      context "when #{situation}" do
+        let(:uri) { 'http://vocab.getty.edu/aat/300264679' }
+
+        before do
+          resource = instance_double(ActiveTriples::Resource)
+          allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
+          allow(resource).to receive(:fetch).and_raise(error_class.allocate)
+        end
+
+        it "records \"#{reason}\"" do
+          expect(described_class.lookup(uri)).to be_nil
+          expect(UriCache.find_by(uri:)).to have_attributes(permanent: false, reason:)
+        end
+      end
+    end
+
+    context 'when the remote cannot be reached' do
+      let(:uri) { 'http://vocab.getty.edu/aat/300264679' }
+
+      before do
+        resource = instance_double(ActiveTriples::Resource)
+        allow(ActiveTriples::Resource).to receive(:new).and_return(resource)
+        allow(resource).to receive(:fetch).and_raise(Faraday::ConnectionFailed, 'Failed to open TCP connection to vocab.getty.edu:443')
+      end
+
+      it 'records that it could not connect' do
+        expect(described_class.lookup(uri)).to be_nil
+        expect(UriCache.find_by(uri:)).to have_attributes(permanent: false, reason: 'Could not connect')
       end
     end
 
@@ -360,7 +410,7 @@ RSpec.describe UriLabelResolver do
 
         expect(described_class.lookup(uri)).to be_nil
         expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: false,
-                                                          reason: 'connection refused')
+                                                          reason: 'Lookup failed (details in log)')
       end
     end
 
@@ -378,7 +428,7 @@ RSpec.describe UriLabelResolver do
       it 'records a permanent failure' do
         expect(described_class.lookup(uri)).to be_nil
         expect(UriCache.find_by(uri:)).to have_attributes(status: 'failed', permanent: true,
-                                                          reason: 'No label found')
+                                                          reason: "No label in the vocabulary's data")
       end
     end
 
