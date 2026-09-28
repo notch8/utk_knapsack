@@ -73,7 +73,10 @@ its repository bucket's own `derivatives/` prefix until a shared derivatives buc
 - **Input files:** UTK's collection sheets and the collection records sheet, both downloaded as CSV
   from the shared Google Drive into `tmp/migration/sheets/`.  The collection records go through the
   stock **CSV - Comma Separated Values** parser before any work sheet, since work sheets reference
-  collections they do not define.
+  collections they do not define.  Prepare them first with
+  `bin/migration/prepare_collections tmp/migration/sheets/collections.csv`, which needs no AWS or
+  kubectl: it collapses the role columns, adds `primary_identifier`, and stops on the same checks
+  as a work sheet.
 
 **Code lives here, data does not.**  Sheets, lookups and transform output live in `tmp/migration/`,
 which is gitignored.

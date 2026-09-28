@@ -16,6 +16,10 @@ RSpec.describe Migration::Preflight do
     described_class.new(rows, rows.flat_map(&:keys).uniq).stops
   end
 
+  it 'stops on a row legacy Solr did not match' do
+    expect(stops({ 'id' => nil })).to eq ['unmatched source_identifiers: 1 ["w:1"]']
+  end
+
   it 'passes a value the vocabulary holds' do
     expect(stops({ 'license' => 'https://creativecommons.org/licenses/by/4.0/' })).to be_empty
   end
@@ -61,11 +65,11 @@ end
 
 RSpec.describe Migration::Profile do
   it 'reads only properties whose every source has a local yml' do
-    expect(described_class::VOCABULARIES.keys).to include('license', 'rights_statement')
+    expect(described_class::VOCABULARIES.keys).to include('resource_type', 'rights_statement')
     expect(described_class::VOCABULARIES.keys).not_to include('title', 'subject', 'spatial', 'language')
   end
 
   it 'skips a property citing a remote authority beside a local one' do
-    expect(described_class.vocabulary_for('controlled_values' => { 'sources' => %w[licenses lcsh] })).to be_nil
+    expect(described_class.vocabulary_for('controlled_values' => { 'sources' => %w[rights_statements lcsh] })).to be_nil
   end
 end

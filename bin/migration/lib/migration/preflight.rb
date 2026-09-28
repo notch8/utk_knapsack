@@ -2,9 +2,10 @@
 
 module Migration
   class Preflight
-    def initialize(rows, headers)
+    def initialize(rows, headers, looked_up: true)
       @rows = rows
       @headers = headers
+      @looked_up = looked_up
     end
 
     def stops
@@ -14,6 +15,8 @@ module Migration
     private
 
     def unmatched_stop
+      return unless @looked_up
+
       unmatched = @rows.select { |row| row['id'].nil? }.map { |row| row['source_identifier'] }
       "unmatched source_identifiers: #{unmatched.size} #{unmatched.first(5).inspect}" if unmatched.any?
     end
