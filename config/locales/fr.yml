@@ -1,4 +1,24 @@
 fr:
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: Tentatives
+      cited_by: Cité par
+      download: Télécharger le CSV
+      due: À relancer maintenant
+      help: Valeurs contrôlées dont le libellé n'a pas pu être récupéré. Les lignes marquées « À corriger » ne se résoudront pas d'elles-mêmes ; les échecs temporaires sont relancés automatiquement.
+      kind: Type
+      kinds:
+        permanent: À corriger
+        temporary: Temporaire
+      more:
+        one: et 1 autre
+        other: "et %{count} autres"
+      next_retry: Nouvelle vérification
+      none: Aucun libellé non résolu.
+      reason: Motif
+      retry_in: "dans %{time}"
+      title: Libellés non résolus
+      uri: URI
   hyrax:
     base:
       file_manager_actions:

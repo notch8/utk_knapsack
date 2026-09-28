@@ -1,0 +1,4 @@
+<% if can? :manage, :controlled_vocabularies %>
+  <%= link_to t('hyku_knapsack.uri_lookup_failures.title'), hyku_knapsack.uri_lookup_failures_path,
+              class: 'btn btn-outline-secondary' %>
+<% end %>

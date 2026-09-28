@@ -1,4 +1,24 @@
 zh:
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: 尝试次数
+      cited_by: 引用于
+      download: 下载 CSV
+      due: 待重试
+      help: '无法获取标签的受控值。标记为"需要修正"的行不会自行解决；临时性失败会自动重试。'
+      kind: 类型
+      kinds:
+        permanent: 需要修正
+        temporary: 临时
+      more:
+        one: 另外 1 项
+        other: "另外 %{count} 项"
+      next_retry: 重新检查
+      none: 没有未解析的标签。
+      reason: 原因
+      retry_in: "%{time}后"
+      title: 未解析的标签
+      uri: URI
   hyrax:
     base:
       file_manager_actions:

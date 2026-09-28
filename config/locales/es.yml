@@ -1,4 +1,24 @@
 es:
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: Intentos
+      cited_by: Citado por
+      download: Descargar CSV
+      due: Pendiente ahora
+      help: Valores controlados cuya etiqueta no se pudo obtener. Las filas marcadas como «Requiere corrección» no se resolverán por sí solas; las temporales se reintentan automáticamente.
+      kind: Tipo
+      kinds:
+        permanent: Requiere corrección
+        temporary: Temporal
+      more:
+        one: y 1 más
+        other: "y %{count} más"
+      next_retry: Nueva comprobación
+      none: No hay etiquetas sin resolver.
+      reason: Motivo
+      retry_in: "en %{time}"
+      title: Etiquetas sin resolver
+      uri: URI
   hyrax:
     base:
       file_manager_actions:
