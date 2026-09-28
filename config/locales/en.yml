@@ -6,6 +6,26 @@ en:
       fields:
         facet:
           date_range_isim: Date Created/Issued
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: Attempts
+      cited_by: Cited by
+      download: Download CSV
+      due: Due now
+      help: Controlled values whose label could not be fetched. Rows marked Needs fix will not resolve on their own; temporary ones are retried automatically.
+      kind: Kind
+      kinds:
+        permanent: Needs fix
+        temporary: Temporary
+      more:
+        one: and 1 more
+        other: and %{count} more
+      next_retry: Recheck
+      none: No unresolved labels.
+      reason: Reason
+      retry_in: in %{time}
+      title: Unresolved labels
+      uri: URI
   hyrax:
     base:
       file_manager_actions:

@@ -1,0 +1,80 @@
+<% provide :page_title, construct_page_title(t('hyku_knapsack.uri_lookup_failures.title'), t('hyku.admin.title')) %>
+<% provide :page_header do %>
+  <h1><span class="fa fa-exclamation-triangle" aria-hidden="true"></span> <%= t('hyku_knapsack.uri_lookup_failures.title') %></h1>
+<% end %>
+
+<div class="mb-3 text-right">
+  <%= link_to t('hyku_knapsack.uri_lookup_failures.download'),
+              hyku_knapsack.uri_lookup_failures_path(format: :csv),
+              class: 'btn btn-outline-secondary' %>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <%= t('hyku_knapsack.uri_lookup_failures.help') %>
+  </div>
+  <div class="card-body pt-1">
+    <% if @rows.any? %>
+      <div class="table-responsive">
+        <table class="table uri-lookup-failures">
+          <caption class="sr-only"><%= t('hyku_knapsack.uri_lookup_failures.title') %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.uri') %></th>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.kind') %></th>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.reason') %></th>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.attempts') %></th>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.next_retry') %></th>
+              <th scope="col"><%= t('hyku_knapsack.uri_lookup_failures.cited_by') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @rows.each do |row| %>
+              <tr>
+                <td class="text-break"><%= link_to row.uri, row.uri, rel: 'noopener noreferrer nofollow' %></td>
+                <td>
+                  <span class="badge <%= row.permanent ? 'badge-danger' : 'badge-warning' %>">
+                    <%= t("hyku_knapsack.uri_lookup_failures.kinds.#{row.kind}") %>
+                  </span>
+                </td>
+                <td class="text-break"><%= row.reason %></td>
+                <td><%= row.attempts %></td>
+                <td>
+                  <% if row.retry_after&.future? %>
+                    <span title="<%= l(row.retry_after, format: :long) %>">
+                      <%= t('hyku_knapsack.uri_lookup_failures.retry_in', time: time_ago_in_words(row.retry_after)) %>
+                    </span>
+                  <% else %>
+                    <%= t('hyku_knapsack.uri_lookup_failures.due') %>
+                  <% end %>
+                </td>
+                <td>
+                  <ul class="list-unstyled mb-0">
+                    <% row.work_ids.first(HykuKnapsack::UriLookupFailuresController::CITED_WORKS_SHOWN).each do |work_id| %>
+                      <% doc = @works[work_id] %>
+                      <li>
+                        <% if doc %>
+                          <%= link_to doc.title&.first || work_id,
+                                      doc.collection? ? hyrax.collection_path(work_id) : main_app.polymorphic_path(doc) %>
+                        <% else %>
+                          <code><%= work_id %></code>
+                        <% end %>
+                      </li>
+                    <% end %>
+                    <% hidden = row.work_ids.size - HykuKnapsack::UriLookupFailuresController::CITED_WORKS_SHOWN %>
+                    <% if hidden.positive? %>
+                      <li class="text-muted"><%= t('hyku_knapsack.uri_lookup_failures.more', count: hidden) %></li>
+                    <% end %>
+                  </ul>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= paginate @rows %>
+    <% else %>
+      <p><%= t('hyku_knapsack.uri_lookup_failures.none') %></p>
+    <% end %>
+  </div>
+</div>

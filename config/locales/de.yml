@@ -1,4 +1,24 @@
 de:
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: Versuche
+      cited_by: Verwendet in
+      download: CSV herunterladen
+      due: Jetzt fällig
+      help: 'Kontrollierte Werte, deren Bezeichnung nicht abgerufen werden konnte. Mit „Korrektur nötig" markierte Zeilen lösen sich nicht von selbst; vorübergehende werden automatisch erneut versucht.'
+      kind: Art
+      kinds:
+        permanent: Korrektur nötig
+        temporary: Vorübergehend
+      more:
+        one: und 1 weiteres
+        other: "und %{count} weitere"
+      next_retry: Erneute Prüfung
+      none: Keine nicht aufgelösten Bezeichnungen.
+      reason: Grund
+      retry_in: "in %{time}"
+      title: Nicht aufgelöste Bezeichnungen
+      uri: URI
   hyrax:
     base:
       file_manager_actions:

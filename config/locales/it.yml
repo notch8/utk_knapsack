@@ -1,4 +1,24 @@
 it:
+  hyku_knapsack:
+    uri_lookup_failures:
+      attempts: Tentativi
+      cited_by: Citato da
+      download: Scarica CSV
+      due: Da riprovare ora
+      help: Valori controllati di cui non è stato possibile recuperare l'etichetta. Le righe contrassegnate come «Da correggere» non si risolveranno da sole; quelle temporanee vengono ritentate automaticamente.
+      kind: Tipo
+      kinds:
+        permanent: Da correggere
+        temporary: Temporaneo
+      more:
+        one: e 1 altro
+        other: "e altri %{count}"
+      next_retry: Nuovo controllo
+      none: Nessuna etichetta non risolta.
+      reason: Motivo
+      retry_in: "tra %{time}"
+      title: Etichette non risolte
+      uri: URI
   hyrax:
     base:
       file_manager_actions:
