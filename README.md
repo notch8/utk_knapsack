@@ -326,7 +326,8 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 - Production window: none yet. UTK is pre-launch, so production deploys go out at will;
   set a window here before launch.
 - Release tags: none yet. A production push drafts `vX.Y.Z`; a human publishes the draft after
-  verifying the deploy.
+  verifying the deploy. Publish the first draft as `v0.1.0` and stay on `v0.x` until client
+  launch, which is `v1.0.0`.
 - Before merging a promotion PR, a human captures the regression baseline
   (`deploy-regression-check`).
 
