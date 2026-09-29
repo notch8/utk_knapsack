@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # OVERRIDE Hyku v7.1.0 to facet creator and contributor from the compound
-# properties instead of the flat ones, and to drop the publisher facet.
+# properties instead of the flat ones, to drop the publisher facet, and to leave
+# the search result fields to the M3 profile.
 #
 # UTK records agents as `creators` / `contributors` compounds (name + role), so
 # the facetable Solr field is the sub-property's derived `<compound>_name_sim`
@@ -36,39 +37,13 @@ module CatalogControllerDecorator
     config.facet_fields.replace(rebuilt)
   end
 
-  def edtf_properties
-    profile = YAML.safe_load_file(Hyrax::Schema.m3_schema_loader.config_paths.first.to_s)
-
-    profile.fetch('properties', {}).select { |_name, prop| prop['syntax'].to_s.casecmp?('edtf') }.keys
-  end
-
-  def hide_machine_readable_date_facets(config)
-    edtf_properties.each do |itemprop|
-      key = "#{itemprop}_sim"
-      next if config.facet_fields.key?(key)
-
-      config.add_facet_field key, show: false, include_in_request: false, include_in_advanced_search: false
-    end
-  end
-
-  def search_machine_readable_dates(config)
-    fields = %w[
-      date_created_d_tesim
-      date_issued_d_tesim
-      date_created_tesim
-      date_issued_tesim
-    ].join(' ')
-
-    config.search_fields['date_created']&.tap do |field|
-      field.label = 'Date Created/Issued'
-      field.solr_local_parameters = { qf: fields, pf: fields }
-    end
+  # OVERRIDE: Hyrax adds index fields per profile property but never removes the ones Hyku declares
+  def leave_index_fields_to_the_profile(config)
+    config.index_fields.slice!('all_text_tsimv')
   end
 end
 
 CatalogController.configure_blacklight do |config|
   CatalogControllerDecorator.swap_in_compound_facets(config)
-  CatalogControllerDecorator.hide_machine_readable_date_facets(config)
-  CatalogControllerDecorator.search_machine_readable_dates(config)
-  config.add_facet_fields_to_solr_request!
+  CatalogControllerDecorator.leave_index_fields_to_the_profile(config)
 end

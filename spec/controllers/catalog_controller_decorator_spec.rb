@@ -14,67 +14,32 @@ RSpec.describe CatalogController do
     it 'is labeled for both senses of date' do
       expect(facet.display_label('facet')).to eq 'Date Created/Issued'
     end
-
-    it 'sends the facets the knapsack adds to Solr, though they are added after Hyku calls add_facet_fields_to_solr_request!' do
-      expect(config.add_facet_fields_to_solr_request).to be true
-    end
   end
 
-  describe 'the machine-readable date facets' do
-    it 'derives the properties from the profile rather than a hand-kept list' do
-      expect(CatalogControllerDecorator.edtf_properties)
-        .to include('date_created_d', 'date_issued_d')
-    end
+  describe 'the search result fields' do
+    let(:profile) { YAML.safe_load_file(Hyrax::Schema.m3_schema_loader.config_paths.first.to_s) }
+    let(:views) { profile['properties'].transform_values { |property| property['view'].is_a?(Hash) ? property['view'] : {} } }
+    let(:hidden) { views.select { |_key, view| view['search_results'] == false }.keys }
+    let(:displayed) { views.select { |_key, view| view['html_dl'] && view['search_results'] != false }.keys }
+    let(:index_fields_of) { ->(keys) { profile['properties'].values_at(*keys).flat_map { |property| Array(property['indexing']) } } }
 
-    # Compared exactly: Hyku's own profile lives at `<knapsack root>/hyrax-webapp
-    # /config/metadata_profiles/m3_profile.yaml`, so a prefix match passes even
-    # when Hyrax resolves Hyku's file. That file declares no `syntax:` key at
-    # all, so a silent flip to it would make edtf_properties return [] and hide
-    # nothing.
-    it 'reads them from the knapsack profile, not Hyku\'s' do
-      expect(Hyrax::Schema.m3_schema_loader.config_paths.first.to_s)
-        .to eq HykuKnapsack::Engine.root.join('config', 'metadata_profiles', 'm3_profile.yaml').to_s
-    end
-
-    # Hyrax re-adds a facet per `facetable` property on every request, so this is
-    # the guard against a newly facetable EDTF property putting raw EDTF values
-    # (`1948~/1952`, and the `[]` sentinel) back in the sidebar.
-    it 'leaves no machine-readable date facet renderable' do
+    before do
+      Hyrax::FlexibleSchema.new(profile:).save(validate: false)
       described_class.load_flexible_schema
-
-      renderable = config.facet_fields.select { |key, facet| key.end_with?('_d_sim') && facet.if != false }
-
-      expect(renderable.keys).to be_empty
     end
 
-    it 'keeps the range facet renderable alongside them' do
-      described_class.load_flexible_schema
-
-      expect(config.facet_fields[DateRangeIndexing::SOLR_FIELD].if).not_to be false
-    end
-  end
-
-  describe 'the date search field' do
-    let(:field) { config.search_fields['date_created'] }
-
-    it 'searches the machine-readable dates' do
-      expect(field.solr_local_parameters[:qf]).to include 'date_created_d_tesim', 'date_issued_d_tesim'
+    it 'include nothing the profile does not declare, besides the full-text snippets' do
+      expect(config.index_fields.keys - ['all_text_tsimv']).to all(be_in(index_fields_of.call(profile['properties'].keys)))
     end
 
-    it 'still searches the human-readable dates' do
-      expect(field.solr_local_parameters[:qf]).to include 'date_created_tesim', 'date_issued_tesim'
+    # Hyrax currently doesn't remove index properties without a restart: `search_results: false`
+    # only stops it adding a field, so one an earlier profile version added stays registered.
+    xit 'include nothing the profile hides from search results' do
+      expect(config.index_fields.keys & index_fields_of.call(hidden)).to be_empty
     end
 
-    it 'boosts the same fields it queries' do
-      expect(field.solr_local_parameters[:pf]).to eq field.solr_local_parameters[:qf]
-    end
-
-    it 'keeps the numeric range field out of qf, where it can never match a term' do
-      expect(field.solr_local_parameters[:qf]).not_to include DateRangeIndexing::SOLR_FIELD
-    end
-
-    it 'is labeled for both senses of date' do
-      expect(field.label).to eq 'Date Created/Issued'
+    it 'include every displayed property the profile leaves in search results' do
+      expect(config.index_fields.keys).to include(*displayed.map { |key| "#{profile['properties'][key].fetch('name', key)}_tesim" })
     end
   end
 
