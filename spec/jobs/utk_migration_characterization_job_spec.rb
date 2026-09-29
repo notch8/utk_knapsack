@@ -54,4 +54,22 @@ RSpec.describe UtkMigrationCharacterizationJob do
 
     expect(publisher).not_to have_received(:publish).with('file.characterized', any_args)
   end
+
+  context 'with the real characterization service' do
+    let(:service) { Hyrax::Characterization::ValkyrieCharacterizationService }
+    let(:metadata) { Hyrax::FileMetadata.new(original_filename: 'memoir.pdf', recorded_size: ['0']) }
+
+    before do
+      allow(service).to receive(:new).and_call_original
+      allow(metadata).to receive(:file).and_return(StringIO.new('%PDF'))
+      allow(Hydra::FileCharacterization).to receive(:characterize)
+        .and_return('<fits><fileinfo><size>71245608</size></fileinfo></fits>')
+    end
+
+    it 'records the size FITS measured rather than the one legacy recorded' do
+      described_class.perform_now('fm-1')
+
+      expect(metadata.recorded_size).to eq(['71245608'])
+    end
+  end
 end
