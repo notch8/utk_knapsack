@@ -6,8 +6,10 @@ module Bulkrax
 
     def add_local
       super
+
+      resource = factory_class&.new
       PDF_VIEWER_DEFAULTS.each do |key|
-        next unless factory_class&.method_defined?(key)
+        next unless resource.respond_to?("#{key}=")
 
         parsed_metadata[key] = '1' if parsed_metadata[key].to_s.empty?
       end
