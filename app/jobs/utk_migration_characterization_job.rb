@@ -9,7 +9,7 @@ class UtkMigrationCharacterizationJob < Hyrax::ApplicationJob
     Hyrax.config.characterization_service.new(
       metadata:,
       file: metadata.file,
-      parser_mapping: Hydra::Works::Characterization.mapper,
+      parser_mapping: Hydra::Works::Characterization.mapper.merge(file_size: :recorded_size),
       **Hyrax.config.characterization_options
     ).characterize
 
