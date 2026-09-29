@@ -323,7 +323,8 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 - UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
   clients review work on production. `utk-knapsack-staging` still exists but only deploys by
   manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main`.
-- Production window: TBD.
+- Production window: none yet. UTK is pre-launch, so production deploys go out at will;
+  set a window here before launch.
 - Release tags: none yet. A production push drafts `vX.Y.Z`; a human publishes the draft after
   verifying the deploy.
 - Before merging a promotion PR, a human captures the regression baseline
