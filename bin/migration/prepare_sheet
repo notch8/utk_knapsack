@@ -88,11 +88,17 @@ module Migration
   end
 
   file_set_ids = result.rows.select { |row| row['model'] == 'FileSet' }.map { |row| row['id'] }
+  stage = Derivatives::Stage.new(target, report, dry_run: options[:dry_run])
+  missing = []
   report.step("4. stage derivatives: legacy EFS -> s3://#{target.derivatives_bucket}/#{PREFIX}") do
     cname, = legacy.run('lookup', 'cname', tenant)
     expected = ENV.fetch('UTK_CNAME', 'digitalcollections.lib.utk.edu')
     raise Stop, "#{legacy} does not answer as #{expected}" unless cname.strip == expected
-    raise Stop unless Derivatives::Stage.new(target, report, dry_run: options[:dry_run]).call(file_set_ids, legacy)
+    raise Stop unless stage.call(file_set_ids, legacy)
+
+    missing = stage.missing(result.rows)
+    report.failures(missing.map { |row| "#{row['source_identifier']} (#{row['id']})" },
+                    'file sets legacy should have made derivatives for and did not; they import without a thumbnail')
   end
 
   report.step("5. fill derivatives: s3://#{target.derivatives_bucket}/#{PREFIX} -> #{target.fill_destination}") do
@@ -100,6 +106,7 @@ module Migration
   end
 
   puts
+  puts "⚠️  #{missing.size} file sets will import without derivatives they should have, listed at step 4" if missing.any?
   puts "⚠️  #{result.flagged.size} works flagged and left out, for a normal import: #{flagged_path}" if result.flagged.any?
   puts options[:dry_run] ? '🧪 Dry run passed. Nothing was copied; run again without --dry-run.' : "🎉 Ready to import: #{import_path}"
 end

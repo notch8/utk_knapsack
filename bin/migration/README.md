@@ -31,8 +31,8 @@ derivatives, and prints the file to import.  Import that file at `/importers/new
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
 
 It stops at the first failure, including any stop line in the transform's report: unmatched
-identifiers, missing required properties, file sets with no digest, unknown role columns.  A real
-run on prod asks you to type `prod` instead of `y`.
+identifiers, missing required properties, file sets with no digest, unknown role columns, values
+off their local vocabulary.  A real run on prod asks you to type `prod` instead of `y`.
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
@@ -87,7 +87,9 @@ which is gitignored.
    UUID and the `sha1` pointer in place of `remote_files`, renames `Image` to `StillImage`, and
    collapses the flat relator columns into the `creators` and `contributors` compounds using the
    role authorities in `config/authorities/`.  Its report is the only place a missing required
-   property is caught: the migration factory saves resources directly, with no validations.
+   property, or a controlled value its local vocabulary does not hold, is caught: the migration
+   factory saves resources directly, with no validations.  Properties citing only remote
+   authorities are not checked.
 3. **Copy originals.**  One server-side `copy_object` per file set, from `besties-fcrepo` to
    `<file set id>/<uuid>`, the key `Bulkrax::UtkMigrationObjectKey` derives and the factory records
    as `file_identifier`, so the two cannot disagree.  Over 5 GB it switches to a multipart copy.
@@ -99,7 +101,9 @@ which is gitignored.
 
 Every copy step checks its destination for each file at the same size and skips what is already
 there, so any run is safe to repeat from any machine.  Nothing keeps a log of what was copied.  A
-file set with no derivatives is usually correct; see `MIGRATION_PLAN.md`.
+file set with no derivatives is usually correct; see `MIGRATION_PLAN.md`.  Step 4 lists, as a
+warning rather than a stop, the ones legacy should have made derivatives for (an intermediate file,
+or a file set of a `Pdf`), since they import without a thumbnail.
 
 ## Layout
 
