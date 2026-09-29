@@ -26,6 +26,24 @@ on:
           - lint
 
 jobs:
+  version-check:
+    name: Knapsack version matches Hyku
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+      - name: Compare VERSION constants
+        run: |
+          read_version() { sed -nE "s/.*VERSION = ['\"]([^'\"]+)['\"].*/\1/p" "$1"; }
+          knapsack=$(read_version lib/hyku_knapsack/version.rb)
+          hyku=$(read_version hyrax-webapp/config/initializers/version.rb)
+          if [ -z "$knapsack" ] || [ "$knapsack" != "$hyku" ]; then
+            echo "::error file=lib/hyku_knapsack/version.rb::HykuKnapsack::VERSION is '$knapsack' but the pinned hyrax-webapp is Hyku '$hyku'. Set lib/hyku_knapsack/version.rb to match the submodule."
+            exit 1
+          fi
+          echo "HykuKnapsack::VERSION $knapsack matches Hyku $hyku"
+
   build:
     permissions: write-all
     uses: notch8/actions/.github/workflows/build.yaml@v1.0.10
