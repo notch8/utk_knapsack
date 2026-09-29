@@ -3,7 +3,9 @@
 # OVERRIDE Bulkrax 9.5.1: after the relationship pass assembles a work's
 # member_ids, rewrite them in sequence order and set representative_id /
 # thumbnail_id to the member the legacy app would have shown. The migration
-# factory bypasses the transaction that normally does this.
+# factory bypasses the transaction that normally does this. Then reindex the
+# work's file sets, which were indexed before they had a parent and so lack
+# the `is_page_of_ssim` IIIF search filters on.
 module Bulkrax
   module CreateRelationshipsJobDecorator
     private
@@ -15,6 +17,12 @@ module Bulkrax
       conditionally_acquire_lock_for(parent_record.id.to_s) do
         sort_members_and_set_representative(parent_record.id)
       end
+      reindex_file_sets(parent_record.id)
+    end
+
+    def reindex_file_sets(parent_id)
+      parent = Hyrax.query_service.find_by(id: parent_id)
+      Bulkrax.object_factory.update_index_for_file_sets_of(resource: parent)
     end
 
     def sort_members_and_set_representative(parent_id)

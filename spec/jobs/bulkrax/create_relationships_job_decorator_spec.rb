@@ -72,6 +72,7 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
         allow(Bulkrax.object_factory).to receive(:find).and_return(parent)
         allow(Bulkrax.object_factory).to receive(:update_index)
         allow(Bulkrax.object_factory).to receive(:publish)
+        allow(Bulkrax.object_factory).to receive(:update_index_for_file_sets_of)
       end
 
       it 'calls sort_members_and_set_representative' do
@@ -79,11 +80,23 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
 
         job.send(:process_parent_as_work, parent_record:, parent_identifier: 'test')
       end
+
+      it 'reindexes the file sets of the reloaded parent' do
+        job.send(:process_parent_as_work, parent_record:, parent_identifier: 'test')
+
+        expect(Bulkrax.object_factory).to have_received(:update_index_for_file_sets_of).with(resource: parent)
+      end
     end
 
     context 'when no members were added' do
       it 'skips sorting' do
         expect(job).not_to receive(:sort_members_and_set_representative)
+
+        job.send(:process_parent_as_work, parent_record:, parent_identifier: 'test')
+      end
+
+      it 'skips reindexing file sets' do
+        expect(Bulkrax.object_factory).not_to receive(:update_index_for_file_sets_of)
 
         job.send(:process_parent_as_work, parent_record:, parent_identifier: 'test')
       end
