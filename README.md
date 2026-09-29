@@ -322,7 +322,9 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
   utk-hyku app being migrated from. Nothing here deploys to them.
 - UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
   clients review work on production. `utk-knapsack-staging` still exists but only deploys by
-  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main`.
+  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` once
+  the `AUTO_MERGER_APP_ID` and `AUTO_MERGER_APP_PRIVATE_KEY` secrets are set; until then, open
+  that PR by hand.
 - Production window: none yet. UTK is pre-launch, so production deploys go out at will;
   set a window here before launch.
 - Release tags: none yet. A production push drafts `vX.Y.Z`; a human publishes the draft after
