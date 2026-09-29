@@ -6,18 +6,18 @@ template: |
   $CHANGES
 
 categories:
-  - title: Breaking Changes 🛠
+  - title: Breaking Changes
     labels:
       - major-ver
-  - title: Exciting New Features 🎉
+  - title: New Features
     labels:
       - minor-ver
-  - title: Bug Fixes 🐞
+  - title: Bug Fixes
     labels:
       - patch-ver
-  - title: Database Changes
+  - title: Dependencies
     labels:
-      - database-changes
+      - dependencies
   - title: Other Changes
     labels:
       - '*'
