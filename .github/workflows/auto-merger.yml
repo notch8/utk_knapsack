@@ -7,6 +7,10 @@ on:
       - production
   workflow_dispatch:
 
+concurrency:
+  group: auto-merger-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   auto-merger:
     runs-on: ubuntu-latest
