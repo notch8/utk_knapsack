@@ -286,6 +286,7 @@ properties:
     syntax: EDTF
     view:
       search_results: false
+      show_page: false
   date_issued:
     available_on:
       class:
@@ -362,6 +363,7 @@ properties:
     syntax: EDTF
     view:
       search_results: false
+      show_page: false
   date_other:
     available_on:
       class:
@@ -434,6 +436,7 @@ properties:
     syntax: EDTF
     view:
       search_results: false
+      show_page: false
   spatial:
     available_on:
       class:
@@ -479,6 +482,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   subject:
     available_on:
       class:
@@ -533,6 +537,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   language:
     available_on:
       class:
@@ -576,6 +581,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   form:
     available_on:
       class:
@@ -698,7 +704,7 @@ properties:
     view:
       html_dl: true
       search_results: false
-      render_as: linked
+      render_as: faceted
   publication_place:
     available_on:
       class:
@@ -728,6 +734,7 @@ properties:
     indexing:
     - publication_place_sim
     - publication_place_tesim
+    - facetable
     mappings:
       mods_oai_pmh: mods:originInfo/place/placeTerm
     property_uri: https://id.loc.gov/vocabulary/relators/pup
@@ -737,6 +744,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   provider:
     available_on:
       class:
@@ -753,7 +761,7 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
-      - 'null'
+      - lcsh
     data_type: array
     definition:
       default: The name of the organization (typically UT) who delivers data directly
@@ -794,7 +802,7 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
-      - 'null'
+      - lcsh
     data_type: array
     definition:
       default: Enter the name of the institution that physically holds the materials.
@@ -806,12 +814,14 @@ properties:
     indexing:
     - repository_sim
     - repository_tesim
+    - facetable
     mappings: {}
     property_uri: http://id.loc.gov/vocabulary/relators/rps
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   rights_statement:
     available_on:
       class:
@@ -832,7 +842,7 @@ properties:
     definition:
       default: Enter the rights statement that applies to the resource.
     display_label:
-      default: blacklight.search.fields.index.rights_statement_tesim
+      default: blacklight.search.fields.index.rights_tesim
     form:
       required: true
       primary: true
@@ -840,6 +850,7 @@ properties:
     indexing:
     - rights_statement_sim
     - rights_statement_tesim
+    - facetable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -876,6 +887,7 @@ properties:
     indexing:
     - rights_statement_sim
     - rights_statement_tesim
+    - facetable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -1296,7 +1308,7 @@ properties:
       default: Enter a term that describes the type of work, including the physical
         form or medium of material for the work.
     display_label:
-      default: Form
+      default: Form (Local)
     form:
       display: true
     index_documentation: displayable, searchable, form facet
@@ -1315,6 +1327,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   instrumentation:
     available_on:
       class:
@@ -1430,6 +1443,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   is_part_of:
     available_on:
       class:
@@ -1610,7 +1624,7 @@ properties:
         are present, use multiple fields. If no language is present, use "No linguistic
         content."
     display_label:
-      default: Language
+      default: Language (Local)
     form:
       display: true
     index_documentation: displayable, searchable, language facet
@@ -1630,6 +1644,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   note:
     available_on:
       class:
@@ -1806,7 +1821,7 @@ properties:
         Moving image, Artifact, Collection). Note that more than one term can be used
         if the resource is dominated by more than one resource type.
     display_label:
-      default: Resource Type
+      default: Resource Type (Local)
     form:
       display: true
     index_documentation: displayable, searchable, resource type facet
@@ -1914,12 +1929,13 @@ properties:
     definition:
       default: Enter the uncontrolled name of a place with which the resource is associated.
     display_label:
-      default: Location
+      default: Location (Local)
     form:
       display: true
     indexing:
     - spatial_local_sim
     - spatial_local_tesim
+    - facetable
     mappings:
       blacklight: spatial_sim
       mods_oai_pmh: mods:subject/mods:geographic
@@ -1934,6 +1950,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   table_of_contents:
     available_on:
       class:
@@ -2015,6 +2032,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   utk_minute_taker:
     available_on:
       class:
@@ -2306,6 +2324,9 @@ properties:
     - depositor_ssim
     property_uri: http://id.loc.gov/vocabulary/relators/dpt
     range: http://www.w3.org/2001/XMLSchema#string
+    view:
+      search_results: false
+      show_page: false
   label:
     available_on:
       class:
@@ -2491,6 +2512,7 @@ properties:
       - example-bulkrax-identifier
     view:
       search_results: false
+      show_page: false
   # Compound creator property
   creators:
     available_on:
