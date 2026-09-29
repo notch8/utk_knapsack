@@ -8,7 +8,7 @@ RSpec.describe HykuKnapsack::ValkyrieCreateDerivativesJobDecorator do
   let(:rdf_type) { [] }
   let(:pdf) { false }
   let(:file_metadata) do
-    double('file_metadata', file_identifier: 'disk://x', video?: false, audio?: false, pdf?: pdf)
+    double('file_metadata', file_identifier: 'disk://x', original_filename: 'scan.tiff', video?: false, audio?: false, pdf?: pdf)
   end
   let(:derivative_service) { double('derivative_service', create_derivatives: true) }
 

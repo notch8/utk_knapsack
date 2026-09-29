@@ -12,8 +12,8 @@ module HykuKnapsack
     private
 
     def generate_derivatives_for?(file_set_id, file_id)
-      Hyrax.custom_queries.find_file_metadata_by(id: file_id).pdf? ||
-        HykuKnapsack::IntermediateFile.match?(Hyrax.query_service.find_by(id: file_set_id).try(:rdf_type))
+      HykuKnapsack::DerivativeCandidate.match?(Hyrax.query_service.find_by(id: file_set_id),
+                                                Hyrax.custom_queries.find_file_metadata_by(id: file_id))
     end
   end
 end
