@@ -1,11 +1,9 @@
-# When a non-main change reaches staging, open/update staging -> main.
-# When a non-staging change reaches production, open/update production -> staging.
+# UTK promotes main straight to production, so a hotfix that lands on production merges back to main.
 name: Auto-Merger
 
 on:
   push:
     branches:
-      - staging
       - production
   workflow_dispatch:
 

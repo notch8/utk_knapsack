@@ -304,7 +304,7 @@ git fetch prime && git merge prime/main
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
 build, test, lint, reporting, and a check that `HykuKnapsack::VERSION` matches the Hyku version
-pinned in `hyrax-webapp/`. A green push to `main`, `staging` or `production` deploys that branch
+pinned in `hyrax-webapp/`. A green push to `main` or `production` deploys that branch
 (see [Deploying](#deploying)); `workflow_dispatch` on Deploy is for ad-hoc and rollback deploys.
 
 ## Deploying
@@ -316,14 +316,16 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 | Branch | Environment | kubectl context | Namespace |
 | --- | --- | --- | --- |
 | `main` | dev | `r2-friends` | `utk-knapsack-dev` |
-| `staging` | staging | `r2-friends` | `utk-knapsack-staging` |
 | `production` | production | utk-production cluster (production environment's `KUBECONFIG_FILE`) | `utk-knapsack-production` |
 
 - `utk-hyku-production` on `r2-besties` and `utk-hyku-{friends,staging}` belong to the legacy
   utk-hyku app being migrated from. Nothing here deploys to them.
+- UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
+  clients review work on production. `utk-knapsack-staging` still exists but only deploys by
+  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main`.
 - Production window: TBD.
-- Release tags: none yet. A staging push drafts `vX.Y.Z-rc`, a production push drafts `vX.Y.Z`;
-  a human publishes the draft after verifying the deploy.
+- Release tags: none yet. A production push drafts `vX.Y.Z`; a human publishes the draft after
+  verifying the deploy.
 - Before merging a promotion PR, a human captures the regression baseline
   (`deploy-regression-check`).
 

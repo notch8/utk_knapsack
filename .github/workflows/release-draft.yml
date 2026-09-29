@@ -3,7 +3,6 @@ name: Draft Release Notes
 on:
   push:
     branches:
-      - staging
       - production
 
 permissions:
@@ -17,13 +16,10 @@ concurrency:
 jobs:
   draft:
     runs-on: ubuntu-latest
-    env:
-      IS_STAGING: ${{ github.ref_name == 'staging' }}
     steps:
       - uses: release-drafter/release-drafter@v6
         with:
-          config-name: ${{ env.IS_STAGING == 'true' && 'release-drafter-staging.yml' || 'release-drafter.yml' }}
+          config-name: release-drafter.yml
           commitish: ${{ github.ref_name }}
-          prerelease: ${{ env.IS_STAGING }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

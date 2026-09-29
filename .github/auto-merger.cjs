@@ -1,8 +1,7 @@
 module.exports = async ({ github, context }) => {
   const currentBranch = context.ref.replace('refs/heads/', '')
   const merges = {
-    staging: { head: 'staging', base: 'main' },
-    production: { head: 'production', base: 'staging' }
+    production: { head: 'production', base: 'main' }
   }
   const merge = merges[currentBranch]
 
