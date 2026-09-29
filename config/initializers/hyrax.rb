@@ -39,7 +39,9 @@ Rails.application.config.after_initialize do
   end
 
   HykuKnapsack::ReseedValidChildConcerns.call
+end
 
+Rails.application.config.to_prepare do
   # Answers for the remote authorities UtkUriLabelIndexing writes labels for, so the
   # catalog reads those label fields instead of rendering the stored URI.
   Hyrax.config.controlled_vocabulary_label_service = Utk::ControlledVocabularyLabelService.new
