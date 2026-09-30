@@ -32,9 +32,7 @@ RSpec.describe CatalogController do
       expect(config.index_fields.keys - ['all_text_tsimv']).to all(be_in(index_fields_of.call(profile['properties'].keys)))
     end
 
-    # Hyrax currently doesn't remove index properties without a restart: `search_results: false`
-    # only stops it adding a field, so one an earlier profile version added stays registered.
-    xit 'include nothing the profile hides from search results' do
+    it 'include nothing the profile hides from search results' do
       expect(config.index_fields.keys & index_fields_of.call(hidden)).to be_empty
     end
 
@@ -61,6 +59,10 @@ RSpec.describe CatalogController do
       expect(qf).to eq qf.uniq
       expect(qf).to include('title_tesim', 'subject_tesim')
     end
+
+    it 'is widened on the catalog itself' do
+      expect(config.search_fields['all_fields'].solr_parameters[:qf].split).to include(*CatalogControllerDecorator::KEYWORD_SEARCH_FIELDS)
+    end
   end
 
   describe 'facet limits' do
@@ -85,9 +87,43 @@ RSpec.describe CatalogController do
     it 'leaves range facets unlimited' do
       expect(fresh_config.facet_fields['date_range_isim'].limit).to be_nil
     end
+  end
 
-    it 'runs before every catalog action, after the profile has registered its facets' do
-      expect(described_class._process_action_callbacks.map(&:filter)).to include(:limit_unlimited_facets)
+  describe 'a facet the profile registers' do
+    before { config.facet_fields.delete('publication_place_sim') }
+
+    it 'is limited in the configuration each controller renders from' do
+      expect(described_class.new.blacklight_config.facet_fields['publication_place_sim'].limit).to eq 5
+    end
+  end
+
+  describe 'the creator, contributor and publisher facets' do
+    let(:fresh_config) do
+      Blacklight::Configuration.new.tap do |blacklight|
+        blacklight.add_facet_field 'has_model_ssim', limit: 5
+        blacklight.add_facet_field 'creator_sim', limit: 5
+        blacklight.add_facet_field 'contributor_sim', label: 'Contributor', limit: 5
+        blacklight.add_facet_field 'keyword_sim', limit: 5
+        blacklight.add_facet_field 'publisher_sim', limit: 5
+        blacklight.add_facet_field 'file_format_sim', limit: 5
+      end
+    end
+    let(:facets) { fresh_config.facet_fields }
+
+    before { CatalogControllerDecorator.swap_in_compound_facets(fresh_config) }
+
+    it 'come from the compounds, where the flat facets sat, without publisher' do
+      expect(facets.keys).to eq %w[has_model_ssim creators_name_sim contributors_name_sim keyword_sim file_format_sim]
+    end
+
+    it 'are labeled and limited like the facets they replace' do
+      expect(facets.values_at('creators_name_sim', 'contributors_name_sim').map { |facet| [facet.display_label('facet'), facet.limit] })
+        .to eq [['Creator', 5], ['Contributor', 5]]
+    end
+
+    it 'are swapped on the catalog itself' do
+      expect(config.facet_fields.keys).to include('creators_name_sim', 'contributors_name_sim')
+      expect(config.facet_fields.keys).not_to include('creator_sim', 'contributor_sim', 'publisher_sim')
     end
   end
 
@@ -96,6 +132,13 @@ RSpec.describe CatalogController do
       path = HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb')
 
       expect { load path.to_s }.not_to raise_error
+    end
+
+    it 'keeps the compound facets and the facet limit' do
+      load HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb').to_s
+      config.facet_fields.delete('publication_place_sim')
+
+      expect(described_class.new.blacklight_config.facet_fields.values_at('creators_name_sim', 'publication_place_sim').map(&:limit)).to eq [5, 5]
     end
   end
 end
