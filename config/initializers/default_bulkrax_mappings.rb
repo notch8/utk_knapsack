@@ -46,7 +46,6 @@ parser_mappings = {
   'label' => { from: ['label'], generated: true },
   'language' => { from: ['language'], split: /\s*[|]\s*/ },
   'language_local' => { from: ['language_local'], split: /\s*[|]\s*/ },
-  'license' => { from: ['license'], split: /\s*[|]\s*/ },
   'local_identifier' => { from: ['local_identifier'], split: /\s*[|]\s*/ },
   'media_viewer' => { from: ['media_viewer'] },
   'note' => { from: ['note'], split: /\s*[|]\s*/ },

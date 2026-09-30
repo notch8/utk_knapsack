@@ -125,6 +125,7 @@ properties:
     - 'Swimming 1969: The University of Tennessee'
     view:
       html_dl: true
+      search_results: false
   abstract:
     available_on:
       class:
@@ -168,6 +169,8 @@ properties:
       default: Enter a summary of the resource. End this field with a period.
     view:
       html_dl: true
+      render_as: html
+      search_results_truncate: 300
   creator:
     available_on:
       class:
@@ -272,7 +275,6 @@ properties:
     indexing:
     - date_created_d_sim
     - date_created_d_tesim
-    - facetable
     mappings:
       mods_oai_pmh: mods:originInfo/mods:dateCreated
       qualified_dc_pmh: dcterms:created
@@ -283,7 +285,8 @@ properties:
     - '1999-09-09'
     syntax: EDTF
     view:
-      html_dl: true
+      search_results: false
+      show_page: false
   date_issued:
     available_on:
       class:
@@ -359,7 +362,8 @@ properties:
     - '1999'
     syntax: EDTF
     view:
-      html_dl: true
+      search_results: false
+      show_page: false
   date_other:
     available_on:
       class:
@@ -395,6 +399,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   date_other_d:
     available_on:
       class:
@@ -430,7 +435,8 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#date
     syntax: EDTF
     view:
-      html_dl: true
+      search_results: false
+      show_page: false
   spatial:
     available_on:
       class:
@@ -475,6 +481,8 @@ properties:
     - http://id.loc.gov/authorities/subjects/sh94001975
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   subject:
     available_on:
       class:
@@ -528,6 +536,8 @@ properties:
     - http://www.wikidata.org/entity/Q108903133
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   language:
     available_on:
       class:
@@ -570,6 +580,8 @@ properties:
     - http://id.loc.gov/vocabulary/iso639-2/eng
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   form:
     available_on:
       class:
@@ -608,6 +620,7 @@ properties:
     - http://id.loc.gov/authorities/genreForms/gf2014026151
     view:
       html_dl: true
+      search_results: false
   extent:
     available_on:
       class:
@@ -649,6 +662,7 @@ properties:
     - 25 pages
     view:
       html_dl: true
+      search_results: false
   resource_type:
     available_on:
       class:
@@ -689,7 +703,8 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
-      render_as: linked
+      search_results: false
+      render_as: faceted
   publication_place:
     available_on:
       class:
@@ -719,6 +734,7 @@ properties:
     indexing:
     - publication_place_sim
     - publication_place_tesim
+    - facetable
     mappings:
       mods_oai_pmh: mods:originInfo/place/placeTerm
     property_uri: https://id.loc.gov/vocabulary/relators/pup
@@ -727,6 +743,8 @@ properties:
     - http://id.loc.gov/authorities/names/n79109786
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   provider:
     available_on:
       class:
@@ -743,7 +761,7 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
-      - 'null'
+      - lcsh
     data_type: array
     definition:
       default: The name of the organization (typically UT) who delivers data directly
@@ -767,6 +785,7 @@ properties:
     - University of Tennessee, Knoxville. Libraries
     view:
       html_dl: true
+      search_results: false
   repository:
     available_on:
       class:
@@ -783,7 +802,7 @@ properties:
     controlled_values:
       format: http://www.w3.org/2001/XMLSchema#string
       sources:
-      - 'null'
+      - lcsh
     data_type: array
     definition:
       default: Enter the name of the institution that physically holds the materials.
@@ -795,11 +814,14 @@ properties:
     indexing:
     - repository_sim
     - repository_tesim
+    - facetable
     mappings: {}
     property_uri: http://id.loc.gov/vocabulary/relators/rps
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   rights_statement:
     available_on:
       class:
@@ -820,7 +842,7 @@ properties:
     definition:
       default: Enter the rights statement that applies to the resource.
     display_label:
-      default: blacklight.search.fields.index.rights_statement_tesim
+      default: blacklight.search.fields.index.rights_tesim
     form:
       required: true
       primary: true
@@ -828,6 +850,7 @@ properties:
     indexing:
     - rights_statement_sim
     - rights_statement_tesim
+    - facetable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -839,7 +862,8 @@ properties:
     - http://rightsstatements.org/vocab/InC/1.0/
     view:
       html_dl: true
-      render_as: rights_statement
+      search_results: false
+      render_as: external_link
   rights_statement_optional:
     name: rights_statement
     available_on:
@@ -863,6 +887,7 @@ properties:
     indexing:
     - rights_statement_sim
     - rights_statement_tesim
+    - facetable
     mappings:
       blacklight: rights_statement_sim
       mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
@@ -874,7 +899,8 @@ properties:
     - http://rightsstatements.org/vocab/InC/1.0/
     view:
       html_dl: true
-      render_as: rights_statement
+      search_results: false
+      render_as: external_link
   call_number:
     available_on:
       class:
@@ -909,6 +935,7 @@ properties:
     - LD5296 .W6
     view:
       html_dl: true
+      search_results: false
   primary_identifier:
     available_on:
       class:
@@ -954,6 +981,7 @@ properties:
         source_identifier isn't inlcluded in Solr.
     view:
       html_dl: true
+      search_results: false
   local_identifier:
     available_on:
       class:
@@ -994,6 +1022,7 @@ properties:
         identifier found on the source (but not the ISSN, ISBN, or OCLC number).
     view:
       html_dl: true
+      search_results: false
   acquisition_identifier:
     available_on:
       class:
@@ -1035,6 +1064,7 @@ properties:
         start with a year (e.g. 1996.10.1)
     view:
       html_dl: true
+      search_results: false
   archival_collection:
     available_on:
       class:
@@ -1074,6 +1104,7 @@ properties:
     - Virginia P. Moore Collection
     view:
       html_dl: true
+      search_results: false
   ark:
     available_on:
       class:
@@ -1115,6 +1146,7 @@ properties:
     syntax: IETF ARK 18
     view:
       html_dl: true
+      search_results: false
   bibliographic_citation:
     available_on:
       class:
@@ -1150,6 +1182,7 @@ properties:
     - The Arrow, Volume 27, Number 1
     view:
       html_dl: true
+      search_results: false
   coordinates:
     available_on:
       class:
@@ -1185,6 +1218,7 @@ properties:
     - 35.71453, -83.51189
     view:
       html_dl: true
+      search_results: false
   duration:
     available_on:
       class:
@@ -1220,6 +1254,7 @@ properties:
     syntax: W3C Media Fragments (4.2.1)
     view:
       html_dl: true
+      search_results: false
   first_line:
     available_on:
       class:
@@ -1250,6 +1285,7 @@ properties:
     - On the other hand with regard to
     view:
       html_dl: true
+      search_results: false
   form_local:
     available_on:
       class:
@@ -1272,7 +1308,7 @@ properties:
       default: Enter a term that describes the type of work, including the physical
         form or medium of material for the work.
     display_label:
-      default: Form
+      default: Form (Local)
     form:
       display: true
     index_documentation: displayable, searchable, form facet
@@ -1290,6 +1326,8 @@ properties:
     - photographs
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   instrumentation:
     available_on:
       class:
@@ -1329,6 +1367,7 @@ properties:
       saxophone, 3 trumpets, 4 horns, 3 trombones, baritone, tuba, timpani, and percussion.
     view:
       html_dl: true
+      search_results: false
   intended_audience:
     available_on:
       class:
@@ -1363,6 +1402,7 @@ properties:
     - Second Grade
     view:
       html_dl: true
+      search_results: false
   intermediate_provider:
     available_on:
       class:
@@ -1402,6 +1442,8 @@ properties:
     - Langston Hughes Library (Children's Defense Fund Haley Farm)
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   is_part_of:
     available_on:
       class:
@@ -1442,6 +1484,7 @@ properties:
     syntax: IETF ARK 18
     view:
       html_dl: true
+      search_results: false
   isbn:
     available_on:
       class:
@@ -1477,6 +1520,7 @@ properties:
     - '18819859105'
     view:
       html_dl: true
+      search_results: false
   issn:
     available_on:
       class:
@@ -1513,6 +1557,7 @@ properties:
       match_regex: "^[0-9]{4}-[0-9]{3}[0-9xX]$."
     view:
       html_dl: true
+      search_results: false
   keyword:
     available_on:
       class:
@@ -1556,6 +1601,7 @@ properties:
     - Farming and Agriculture.
     view:
       html_dl: true
+      search_results: false
   language_local:
     available_on:
       class:
@@ -1578,7 +1624,7 @@ properties:
         are present, use multiple fields. If no language is present, use "No linguistic
         content."
     display_label:
-      default: Language
+      default: Language (Local)
     form:
       display: true
     index_documentation: displayable, searchable, language facet
@@ -1597,47 +1643,8 @@ properties:
     - English
     view:
       html_dl: true
-  license:
-    available_on:
-      class:
-      - DigitalCollection
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - licenses
-    data_type: array
-    definition:
-      default: 'If applicable, enter the Creative Commons license that applies to
-        the resource. '
-    display_label:
-      default: blacklight.search.fields.index.license_tesim
-    form:
-      display: true
-    index_documentation: displayable, searchable, rights facet
-    indexing:
-    - license_sim
-    - license_tesim
-    mappings:
-      blacklight: rights_statement_sim
-      mods_oai_pmh: mods:accessCondition[@type="use and reproduction"]
-      qualified_dc_pmh: dcterms:license
-      simple_dc_pmh: dc:rights
-    property_uri: http://purl.org/dc/terms/license
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - https://creativecommons.org/licenses/by-nd/4.0/
-    view:
-      html_dl: true
-      render_as: external_link
+      search_results: false
+      render_as: faceted
   note:
     available_on:
       class:
@@ -1676,6 +1683,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   oclc:
     available_on:
       class:
@@ -1714,6 +1722,7 @@ properties:
     - '44394278'
     view:
       html_dl: true
+      search_results: false
   other_version:
     available_on:
       class:
@@ -1750,6 +1759,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   resource_link:
     available_on:
       class:
@@ -1787,6 +1797,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   resource_type_local:
     available_on:
       class:
@@ -1810,7 +1821,7 @@ properties:
         Moving image, Artifact, Collection). Note that more than one term can be used
         if the resource is dominated by more than one resource type.
     display_label:
-      default: Resource Type
+      default: Resource Type (Local)
     form:
       display: true
     index_documentation: displayable, searchable, resource type facet
@@ -1825,6 +1836,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   sequence:
     available_on:
       class:
@@ -1862,6 +1874,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#integer
     view:
       html_dl: true
+      search_results: false
   sheetmusic_hostitem:
     available_on:
       class:
@@ -1894,6 +1907,7 @@ properties:
     - Three songs for soprano, alto flute, English horn, and bass clarinet
     view:
       html_dl: true
+      search_results: false
   spatial_local:
     available_on:
       class:
@@ -1915,12 +1929,13 @@ properties:
     definition:
       default: Enter the uncontrolled name of a place with which the resource is associated.
     display_label:
-      default: Location
+      default: Location (Local)
     form:
       display: true
     indexing:
     - spatial_local_sim
     - spatial_local_tesim
+    - facetable
     mappings:
       blacklight: spatial_sim
       mods_oai_pmh: mods:subject/mods:geographic
@@ -1934,6 +1949,8 @@ properties:
     - The House That Jack Built
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   table_of_contents:
     available_on:
       class:
@@ -1974,6 +1991,7 @@ properties:
       on shade trees'
     view:
       html_dl: true
+      search_results: false
   temporal:
     available_on:
       class:
@@ -2013,6 +2031,8 @@ properties:
     - Founding of Pi Beta Phi Settlement School, Gatlinburg, Tennessee, 1909-1927
     view:
       html_dl: true
+      search_results: false
+      render_as: faceted
   utk_minute_taker:
     available_on:
       class:
@@ -2048,6 +2068,7 @@ properties:
     - Eaton, Andrew Chamberlain
     view:
       html_dl: true
+      search_results: false
   utk_place_of_publication:
     available_on:
       class:
@@ -2082,6 +2103,7 @@ properties:
     - Knoxville
     view:
       html_dl: true
+      search_results: false
   has_work_type:
     available_on:
       class:
@@ -2140,6 +2162,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   file_size:
     available_on:
       class:
@@ -2166,6 +2189,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   is_associated_with_page:
     available_on:
       class:
@@ -2196,6 +2220,7 @@ properties:
     - 3
     view:
       html_dl: true
+      search_results: false
   rdf_type:
     available_on:
       class:
@@ -2228,6 +2253,7 @@ properties:
     - http://pcdm.org/use#IntermediateFile
     view:
       html_dl: true
+      search_results: false
   date_modified:
     available_on:
       class:
@@ -2251,6 +2277,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#dateTime
     view:
       html_dl: true
+      search_results: false
   date_uploaded:
     available_on:
       class:
@@ -2297,6 +2324,9 @@ properties:
     - depositor_ssim
     property_uri: http://id.loc.gov/vocabulary/relators/dpt
     range: http://www.w3.org/2001/XMLSchema#string
+    view:
+      search_results: false
+      show_page: false
   label:
     available_on:
       class:
@@ -2317,6 +2347,7 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     view:
       html_dl: true
+      search_results: false
   redirects:
     available_on:
       class:
@@ -2344,6 +2375,7 @@ properties:
       render_term: redirects_path
       render_as: redirects_label
       html_dl: true
+      search_results: false
   show_pdf_viewer:
     available_on:
       class:
@@ -2478,6 +2510,9 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
       - example-bulkrax-identifier
+    view:
+      search_results: false
+      show_page: false
   # Compound creator property
   creators:
     available_on:
@@ -2503,6 +2538,7 @@ properties:
     view:
       render_as: compound
       html_dl: true
+      search_results: false
   # Compound contributor property
   contributors:
     available_on:
@@ -2528,6 +2564,7 @@ properties:
     view:
       render_as: compound
       html_dl: true
+      search_results: false
   # subproperties
   creator_name:
     type: string
