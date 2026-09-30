@@ -2,9 +2,9 @@
 
 # OVERRIDE Bulkrax 9.5.1: count an entry whose latest status is Pending as
 # still pending. Bulkrax gives every entry that status at creation, so the
-# stock IS NULL test sees nothing pending five minutes in and schedules the
-# relationship pass before the file set entries have created their
-# PendingRelationship rows. Remove once samvera/bulkrax#1223 ships.
+# stock IS NULL test sees nothing pending five minutes in. Stock file sets
+# attach in the factory, but UtkMigrationCsvFileSetEntry defers them to the
+# relationship pass, so one still importing then is never attached.
 module Bulkrax
   module ScheduleRelationshipsJobDecorator
     STILL_PENDING = "bulkrax_statuses.status_message IS NULL OR bulkrax_statuses.status_message = 'Pending'"
