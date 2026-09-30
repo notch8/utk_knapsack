@@ -10,17 +10,11 @@ namespace 'utk:uri_cache' do # rubocop:disable Metrics/BlockLength
     CSV.foreach(file, headers: true) do |row|
       uri = row['uri']&.strip
       value = row['value']&.strip
-      next if uri.blank?
+      value = nil if value&.start_with?(uri.to_s)
+      next if uri.blank? || UriCache.find_by(uri:)&.resolved?
 
-      UriCache.find_or_create_by!(uri:) do |cache|
-        resolved = value.presence || UriLabelResolver.label_for(uri)
-        next if resolved.start_with?(uri)
-
-        cache.value = resolved
-        count += 1
-      end
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
-      Rails.logger.warn("Skipping #{uri}: #{e.message}")
+      labeled = value.present? ? UriCache.record_success(uri, value) : UriLabelResolver.lookup(uri)
+      count += 1 if labeled
     end
     puts "Seeded #{count} new URI cache entries"
   end
@@ -28,8 +22,10 @@ namespace 'utk:uri_cache' do # rubocop:disable Metrics/BlockLength
   desc 'Export UriCache records to JSON (default: db/seeds/uri_caches.json)'
   task export: :environment do
     file = ENV.fetch('JSON_FILE', HykuKnapsack::Engine.root.join('db/seeds/uri_caches.json').to_s)
-    records = UriCache.order(:id).pluck(:uri, :value, :created_at, :updated_at).map do |uri, value, created_at, updated_at|
-      { uri:, value:, created_at: created_at.iso8601(6), updated_at: updated_at.iso8601(6) }
+    records = UriCache.order(:id).map do |cache|
+      cache.slice(:uri, :value, :status, :reason, :permanent, :attempts)
+           .merge(retry_after: cache.retry_after&.iso8601(6),
+                  created_at: cache.created_at.iso8601(6), updated_at: cache.updated_at.iso8601(6))
     end
     FileUtils.mkdir_p(File.dirname(file))
     File.write(file, JSON.generate(records))
@@ -46,13 +42,33 @@ namespace 'utk:uri_cache' do # rubocop:disable Metrics/BlockLength
       {
         uri: r['uri'],
         value: r['value'],
+        status: r['status'] || UriCache::RESOLVED,
+        reason: r['reason'],
+        permanent: r['permanent'] || false,
+        attempts: r['attempts'] || 0,
+        retry_after: r['retry_after'] && Time.zone.parse(r['retry_after']),
         created_at: Time.zone.parse(r['created_at']),
         updated_at: Time.zone.parse(r['updated_at'])
       }
     end
 
-    result = UriCache.upsert_all(rows, unique_by: :uri) # rubocop:disable Rails/SkipsModelValidations
-    puts "Imported #{result.length} URI cache entries from #{file}"
+    rows.reject! { |row| row[:status] == UriCache::RESOLVED && row[:value].blank? }
+    labeled, unlabeled = rows.partition do |row|
+      row[:status] == UriCache::RESOLVED && !row[:value].start_with?(row[:uri])
+    end
+
+    # rubocop:disable Rails/SkipsModelValidations
+    upserted = labeled.any? ? UriCache.upsert_all(labeled, unique_by: :uri).length : 0
+    inserted = unlabeled.any? ? UriCache.insert_all(unlabeled, unique_by: :uri).length : 0
+    # rubocop:enable Rails/SkipsModelValidations
+    UriCache.reclassify_legacy_failures!
+    puts "Imported #{upserted + inserted} URI cache entries from #{file}"
+  end
+
+  desc "Print a tenant's failed URI lookups and the works citing them as CSV (TENANT=cname)"
+  task failures: :environment do
+    AccountElevator.switch!(ENV.fetch('TENANT') { abort 'Usage: rake utk:uri_cache:failures TENANT=<cname>' })
+    puts Utk::UriLookupFailureReport.new.to_csv
   end
 
   desc 'Re-resolve all cached URIs from their remote sources'

@@ -33,14 +33,10 @@ module Utk
 
     private
 
-    # `label_for` returns the URI itself when it cannot resolve one, and annotates a
-    # failure (`<uri> (No label found)`), so anything that still starts with the URI is
-    # left as the stored id rather than shown to a reader.
     def uri_label(value)
       return value unless value.to_s.match?(%r{\Ahttps?://}i)
 
-      label = UriLabelResolver.label_for(value)
-      label.to_s.start_with?(value.to_s) ? value : label
+      UriLabelResolver.lookup(value) || value
     rescue StandardError => e
       Hyrax.logger.debug { "Unable to resolve label for #{value}: #{e.message}" }
       value

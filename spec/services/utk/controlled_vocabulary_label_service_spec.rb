@@ -8,7 +8,7 @@ RSpec.describe Utk::ControlledVocabularyLabelService do
   let(:uri) { 'http://id.loc.gov/authorities/subjects/sh85129277' }
 
   before do
-    allow(UriLabelResolver).to receive(:label_for).with(uri).and_return('Student newspapers')
+    allow(UriLabelResolver).to receive(:lookup).with(uri).and_return('Student newspapers')
   end
 
   describe '#resolvable?' do
@@ -32,21 +32,19 @@ RSpec.describe Utk::ControlledVocabularyLabelService do
     end
 
     it 'leaves a value that is not a URI' do
-      expect(UriLabelResolver).not_to receive(:label_for)
+      expect(UriLabelResolver).not_to receive(:lookup)
 
       expect(service.labels_for('lcsh', ['just a string'])).to eq ['just a string']
     end
 
-    # `label_for` answers with the URI itself, sometimes annotated, when it cannot
-    # resolve one. Showing that to a reader is worse than showing the id.
     it 'keeps the stored id when resolution fails' do
-      allow(UriLabelResolver).to receive(:label_for).with(uri).and_return("#{uri} (No label found)")
+      allow(UriLabelResolver).to receive(:lookup).with(uri).and_return(nil)
 
       expect(service.labels_for('lcsh', [uri])).to eq [uri]
     end
 
     it 'keeps the stored id when the resolver raises' do
-      allow(UriLabelResolver).to receive(:label_for).with(uri).and_raise(StandardError, 'boom')
+      allow(UriLabelResolver).to receive(:lookup).with(uri).and_raise(StandardError, 'boom')
 
       expect(service.labels_for('lcsh', [uri])).to eq [uri]
     end
@@ -65,7 +63,7 @@ RSpec.describe Utk::ControlledVocabularyLabelService do
       end
 
       it 'takes the local term rather than the cache' do
-        expect(UriLabelResolver).not_to receive(:label_for)
+        expect(UriLabelResolver).not_to receive(:lookup)
 
         expect(service.labels_for('probe_vocab', ['http://example.com/a'])).to eq ['Alpha']
       end
