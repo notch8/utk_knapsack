@@ -87,9 +87,13 @@ RSpec.describe CatalogController do
     it 'leaves range facets unlimited' do
       expect(fresh_config.facet_fields['date_range_isim'].limit).to be_nil
     end
+  end
 
-    it 'runs before every catalog action, after the profile has registered its facets' do
-      expect(described_class._process_action_callbacks.map(&:filter)).to include(:limit_unlimited_facets)
+  describe 'a facet the profile registers' do
+    before { config.facet_fields.delete('publication_place_sim') }
+
+    it 'is limited in the configuration each controller renders from' do
+      expect(described_class.new.blacklight_config.facet_fields['publication_place_sim'].limit).to eq 5
     end
   end
 
@@ -128,6 +132,13 @@ RSpec.describe CatalogController do
       path = HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb')
 
       expect { load path.to_s }.not_to raise_error
+    end
+
+    it 'keeps the compound facets and the facet limit' do
+      load HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb').to_s
+      config.facet_fields.delete('publication_place_sim')
+
+      expect(described_class.new.blacklight_config.facet_fields.values_at('creators_name_sim', 'publication_place_sim').map(&:limit)).to eq [5, 5]
     end
   end
 end
