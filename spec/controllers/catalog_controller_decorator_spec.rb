@@ -32,9 +32,7 @@ RSpec.describe CatalogController do
       expect(config.index_fields.keys - ['all_text_tsimv']).to all(be_in(index_fields_of.call(profile['properties'].keys)))
     end
 
-    # Hyrax currently doesn't remove index properties without a restart: `search_results: false`
-    # only stops it adding a field, so one an earlier profile version added stays registered.
-    xit 'include nothing the profile hides from search results' do
+    it 'include nothing the profile hides from search results' do
       expect(config.index_fields.keys & index_fields_of.call(hidden)).to be_empty
     end
 
