@@ -43,4 +43,7 @@ Rails.application.config.after_initialize do
   # Answers for the remote authorities UtkUriLabelIndexing writes labels for, so the
   # catalog reads those label fields instead of rendering the stored URI.
   Hyrax.config.controlled_vocabulary_label_service = Utk::ControlledVocabularyLabelService.new
+
+  postgres_query_service = Array(Hyrax.query_service.try(:services)).first || Hyrax.query_service
+  postgres_query_service.custom_queries.register_query_handler(HykuKnapsack::CustomQueries::FindFileSetsWithoutThumbnail)
 end

@@ -45,8 +45,9 @@ module Bulkrax
 
       file_set = attach_files(file_set, attrs, digest)
       apply_permissions(file_set, attrs[:visibility], inherit_from: parent)
-      Hyrax.index_adapter.save(resource: Hyrax.query_service.find_by(id: file_set.id))
-      file_set
+      saved = Hyrax.query_service.find_by(id: file_set.id)
+      Hyrax.index_adapter.save(resource: saved)
+      saved
     end
 
     def attach_files(file_set, attrs, digest)
@@ -190,7 +191,8 @@ module Bulkrax
              .merge(identifier_attribute(attrs))
              .merge(title: Array(attrs[:title]),
                     label: file_label(attrs),
-                    file_size: Array(attrs[:file_size]).compact)
+                    file_size: Array(attrs[:file_size]).compact,
+                    depositor: @user&.email)
       )
     end
 
