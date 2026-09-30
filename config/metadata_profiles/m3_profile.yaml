@@ -609,6 +609,7 @@ properties:
     indexing:
     - form_sim
     - form_tesim
+    - facetable
     mappings:
       mods_oai_pmh: mods:physicalDescription/mods:form
       qualified_dc_pmh: dcterms:medium
@@ -621,6 +622,7 @@ properties:
     view:
       html_dl: true
       search_results: false
+      render_as: faceted
   extent:
     available_on:
       class:
@@ -1286,48 +1288,6 @@ properties:
     view:
       html_dl: true
       search_results: false
-  form_local:
-    available_on:
-      class:
-      - DigitalCollection
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - 'null'
-    data_type: array
-    definition:
-      default: Enter a term that describes the type of work, including the physical
-        form or medium of material for the work.
-    display_label:
-      default: Form (Local)
-    form:
-      display: true
-    index_documentation: displayable, searchable, form facet
-    indexing:
-    - form_local_sim
-    - form_local_tesim
-    - facetable
-    mappings:
-      mods_oai_pmh: mods:physicalDescription/mods:form
-      qualified_dc_pmh: dcterms:medium
-      simple_dc_pmh: dc:format
-    property_uri: http://www.europeana.eu/schemas/edm/hasType
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - photographs
-    view:
-      html_dl: true
-      search_results: false
-      render_as: faceted
   instrumentation:
     available_on:
       class:
@@ -1602,49 +1562,6 @@ properties:
     view:
       html_dl: true
       search_results: false
-  language_local:
-    available_on:
-      class:
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - iso639-2b
-    data_type: array
-    definition:
-      default: Enter a language used in the resource as text. When multiple languages
-        are present, use multiple fields. If no language is present, use "No linguistic
-        content."
-    display_label:
-      default: Language (Local)
-    form:
-      display: true
-    index_documentation: displayable, searchable, language facet
-    indexing:
-    - language_local_sim
-    - language_local_tesim
-    - facetable
-    mappings:
-      metatags: og:locale
-      mods_oai_pmh: mods:language/mods:languageTerm
-      qualified_dc_pmh: dcterms:language
-      simple_dc_pmh: dc:language
-    property_uri: http://dbpedia.org/ontology/language
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - English
-    view:
-      html_dl: true
-      search_results: false
-      render_as: faceted
   note:
     available_on:
       class:
@@ -1798,45 +1715,6 @@ properties:
     view:
       html_dl: true
       search_results: false
-  resource_type_local:
-    available_on:
-      class:
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - resourceTypes
-    data_type: array
-    definition:
-      default: Enter broad term(s) that describe the general format of the resource
-        (Text, Cartographic, Notated music, Audio non-musical, Audio, Still image,
-        Moving image, Artifact, Collection). Note that more than one term can be used
-        if the resource is dominated by more than one resource type.
-    display_label:
-      default: Resource Type (Local)
-    form:
-      display: true
-    index_documentation: displayable, searchable, resource type facet
-    indexing:
-    - resource_type_local_sim
-    - resource_type_local_tesim
-    mappings:
-      mods_oai_pmh: mods:typeOfResource
-      qualified_dc_pmh: dcterms:type
-      simple_dc_pmh: dc:type
-    property_uri: http://purl.org/dc/elements/1.1/type
-    range: http://www.w3.org/2001/XMLSchema#string
-    view:
-      html_dl: true
-      search_results: false
   sequence:
     available_on:
       class:
@@ -1908,49 +1786,6 @@ properties:
     view:
       html_dl: true
       search_results: false
-  spatial_local:
-    available_on:
-      class:
-      - DigitalCollection
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - 'null'
-    data_type: array
-    definition:
-      default: Enter the uncontrolled name of a place with which the resource is associated.
-    display_label:
-      default: Location (Local)
-    form:
-      display: true
-    indexing:
-    - spatial_local_sim
-    - spatial_local_tesim
-    - facetable
-    mappings:
-      blacklight: spatial_sim
-      mods_oai_pmh: mods:subject/mods:geographic
-      qualified_dc_pmh: dcterms:spatial
-      simple_dc_pmh: dc:coverage
-    property_uri: http://id.loc.gov/ontologies/bibframe/geographicCoverage
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - pa0056.
-    - Walker Sisters Cabin
-    - The House That Jack Built
-    view:
-      html_dl: true
-      search_results: false
-      render_as: faceted
   table_of_contents:
     available_on:
       class:

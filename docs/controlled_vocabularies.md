@@ -1,7 +1,7 @@
 # Controlled vocabularies in the M3 profile
 
-The profile defines 72 properties. 15 declare a `controlled_values.sources` list
-naming a real authority, 46 carry the placeholder `sources: ['null']`, and 11 have
+The profile defines 68 properties. 13 declare a `controlled_values.sources` list
+naming a real authority, 44 carry the placeholder `sources: ['null']`, and 11 have
 no `controlled_values` key at all:
 
 - `date_modified`, `date_uploaded`, `depositor`, `label` and `redirects`, which
@@ -101,14 +101,13 @@ fields.
 | `pcdm`, `pcdmuse`, `pcdmff` | `rdf_type` |
 | `lcsh` | `provider`, `repository` |
 | `naf` | `publication_place` |
-| `iso639-2b` | `language`, `language_local` |
+| `iso639-2b` | `language` |
 | `resource_types` | `resource_type` |
-| `resourceTypes` | `resource_type_local` |
 | `rights_statements` | `rights_statement`, `rights_statement_optional` |
 | `media_viewer` | `media_viewer` |
 | `utk` | `has_work_type` |
 
-Four properties combine several authorities in one `sources` list; the other 11
+Four properties combine several authorities in one `sources` list; the other 9
 name one. `lcsh` appears in the most: `subject`, `spatial`, `form`, `provider`
 and `repository`.
 
@@ -159,27 +158,12 @@ Publisher, for example, is a `contributors` role rather than its own property.
 | `rdf_type` | `pcdm`, `pcdmuse`, `pcdmff` | PCDM class URIs, set at ingest. |
 | `has_work_type` | `utk` | No authority file of that name exists. |
 
-### `_local` free-text twins
+### No free-text twins
 
-Four properties pair a controlled field with a free-text fallback for values not
-present in the authority, labeled "(Local)" to tell them apart:
-
-| Controlled | Free text | Twin's `sources` |
-|---|---|---|
-| `language` | `language_local` | `iso639-2b` (repeats the parent) |
-| `resource_type` | `resource_type_local` | `resourceTypes` |
-| `form` | `form_local` | `['null']` |
-| `spatial` | `spatial_local` | `['null']` |
-
-Two twins name a vocabulary and two do not. Since `sources` is what drives the
-authority behavior, a twin naming a vocabulary is asking for a picker, which
-defeats the point of a free-text fallback. `language_local` and
-`resource_type_local` are the two to check with the metadata owners.
-
-`resource_type_local` names the source's `resourceTypes` shorthand rather than
-`resource_types`, because `CONTROLLED_VALUE_SOURCES` only remaps the parent. No
-authority file of that name exists, so if the twin is meant to stay free text,
-the fix is to clear its `sources` rather than rename it.
+`form`, `language`, `resource_type` and `spatial` each hold both authority terms
+and free-text values. There is no separate `_local` property for a value missing
+from the authority: it goes in the controlled property itself, and is indexed
+and displayed as entered.
 
 ## Vocabularies named
 
@@ -199,7 +183,6 @@ the fix is to clear its `sources` rather than rename it.
 | `pcdm` | Portland Common Data Model |
 | `pcdmff` | PCDM file format vocabulary |
 | `pcdmuse` | PCDM use vocabulary |
-| `resourceTypes` | Source shorthand for resource types; no file of that name |
 | `resource_types` | Resource types (knapsack file) |
 | `rights_statements` | rightsstatements.org and Creative Commons (knapsack file) |
 | `tgm` | LC Thesaurus for Graphic Materials |
