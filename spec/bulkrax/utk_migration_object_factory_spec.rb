@@ -276,4 +276,43 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       expect(uses_of(linked)).to include 'ServiceFile'
     end
   end
+
+  describe 'the file set it creates' do
+    let(:admin_set) { Hyrax.persister.save(resource: AdminControl.new(title: ['Probe admin set'])) }
+    let(:root) do
+      FileUtils.mkdir_p(Hyrax.config.derivatives_path)
+      Pathname.new(Dir.mktmpdir(nil, Hyrax.config.derivatives_path))
+    end
+    let(:intermediate) { ['http://pcdm.org/use#PreservationFile', 'http://pcdm.org/use#IntermediateFile'] }
+
+    before do
+      allow(Hyrax.config).to receive(:derivatives_path).and_return(root)
+      allow(UriLabelResolver).to receive(:label_for) { |uri| uri }
+      allow(Flipflop).to receive(:default_pdf_viewer?).and_return(false)
+      allow(described_class).to receive(:find_or_create_default_admin_set) { admin_set }
+      build_factory(Pdf, { id: work_id, source_identifier: 'probe:1', title: ['Probe'] })
+        .send(:create_work, { id: work_id, source_identifier: 'probe:1', title: ['Probe'] })
+    end
+
+    after { FileUtils.remove_entry(root) }
+
+    def import_file_set(mime_type:, rdf_type:)
+      attrs = { id: file_set_id, source_identifier: 'probe:fs', sha1: digest, mime_type:, rdf_type:,
+                title: ['Probe file'], parents: ['probe:1'] }
+      build_factory(Hyrax::FileSet, attrs).send(:create_file_set, attrs)
+    end
+
+    it 'leaves thumbnails to the characterization job, which knows the real mime type' do
+      import_file_set(mime_type: 'application/pdf', rdf_type: intermediate)
+
+      expect(UtkMigrationCharacterizationJob).to have_been_enqueued
+      expect(ValkyrieCreateDerivativesJob).not_to have_been_enqueued
+    end
+
+    it 'records the depositor at creation so Bulkrax has no reason to save the file set again afterwards' do
+      file_set = import_file_set(mime_type: 'image/tiff', rdf_type: intermediate)
+
+      expect(file_set.depositor).to eq ::User.system_user.email
+    end
+  end
 end

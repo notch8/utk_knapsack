@@ -78,8 +78,7 @@ module Bulkrax
     end
 
     def intermediate_file?(member)
-      fragment = Hyrax::FileMetadata::Use::INTERMEDIATE_FILE.fragment
-      Array(member.try(:rdf_type)).any? { |type| type.to_s.split(%r{[#/:]}).last.to_s.casecmp?(fragment) }
+      HykuKnapsack::IntermediateFile.match?(member.try(:rdf_type))
     end
   end
 end

@@ -15,5 +15,18 @@ class UtkMigrationCharacterizationJob < Hyrax::ApplicationJob
 
     saved = Hyrax.persister.save(resource: metadata)
     Hyrax.publisher.publish('file.metadata.updated', metadata: saved, user: ::User.system_user)
+    generate_thumbnail(saved)
+  end
+
+  private
+
+  def generate_thumbnail(metadata)
+    return unless metadata.original_file?
+
+    file_set = Hyrax.query_service.find_by(id: metadata.file_set_id)
+    return if file_set.thumbnail
+    return unless HykuKnapsack::ThumbnailCandidate.match?(file_set, metadata)
+
+    ValkyrieCreateDerivativesJob.perform_later(file_set.id.to_s, metadata.id.to_s)
   end
 end
