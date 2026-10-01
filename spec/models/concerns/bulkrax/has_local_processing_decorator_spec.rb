@@ -51,6 +51,21 @@ RSpec.describe Bulkrax::HasLocalProcessingDecorator do
     end
   end
 
+  context 'with a work type that gets PDF viewer fields only on its instances' do
+    let(:factory_class) do
+      Class.new do
+        def initialize
+          %w[show_pdf_viewer show_pdf_download_button].each { |key| define_singleton_method("#{key}=") { |_| nil } }
+        end
+      end
+    end
+    let(:parsed_metadata) { {} }
+
+    it 'defaults the fields to 1' do
+      expect(entry.parsed_metadata).to include('show_pdf_viewer' => '1', 'show_pdf_download_button' => '1')
+    end
+  end
+
   context 'with a work type that lacks PDF viewer fields' do
     let(:factory_class) { Class.new }
     let(:parsed_metadata) { {} }

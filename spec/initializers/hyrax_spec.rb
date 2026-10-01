@@ -29,6 +29,25 @@ RSpec.describe 'config/initializers/hyrax.rb' do
     expect { block.call }.to change { Bulkrax.default_work_type }.to('StillImage')
   end
 
+  describe 'the controlled vocabulary label service' do
+    around do |example|
+      service = Hyrax.config.controlled_vocabulary_label_service
+      example.run
+    ensure
+      Hyrax.config.controlled_vocabulary_label_service = service
+    end
+
+    it "is UTK's, which resolves remote authorities" do
+      expect(Hyrax.config.controlled_vocabulary_label_service).to be_a Utk::ControlledVocabularyLabelService
+    end
+
+    it "is still UTK's after a development reload re-runs Hyku's to_prepare" do
+      Rails.application.config.to_prepare_blocks.each(&:call)
+
+      expect(Hyrax.config.controlled_vocabulary_label_service).to be_a Utk::ControlledVocabularyLabelService
+    end
+  end
+
   it 'reseeds valid_child_concerns from the final registration list' do
     expect(StillImage.valid_child_concerns).to eq Hyrax.config.curation_concerns
   end

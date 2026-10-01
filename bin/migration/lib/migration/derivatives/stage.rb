@@ -3,21 +3,35 @@
 module Migration
   module Derivatives
     class Stage < Base
+      attr_reader :without
+
       def call(ids, legacy)
+        @without = []
         ids.each_slice(Integer(ENV.fetch('BATCH', 50))) do |slice|
           files = list(slice, legacy)
-          @tally[:with] += slice.count { |id| files.any? { |path, _| path.start_with?("#{Migration.pairtree(id)}-") } }
+          @without.concat(slice.reject { |id| files.any? { |path, _| path.start_with?("#{Migration.pairtree(id)}-") } })
           present, todo = files.partition { |path, size| staged?(path, size) }
           present.each { |path, size| @report.item('exists', path, size) }
           @tally[:present] += present.size
           @dry_run ? plan(todo) : upload(todo, legacy)
         end
         summarize(format('DONE %d staged, %d already staged, %d failed, %d file sets with no derivatives',
-                         @tally[:staged], @tally[:present], @failures.size, ids.size - @tally[:with]),
+                         @tally[:staged], @tally[:present], @failures.size, @without.size),
                   "dry run: #{@tally[:pending]} files would be staged")
       end
 
+      def missing(rows)
+        ids = without.to_set
+        models = rows.to_h { |row| [row['source_identifier'], row['model']] }
+        rows.select { |row| ids.include?(row['id']) && expected?(row, models[row['parents']]) }
+      end
+
       private
+
+      def expected?(row, parent_model)
+        parent_model == 'Pdf' ||
+          row['rdf_type'].to_s.split('|').any? { |type| type.strip.split(%r{[#/:]}).last.to_s.casecmp?('IntermediateFile') }
+      end
 
       def plan(files)
         files.each { |path, size| @report.item('would stage', path, size) }

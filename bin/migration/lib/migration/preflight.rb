@@ -8,7 +8,7 @@ module Migration
     end
 
     def stops
-      [unmatched_stop, required_stop, digest_stop, unknown_stop].compact.flatten
+      [unmatched_stop, required_stop, digest_stop, unknown_stop, vocabulary_stop].compact.flatten
     end
 
     private
@@ -39,6 +39,28 @@ module Migration
     def unknown_stop
       unknown = @headers.select { |header| Profile.unknown_column?(header) }
       "UNKNOWN ROLE COLUMNS: #{unknown.join(', ')}" if unknown.any?
+    end
+
+    def vocabulary_stop
+      off = Profile.off_vocabulary(@rows)
+      return if off.empty?
+
+      values = off.sum { |_, by_value| by_value.size }
+      ["OFF VOCABULARY: #{values} #{values == 1 ? 'value' : 'values'} not in their vocabulary; correct the sheet or add the term",
+       *off.flat_map do |property, by_value|
+         ["  #{property} (#{Profile::VOCABULARIES.dig(property, :files).join(', ')})",
+          *by_value.map { |value, ids| off_line(property, value, ids) }]
+       end]
+    end
+
+    def off_line(property, value, ids)
+      line = "    #{value}: #{ids.size} #{ids.one? ? 'row' : 'rows'} (#{sample(ids)})"
+      suggestion = Profile.suggestion(Profile::VOCABULARIES[property], value)
+      suggestion ? "#{line}, did you mean #{suggestion}?" : line
+    end
+
+    def sample(ids)
+      ids.first(3).join(', ') + (ids.size > 3 ? ', …' : '')
     end
   end
 end

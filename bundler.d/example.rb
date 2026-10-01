@@ -7,4 +7,5 @@
 # override or not
 override_gem "bulkrax", github: "samvera/bulkrax", branch: "9-stable"
 # ExternalIiifDisplayImagePresenter isn't defined until 3.1.1 (hyrax-webapp's ~> 3.1 resolves to 3.1.0)
-override_gem "iiif_print", "~> 3.1.1"
+override_gem "iiif_print", "~> 3.1.2"
+override_gem "rails", ">= 7.2.3.2"

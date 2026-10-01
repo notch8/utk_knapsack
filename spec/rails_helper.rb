@@ -59,6 +59,10 @@ Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 Dir[HykuKnapsack::Engine.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 
 ActiveRecord::Migration.maintain_test_schema!
+if Rails.env.test?
+  Hyrax::FlexibleSchema.delete_all
+  Hyrax::FlexibleSchema.create_default_schema
+end
 
 RSpec.configure do |config|
   config.fixture_paths = [Rails.root.join('spec', 'fixtures')]
