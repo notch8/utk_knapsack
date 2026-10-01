@@ -89,7 +89,7 @@ module.exports = async ({ github, context }) => {
       })
     } else if (openPullRequests.data.length === 0) {
       console.log(`Creating ${head} -> ${base} PR.`)
-      await github.rest.pulls.create({
+      const { data: createdPullRequest } = await github.rest.pulls.create({
         owner: context.repo.owner,
         repo: context.repo.repo,
         title,
@@ -97,6 +97,13 @@ module.exports = async ({ github, context }) => {
         head,
         base,
         draft: true
+      })
+      // Satisfies the required `PR has required labels` check.
+      await github.rest.issues.addLabels({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        issue_number: createdPullRequest.number,
+        labels: ['ignore-for-release']
       })
     } else {
       console.log(`A manually opened ${head} -> ${base} PR already exists; leaving it alone.`)
