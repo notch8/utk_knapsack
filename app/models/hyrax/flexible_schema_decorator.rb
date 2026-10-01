@@ -6,7 +6,10 @@ module Hyrax
     extend ActiveSupport::Concern
 
     included do
-      after_commit { Hyrax::Current.flexible_schema = nil }
+      after_commit do
+        Hyrax::Current.flexible_schema = nil
+        Hyrax::Current.flexible_schemas_by_version = nil
+      end
     end
   end
 end

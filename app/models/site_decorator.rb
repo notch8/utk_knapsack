@@ -5,6 +5,7 @@ module SiteDecorator
   def reset!
     super
     Hyrax::Current.flexible_schema = nil
+    Hyrax::Current.flexible_schemas_by_version = nil
   end
 end
 
