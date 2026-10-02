@@ -69,6 +69,7 @@ RSpec.describe UtkMigrationCharacterizationJob do
 
     it 'is not enqueued when the file set already has one' do
       allow(file_set).to receive(:thumbnail).and_return(double('thumbnail'))
+      allow(HykuKnapsack::PdfTextExtractor).to receive(:needed?).and_return(false)
       described_class.perform_now('fm-1')
 
       expect(ValkyrieCreateDerivativesJob).not_to have_been_enqueued
@@ -87,6 +88,50 @@ RSpec.describe UtkMigrationCharacterizationJob do
 
       expect(ValkyrieCreateDerivativesJob).not_to have_been_enqueued
       expect(Hyrax.query_service).not_to have_received(:find_by)
+    end
+  end
+
+  describe "a PDF's text" do
+    let(:file) { double('file', rewind: 0) }
+    let(:thumbnail) { double('thumbnail') }
+
+    before do
+      allow(metadata).to receive(:file).and_return(file)
+      allow(file).to receive(:disk_path).and_yield(Pathname.new('/tmp/memoir.pdf'))
+      allow(file_set).to receive(:thumbnail).and_return(thumbnail)
+      allow(HykuKnapsack::PdfTextExtractor).to receive(:needed?).with(file_set, original: metadata).and_return(true)
+      allow(HykuKnapsack::PdfTextExtractor).to receive(:call)
+    end
+
+    it 'is extracted here when a legacy thumbnail means the derivatives job will not run' do
+      described_class.perform_now('fm-1')
+
+      expect(file).to have_received(:rewind).ordered
+      expect(HykuKnapsack::PdfTextExtractor).to have_received(:call).with(file_set:, path: Pathname.new('/tmp/memoir.pdf'), original: metadata).ordered
+      expect(ValkyrieCreateDerivativesJob).not_to have_been_enqueued
+    end
+
+    it 'is not downloaded again when the legacy txt is already attached' do
+      allow(HykuKnapsack::PdfTextExtractor).to receive(:needed?).with(file_set, original: metadata).and_return(false)
+      described_class.perform_now('fm-1')
+
+      expect(file).not_to have_received(:disk_path)
+      expect(HykuKnapsack::PdfTextExtractor).not_to have_received(:call)
+    end
+
+    it 'is left to the derivatives job when the PDF has no thumbnail' do
+      allow(file_set).to receive(:thumbnail).and_return(nil)
+      described_class.perform_now('fm-1')
+
+      expect(HykuKnapsack::PdfTextExtractor).not_to have_received(:call)
+      expect(ValkyrieCreateDerivativesJob).to have_been_enqueued.with('fs-1', 'fm-1')
+    end
+
+    it 'is not extracted from a file that is not a PDF' do
+      allow(metadata).to receive_messages(pdf?: false, original_filename: 'scan.tiff')
+      described_class.perform_now('fm-1')
+
+      expect(HykuKnapsack::PdfTextExtractor).not_to have_received(:call)
     end
   end
 

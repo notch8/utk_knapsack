@@ -249,15 +249,23 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       expect(thumbnail.file_set_id.to_s).to eq file_set.id.to_s
     end
 
-    # `extracted_text` is Hyrax's own container name; `txt`, `xml` and `json` are
-    # iiif_print's, and not siblings: `xml` is the ALTO, and it derives the other
-    # two from it.
+    # `extracted_text` is Hyrax's own container name; `txt` is iiif_print's.
     it 'recognises both the Hyrax and the iiif_print names for extracted text' do
-      %w[extracted_text.txt txt.txt xml.xml json.json].each { |name| write_derivative(name, "text as #{name}") }
+      %w[extracted_text.txt txt.txt].each { |name| write_derivative(name, "text as #{name}") }
 
       linked = bare_factory.send(:attach_files, file_set, attrs, digest)
 
-      expect(uses_of(linked)).to contain_exactly('OriginalFile', *Array.new(4, 'ExtractedText'))
+      expect(uses_of(linked)).to contain_exactly('OriginalFile', 'ExtractedText', 'ExtractedText')
+    end
+
+    it 'files the ALTO and JSON as service files so only plain text is indexed' do
+      %w[txt.txt xml.xml json.json].each { |name| write_derivative(name, "text as #{name}") }
+
+      linked = bare_factory.send(:attach_files, file_set, attrs, digest)
+      reloaded = Hyrax.query_service.find_by(id: linked.id)
+
+      expect(uses_of(linked)).to contain_exactly('OriginalFile', 'ExtractedText', 'ServiceFile', 'ServiceFile')
+      expect(reloaded.extracted_text.file.read).to eq 'text as txt.txt'
     end
 
     it 'skips a derivative that was written empty' do
