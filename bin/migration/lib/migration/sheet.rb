@@ -25,10 +25,14 @@ module Migration
       row['model'] == 'Collection'
     end
 
-    def root_of(source_id, seen = [])
+    def root_of(source_id)
+      ancestors(source_id).last || source_id
+    end
+
+    def ancestors(source_id, seen = [])
       parents = @works[source_id]&.fetch('parents', nil).to_s.split('|').map(&:strip)
       parent = parents.find { |p| @works.key?(p) && !seen.include?(p) }
-      parent ? root_of(parent, seen + [source_id]) : source_id
+      parent ? [parent, *ancestors(parent, seen + [source_id])] : []
     end
 
     def work_count

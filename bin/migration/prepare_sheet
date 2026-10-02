@@ -19,6 +19,7 @@ module Migration
   end
 
   report = Report.new
+  row_count = ->(n) { "#{n} #{n == 1 ? 'row' : 'rows'}" }
   target = Target.for(options[:target])
   sheet = Sheet.read(File.expand_path(ARGV[0]))
   name = File.basename(ARGV[0], '.csv')
@@ -51,10 +52,10 @@ module Migration
     FileUtils.rm_f(File.join(ROOT, flagged_path))
     if result.flagged.any?
       CSV.open(File.join(ROOT, flagged_path), 'w') do |csv|
-        csv << %w[bulkrax_identifier reasons]
-        result.flagged.each { |root, list| csv << [root, list.map { |id, why| "#{id}: #{why.join(', ')}" }.join(' | ')] }
+        csv << %w[bulkrax_identifier model parents reason]
+        result.flagged.each { |id, flag| csv << [id, *flag.values_at('model', 'parents', 'reason')] }
       end
-      warn "SKIPPED #{result.flagged.size} works and everything under them -> #{flagged_path}"
+      warn "SKIPPED #{row_count.call(result.flagged.size)} -> #{flagged_path}"
     end
     warn "#{import_path}: #{result.rows.size} rows, #{result.headers.size} columns"
     raise Stop, result.stops.join("\n") if result.stops.any?
@@ -82,7 +83,7 @@ module Migration
   end
 
   if originals.missing.any?
-    report.step("3b. drop works whose originals are missing -> #{flagged_path}") do
+    report.step("3b. drop file sets whose originals are missing -> #{flagged_path}") do
       write_result.call(Transform.new(sheet, lookup, skip_missing: true, excluded: originals.missing).call)
     end
   end
@@ -107,6 +108,6 @@ module Migration
 
   puts
   puts "⚠️  #{missing.size} file sets will import without derivatives they should have, listed at step 4" if missing.any?
-  puts "⚠️  #{result.flagged.size} works flagged and left out, for a normal import: #{flagged_path}" if result.flagged.any?
+  puts "⚠️  #{row_count.call(result.flagged.size)} flagged and left out, for a normal import: #{flagged_path}" if result.flagged.any?
   puts options[:dry_run] ? '🧪 Dry run passed. Nothing was copied; run again without --dry-run.' : "🎉 Ready to import: #{import_path}"
 end
