@@ -326,7 +326,7 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 - `utk-hyku-production` on `r2-besties` and `utk-hyku-{friends,staging}` belong to the legacy
   utk-hyku app being migrated from. Nothing here deploys to them.
 - UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
-  clients review work on production. `utk-knapsack-staging` still exists but only deploys by
+  the client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by
   manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` once
   the `AUTO_MERGER_APP_ID` and `AUTO_MERGER_APP_PRIVATE_KEY` secrets are set; until then, open
   that PR by hand.
