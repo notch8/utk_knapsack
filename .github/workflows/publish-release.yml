@@ -1,0 +1,19 @@
+name: Publish Release
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types: [completed]
+    branches:
+      - production
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success'
+    permissions:
+      actions: read
+      contents: write
+    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.13
+    with:
+      sha: ${{ github.event.workflow_run.head_sha }}
+      deploy-run-id: ${{ github.event.workflow_run.id }}
