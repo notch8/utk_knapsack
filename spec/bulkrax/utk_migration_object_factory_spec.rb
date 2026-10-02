@@ -103,6 +103,35 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       expect(Hyrax.query_service.find_by(id: saved.id).id.to_s).to eq work_id
     end
 
+    it 'dates works and file sets at import, without alternate ids' do
+      create_work(work_attrs.merge(alternate_ids: ['probe:1']))
+      file_set = create_file_set(id: file_set_id, source_identifier: 'probe:4', alternate_ids: ['probe:4'], sha1: digest,
+                                 mime_type: 'text/xml', original_filename: 'MODS', title: ['MODS'], parents: ['probe:1'])
+
+      [Hyrax.query_service.find_by(id: work_id), file_set].each do |resource|
+        saved = Hyrax.query_service.find_by(id: resource.id)
+        expect(saved.date_uploaded).to be_present
+        expect(saved.date_uploaded).to eq saved.date_modified
+        expect(saved.alternate_ids).to be_empty
+      end
+    end
+
+    it 'credits the depositor as a file set\'s creator, as an upload does' do
+      create_work(work_attrs)
+      file_set = create_file_set(id: file_set_id, source_identifier: 'probe:4', sha1: digest, mime_type: 'text/xml',
+                                 original_filename: 'MODS', title: ['MODS'], parents: ['probe:1'])
+
+      expect(Hyrax.query_service.find_by(id: file_set.id).creator).to eq [::User.system_user.user_key]
+    end
+
+    it 'keeps a file set\'s own creator' do
+      create_work(work_attrs)
+      file_set = create_file_set(id: file_set_id, source_identifier: 'probe:4', sha1: digest, mime_type: 'text/xml',
+                                 original_filename: 'MODS', title: ['MODS'], parents: ['probe:1'], creator: ['UTK Libraries'])
+
+      expect(Hyrax.query_service.find_by(id: file_set.id).creator).to eq ['UTK Libraries']
+    end
+
     # The stock lookup raises on a miss, so an id that does not exist here yet
     # would abort before `create` could preserve it.
     it 'reports a preserved id that is not here yet as absent rather than raising' do
@@ -169,7 +198,8 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       template.access_grants.create!(agent_type: 'group', agent_id: 'editors', access: 'manage')
       workflow = Sipity::Workflow.create!(name: 'probe', active: true, permission_template: template)
       state = Sipity::WorkflowState.create!(workflow:, name: 'deposited')
-      Sipity::WorkflowAction.create!(workflow:, name: 'deposit', resulting_workflow_state: state)
+      action = Sipity::WorkflowAction.create!(workflow:, name: 'deposit', resulting_workflow_state: state)
+      Sipity::Method.create!(workflow_action: action, service_name: 'Hyrax::Workflow::GrantEditToDepositor', weight: 1)
       allow(described_class).to receive(:find_or_create_default_admin_set) { admin_set }
     end
 
@@ -202,6 +232,12 @@ RSpec.describe Bulkrax::UtkMigrationObjectFactory do
       entity = Sipity::Entity.find_by(proxy_for_global_id: Hyrax::GlobalID(work).to_s)
 
       expect(entity.workflow_state.name).to eq 'deposited'
+    end
+
+    it 'sets the depositor before the deposit workflow grants it edit' do
+      grants = Hyrax::AccessControlList.new(resource: work).permissions.map { |p| "#{p.mode}:#{p.agent}" }
+
+      expect(grants).to include("edit:#{::User.system_user.user_key}")
     end
   end
 
