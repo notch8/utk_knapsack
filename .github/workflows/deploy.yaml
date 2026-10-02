@@ -1,12 +1,12 @@
 name: "Deploy"
-run-name: Deploy (${{ github.event.workflow_run.head_branch || github.ref_name }} -> ${{ inputs.environment || (github.event.workflow_run.head_branch == 'main' && 'dev') || (github.event.workflow_run.head_branch == 'staging' && 'staging') }}) by @${{ github.actor }}
+run-name: Deploy (${{ github.event.workflow_run.head_branch || github.ref_name }} -> ${{ inputs.environment || (github.event.workflow_run.head_branch == 'main' && 'dev') || (github.event.workflow_run.head_branch == 'production' && 'production') }}) by @${{ github.actor }}
 on:
   workflow_run:
     workflows: ["Build Test Lint"]
     types: [completed]
     branches:
       - main
-      - staging
+      - production
   workflow_dispatch:
     inputs:
       environment:
@@ -39,13 +39,16 @@ jobs:
           else
             case "${{ github.event.workflow_run.head_branch }}" in
               main) echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
-              staging) echo "environment=staging" >> "$GITHUB_OUTPUT" ;;
+              production) echo "environment=production" >> "$GITHUB_OUTPUT" ;;
             esac
           fi
 
   deploy:
     needs: determine-environment
-    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.11
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
+    concurrency:
+      group: deploy-${{ needs.determine-environment.outputs.environment }}
+      cancel-in-progress: false
     with:
       environment: ${{ needs.determine-environment.outputs.environment }}
     secrets: inherit
