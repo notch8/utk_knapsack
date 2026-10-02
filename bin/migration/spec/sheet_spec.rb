@@ -14,6 +14,10 @@ RSpec.describe Migration::Sheet do
     expect(sheet.root_of('cmp:1_p1_OBJ')).to eq 'cmp:1'
   end
 
+  it 'lists a file set\'s works from nearest to top-level' do
+    expect(sheet.ancestors('cmp:1_p1_OBJ')).to eq %w[cmp:1_p1 cmp:1]
+  end
+
   it 'keeps a compound object whole as one of the first works, and drops the collection row' do
     expect(sheet.first_works(1).rows.map { |r| r['source_identifier'] }).to eq %w[cmp:1 cmp:1_p1 cmp:1_p1_OBJ]
   end

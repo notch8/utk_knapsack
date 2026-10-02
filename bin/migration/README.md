@@ -27,7 +27,7 @@ derivatives, and prints the file to import.  Import that file at `/importers/new
 | `--dev`, `--staging`, `--prod` | destination; none means local |
 | `--limit N` | only the first N works, with everything under them |
 | `--dry-run` | report what would happen; copy nothing |
-| `--skip-missing` | set aside works legacy cannot supply instead of stopping |
+| `--skip-missing` | set aside rows legacy cannot supply instead of stopping |
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
 
 It stops at the first failure, including any stop line in the transform's report: unmatched
@@ -37,9 +37,11 @@ off their local vocabulary.  A real run on prod asks you to type `prod` instead 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
 
-**`--skip-missing`** leaves out, whole and with everything under it, any work that is not in legacy
-Solr or that has a file set with no digest or with its original missing from `besties-fcrepo`.
-Each is listed with its reason in `tmp/migration/out/<sheet>-flagged.csv`, for a normal import.
+**`--skip-missing`** leaves out any file set that is not in legacy Solr, has no digest, or has its
+original missing from `besties-fcrepo`, and imports its work without it.  A work that is not in
+legacy Solr is left out with everything under it, and a child work only takes its own subtree.
+Each row left out is listed with its model, parents and reason in
+`tmp/migration/out/<sheet>-flagged.csv`, for a normal import.
 Missing required properties and unknown role columns still stop the run: those are fixed in the
 sheet.
 

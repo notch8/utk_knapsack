@@ -48,7 +48,7 @@ module Migration
     end
 
     def skip
-      @options[:skip_missing] ? ', setting aside works legacy cannot supply' : ''
+      @options[:skip_missing] ? ', setting aside rows legacy cannot supply' : ''
     end
 
     def answer
