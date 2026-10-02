@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('Gemfile', __dir__)
+require 'bundler/setup'
+require_relative 'lib/migration'
+
+$stdout.sync = true
+
+module Migration
+  abort 'usage: bin/migration/prepare_collections <collections.csv>' unless ARGV.size == 1
+
+  import_path = "tmp/migration/out/#{File.basename(ARGV[0], '.csv')}.csv"
+  FileUtils.mkdir_p(File.join(WORK_DIR, 'out'))
+
+  Report.new.step("transform -> #{import_path}") do
+    result = CollectionTransform.new(Sheet.read(File.expand_path(ARGV[0]))).call
+    Sheet.new(result.headers, result.rows).write(File.join(ROOT, import_path))
+    warn "#{import_path}: #{result.rows.size} rows, #{result.headers.size} columns"
+    raise Stop, result.stops.join("\n") if result.stops.any?
+  end
+
+  puts "🎉 Ready to import with the CSV - Comma Separated Values parser: #{import_path}"
+end
