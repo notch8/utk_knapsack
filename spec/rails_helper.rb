@@ -79,6 +79,7 @@ RSpec.configure do |config|
   config.include ActiveJob::TestHelper
 
   config.before do
+    RequestStore.clear!
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.start
   end
