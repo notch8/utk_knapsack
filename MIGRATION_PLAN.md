@@ -27,9 +27,11 @@ The ingest is built and runs from the importer form, and it has been measured ag
 has to match.  The same two file sets were created twice: once from a CSV through the migration
 parser, and once by depositing through the New Work form as a logged-in user, which runs the full
 `change_set.create_work` transaction.  Identical on both paths: depositor, visibility, admin set,
-member count and order, ACLs on the work *and* its file sets, workflow state, file count, PCDM uses,
-`mime_type`, `height`, `width`, `format_label`, and the indexed `height_is`, `width_is`,
-`file_format_tesim`, `visibility_ssi`.
+member count and order, ACLs on the work *and* its file sets (including the depositor's edit grant),
+a file set's `creator`, workflow state, file count, PCDM uses, `mime_type`, `height`, `width`,
+`format_label`, and the indexed `height_is`, `width_is`, `file_format_tesim`, `visibility_ssi`.
+Neither path stores `alternate_ids`.  Both set `date_uploaded` and `date_modified`; a migrated file
+set's two are equal, having no separate upload time.
 
 Different by design, and the whole point: `checksum` holds the real sha1 rather than Hyrax's md5,
 and `file_identifier` addresses bytes already in the bucket.
@@ -212,7 +214,8 @@ Each of these fails silently.
 ## Why not the stock transaction
 
 The factory persists with `Hyrax.persister.save` and calls the steps that matter by hand: the admin
-set, the depositor, the permission template plus visibility, `WorkflowFactory` for the Sipity
+set, the depositor (before the workflow runs, so it is granted edit), the upload and modified
+dates, the permission template plus visibility, `WorkflowFactory` for the Sipity
 entity, and `AccessControlList.copy_permissions` from the parent onto each file set.  Two reasons
 not to run `change_set.create_work` instead:
 
