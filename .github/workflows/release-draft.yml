@@ -15,11 +15,4 @@ concurrency:
 
 jobs:
   draft:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@v6
-        with:
-          config-name: release-drafter.yml
-          commitish: ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: notch8/actions/.github/workflows/release-draft.yaml@v1.0.13
