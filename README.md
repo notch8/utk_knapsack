@@ -309,8 +309,7 @@ GitHub repo settings have "Allow squash merging" disabled. If you want a clean h
 ## CI
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
-build, test, lint, reporting, and a check that `HykuKnapsack::VERSION` matches the Hyku version
-pinned in `hyrax-webapp/`. A green push to `main` or `production` deploys that branch
+build, test, lint and reporting. A green push to `main` or `production` deploys that branch
 (see [Deploying](#deploying)); `workflow_dispatch` on Deploy is for ad-hoc and rollback deploys.
 
 ## Deploying
@@ -334,8 +333,10 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 - Production window: none yet. UTK is pre-launch, so production deploys go out at will;
   set a window here before launch.
 - Release tags: none yet. A production push drafts `vX.Y.Z`; a human publishes the draft after
-  verifying the deploy. Publish the first draft as `v0.1.0` and stay on `v0.x` until client
-  launch, which is `v1.0.0`.
+  verifying the deploy. Each draft notes the pinned Hyku version and SHA. Publish the first
+  draft as `v0.1.0` and stay on `v0.x` until client launch, which is `v1.0.0`.
+- Production deploys wait for approval from `@notch8/hyku-knapsack-owners` on the `production`
+  environment.
 - Before merging a promotion PR, a human captures the regression baseline
   (`deploy-regression-check`).
 
