@@ -85,9 +85,7 @@ module Bulkrax
     DERIVATIVE_USE = {
       'thumbnail' => Hyrax::FileMetadata::Use::THUMBNAIL_IMAGE,
       'extracted_text' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT,
-      'txt' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT, # from IIIF Print
-      'xml' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT, # from IIIF Print
-      'json' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT # from IIIF Print
+      'txt' => Hyrax::FileMetadata::Use::EXTRACTED_TEXT # from IIIF Print
     }.freeze
 
     def derivative_metadata_for(file_set)
