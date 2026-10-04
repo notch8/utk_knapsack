@@ -99,7 +99,7 @@ module Migration
 
     missing = stage.missing(result.rows)
     report.failures(missing.map { |row| "#{row['source_identifier']} (#{row['id']})" },
-                    'file sets legacy should have made derivatives for and did not; they import without a thumbnail')
+                    'file sets legacy should have made derivatives for and did not; the import generates them')
   end
 
   report.step("5. fill derivatives: s3://#{target.derivatives_bucket}/#{PREFIX} -> #{target.fill_destination}") do
@@ -107,7 +107,7 @@ module Migration
   end
 
   puts
-  puts "⚠️  #{missing.size} file sets will import without derivatives they should have, listed at step 4" if missing.any?
+  puts "⚠️  #{missing.size} file sets have no legacy derivatives; the import generates them, listed at step 4" if missing.any?
   puts "⚠️  #{row_count.call(result.flagged.size)} flagged and left out, for a normal import: #{flagged_path}" if result.flagged.any?
   puts options[:dry_run] ? '🧪 Dry run passed. Nothing was copied; run again without --dry-run.' : "🎉 Ready to import: #{import_path}"
 end

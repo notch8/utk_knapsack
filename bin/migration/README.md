@@ -108,7 +108,7 @@ Every copy step checks its destination for each file at the same size and skips 
 there, so any run is safe to repeat from any machine.  Nothing keeps a log of what was copied.  A
 file set with no derivatives is usually correct; see `MIGRATION_PLAN.md`.  Step 4 lists, as a
 warning rather than a stop, the ones legacy should have made derivatives for (an intermediate file,
-or a file set of a `Pdf`), since they import without a thumbnail.
+or a file set of a `Pdf`), since the import has to generate them.
 
 ## Layout
 
