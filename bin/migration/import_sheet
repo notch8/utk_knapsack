@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('Gemfile', __dir__)
+require 'bundler/setup'
+require 'optparse'
+require_relative 'lib/migration'
+
+$stdout.sync = true
+
+module Migration
+  BANNER = 'usage: bin/migration/import_sheet tmp/migration/out/<name>.csv ' \
+           '[--dev|--staging|--prod] [--tenant CNAME] [--visibility V] [--email E] [--yes]'
+  TENANTS = { 'local' => 'dev-utk-knapsack.localhost.direct', 'dev' => 'demo.utk-knapsack-dev.notch8.cloud' }.freeze
+
+  options = { visibility: 'open', email: 'admin@example.com' }
+  begin
+    OptionParser.new(BANNER) do |o|
+      Options::TARGETS.each do |flag, name|
+        o.on("--#{flag}") do
+          abort '🛑 Pick one of --dev, --staging, --prod' if options[:target]
+          options[:target] = name
+        end
+      end
+      o.on('--tenant CNAME') { |cname| options[:tenant] = cname }
+      o.on('--visibility V', 'for rows with a blank visibility (default open)') { |v| options[:visibility] = v }
+      o.on('--email E', 'the importer owner (default admin@example.com)') { |e| options[:email] = e }
+      o.on('-y', '--yes', 'skip the confirmation prompt') { options[:yes] = true }
+    end.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    abort "🛑 #{e.message}\n#{BANNER}"
+  end
+  abort BANNER if ARGV.empty?
+
+  path = File.expand_path(ARGV[0])
+  target = Target.for(options[:target])
+  tenant = options[:tenant] || TENANTS[target.name] || abort("🛑 No default tenant on #{target.name}; pass --tenant")
+  app = target.pod ? Pod.new(target.pod) : LocalApp.new('local')
+  name = File.basename(path, '.csv')
+
+  Confirmation.new(options, target, Sheet.read(path), "#{File.basename(path)} into #{tenant}").ask!
+
+  output = []
+  status = app.run('import', tenant, options[:email], options[:visibility], name,
+                   stdin: File.read(path), ruby: 'bundle exec rails runner') do |line|
+    line.start_with?('MARKER ') ? puts(line.delete_prefix('MARKER ')) : output << line
+  end
+  exit if status.success?
+
+  warn output.reject { |line| line.start_with?('** ') }.last(20).join
+  exit 1
+end

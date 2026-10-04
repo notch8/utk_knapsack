@@ -7,8 +7,8 @@ design record; this file is the operating manual.
 ## TL;DR: one collection
 
 ```bash
-bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --profile n8 --dry-run
-bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --profile n8
+bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --dry-run
+bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv
 ```
 
 It asks before doing anything:
@@ -18,14 +18,15 @@ Dry run of all 195 works from collections_ruskin.csv on local as n8. Proceed? (y
 ```
 
 Then it looks the sheet up in legacy Solr, transforms it, copies the originals, stages and fills the
-derivatives, and prints the file to import.  Import that file at `/importers/new` with the
-**UTK Migration - CSV** parser.
+derivatives, and prints the file to import.  Import it with `import_sheet` (below), or at
+`/importers/new` with the **UTK Migration - CSV** parser.
 
 | Option | Effect |
 | --- | --- |
-| `--profile NAME` | AWS profile to use, as with the `aws` CLI (or set `AWS_PROFILE`) |
+| `--profile NAME` | AWS profile to use, as with the `aws` CLI (or set `AWS_PROFILE`); default `n8` locally, `utk` on dev, staging and prod |
 | `--dev`, `--staging`, `--prod` | destination; none means local |
 | `--limit N` | only the first N works, with everything under them |
+| `--members N` | each work keeps only its first N members (file sets, or child works with theirs), by `sequence`, unsequenced last |
 | `--dry-run` | report what would happen; copy nothing |
 | `--skip-missing` | set aside rows legacy cannot supply instead of stopping |
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
@@ -36,6 +37,8 @@ off their local vocabulary.  A real run on prod asks you to type `prod` instead 
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
+**`--members N`** adds `-membersN` to that name and keeps each work's first N pages by `sequence`,
+so a compound or book work arrives with its opening pages and its legacy thumbnail.
 
 **`--skip-missing`** leaves out any file set that is not in legacy Solr, has no digest, or has its
 original missing from `besties-fcrepo`, and imports its work without it.  A work that is not in
@@ -60,6 +63,30 @@ expire after an hour.
 The `utk` profile cannot reach `utk-poc`, so on a deployed environment derivatives are staged under
 its repository bucket's own `derivatives/` prefix until a shared derivatives bucket exists.
 `DST_BUCKET`, `DERIVATIVES_BUCKET` and `DST_POD` still override a preset.
+
+## Importing a prepared sheet
+
+```bash
+bin/migration/import_sheet tmp/migration/out/collections_ruskin.csv
+bin/migration/import_sheet tmp/migration/out/collections_ruskin.csv --dev
+```
+
+It creates the importer the form's **Create and Import** would, named after the file, with the
+**UTK Migration - CSV** parser and the Default Admin Set, inside the web container (local) or the
+destination's web pod.  Then it waits for the entries and the relationship pass, checks every work
+in the file against the repository (members, collection, thumbnail), and exits nonzero on anything
+that does not match.  It asks before importing, and on prod asks you to type `prod`.
+
+| Option | Effect |
+| --- | --- |
+| `--dev`, `--staging`, `--prod` | destination, as above; none means local |
+| `--tenant CNAME` | required on staging and prod; local is `dev-utk-knapsack.localhost.direct`, dev is `demo.utk-knapsack-dev.notch8.cloud` |
+| `--visibility V` | what rows with a blank `visibility` get, as on the form; default `open` |
+| `--email E` | the importer's owner; default `admin@example.com` |
+| `--yes`, `-y` | skip the confirmation prompt |
+
+It needs a running worker and takes at least six minutes, since Bulkrax starts the relationship pass
+five minutes after the entries are queued.
 
 ## Setting up on a new machine
 
@@ -108,13 +135,14 @@ Every copy step checks its destination for each file at the same size and skips 
 there, so any run is safe to repeat from any machine.  Nothing keeps a log of what was copied.  A
 file set with no derivatives is usually correct; see `MIGRATION_PLAN.md`.  Step 4 lists, as a
 warning rather than a stop, the ones legacy should have made derivatives for (an intermediate file,
-or a file set of a `Pdf`), since they import without a thumbnail.
+or a file set of a `Pdf`), since the import has to generate them.
 
 ## Layout
 
 ```
 bin/migration/
   prepare_sheet            the command
+  import_sheet             imports its output
   lib/migration/
     options.rb             flags
     confirmation.rb        the prompt
@@ -125,8 +153,8 @@ bin/migration/
     profile.rb             required properties and role columns, from the metadata profile
     originals.rb           step 3
     derivatives/           steps 4 and 5
-    pod.rb                 runs a script in a pod over kubectl
-    pod/                   the scripts that run inside the pods
+    pod.rb                 runs a script in a pod over kubectl, or in the local web container
+    pod/                   the scripts that run inside the pods; import.rb under rails runner
     report.rb              the step, file and failure lines
   spec/                    cd bin/migration && bundle exec rspec
   pull_lookup.rb           separate one-off: dumps every bulkrax_identifier from legacy Solr
