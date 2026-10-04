@@ -7,8 +7,8 @@ design record; this file is the operating manual.
 ## TL;DR: one collection
 
 ```bash
-bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --profile n8 --dry-run
-bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --profile n8
+bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv --dry-run
+bin/migration/prepare_sheet tmp/migration/sheets/collections_ruskin.csv
 ```
 
 It asks before doing anything:
@@ -23,7 +23,7 @@ derivatives, and prints the file to import.  Import it with `import_sheet` (belo
 
 | Option | Effect |
 | --- | --- |
-| `--profile NAME` | AWS profile to use, as with the `aws` CLI (or set `AWS_PROFILE`) |
+| `--profile NAME` | AWS profile to use, as with the `aws` CLI (or set `AWS_PROFILE`); default `n8` locally, `utk` on dev, staging and prod |
 | `--dev`, `--staging`, `--prod` | destination; none means local |
 | `--limit N` | only the first N works, with everything under them |
 | `--members N` | each work keeps only its first N members (file sets, or child works with theirs), by `sequence`, unsequenced last |

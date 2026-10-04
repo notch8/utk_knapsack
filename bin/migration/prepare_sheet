@@ -11,6 +11,7 @@ $stdout.sync = true
 
 module Migration
   options = Options.parse(ARGV)
+  ENV['AWS_PROFILE'] ||= options[:target] ? 'utk' : 'n8'
 
   begin
     Aws::STS::Client.new(region: ENV.fetch('AWS_REGION', 'us-east-2')).get_caller_identity
