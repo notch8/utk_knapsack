@@ -18,8 +18,8 @@ Dry run of all 195 works from collections_ruskin.csv on local as n8. Proceed? (y
 ```
 
 Then it looks the sheet up in legacy Solr, transforms it, copies the originals, stages and fills the
-derivatives, and prints the file to import.  Import that file at `/importers/new` with the
-**UTK Migration - CSV** parser.
+derivatives, and prints the file to import.  Import it with `import_sheet` (below), or at
+`/importers/new` with the **UTK Migration - CSV** parser.
 
 | Option | Effect |
 | --- | --- |
@@ -60,6 +60,30 @@ expire after an hour.
 The `utk` profile cannot reach `utk-poc`, so on a deployed environment derivatives are staged under
 its repository bucket's own `derivatives/` prefix until a shared derivatives bucket exists.
 `DST_BUCKET`, `DERIVATIVES_BUCKET` and `DST_POD` still override a preset.
+
+## Importing a prepared sheet
+
+```bash
+bin/migration/import_sheet tmp/migration/out/collections_ruskin.csv
+bin/migration/import_sheet tmp/migration/out/collections_ruskin.csv --dev
+```
+
+It creates the importer the form's **Create and Import** would, named after the file, with the
+**UTK Migration - CSV** parser and the Default Admin Set, inside the web container (local) or the
+destination's web pod.  Then it waits for the entries and the relationship pass, checks every work
+in the file against the repository (members, collection, thumbnail), and exits nonzero on anything
+that does not match.  It asks before importing, and on prod asks you to type `prod`.
+
+| Option | Effect |
+| --- | --- |
+| `--dev`, `--staging`, `--prod` | destination, as above; none means local |
+| `--tenant CNAME` | required on staging and prod; local is `dev-utk-knapsack.localhost.direct`, dev is `demo.utk-knapsack-dev.notch8.cloud` |
+| `--visibility V` | what rows with a blank `visibility` get, as on the form; default `open` |
+| `--email E` | the importer's owner; default `admin@example.com` |
+| `--yes`, `-y` | skip the confirmation prompt |
+
+It needs a running worker and takes at least six minutes, since Bulkrax starts the relationship pass
+five minutes after the entries are queued.
 
 ## Setting up on a new machine
 
@@ -115,6 +139,7 @@ or a file set of a `Pdf`), since the import has to generate them.
 ```
 bin/migration/
   prepare_sheet            the command
+  import_sheet             imports its output
   lib/migration/
     options.rb             flags
     confirmation.rb        the prompt
@@ -125,8 +150,8 @@ bin/migration/
     profile.rb             required properties and role columns, from the metadata profile
     originals.rb           step 3
     derivatives/           steps 4 and 5
-    pod.rb                 runs a script in a pod over kubectl
-    pod/                   the scripts that run inside the pods
+    pod.rb                 runs a script in a pod over kubectl, or in the local web container
+    pod/                   the scripts that run inside the pods; import.rb under rails runner
     report.rb              the step, file and failure lines
   spec/                    cd bin/migration && bundle exec rspec
   pull_lookup.rb           separate one-off: dumps every bulkrax_identifier from legacy Solr
