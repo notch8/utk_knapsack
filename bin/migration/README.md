@@ -26,6 +26,7 @@ derivatives, and prints the file to import.  Import it with `import_sheet` (belo
 | `--profile NAME` | AWS profile to use, as with the `aws` CLI (or set `AWS_PROFILE`) |
 | `--dev`, `--staging`, `--prod` | destination; none means local |
 | `--limit N` | only the first N works, with everything under them |
+| `--members N` | each work keeps only its first N members (file sets, or child works with theirs), by `sequence`, unsequenced last |
 | `--dry-run` | report what would happen; copy nothing |
 | `--skip-missing` | set aside rows legacy cannot supply instead of stopping |
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
@@ -36,6 +37,8 @@ off their local vocabulary.  A real run on prod asks you to type `prod` instead 
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
+**`--members N`** adds `-membersN` to that name and keeps each work's first N pages by `sequence`,
+so a compound or book work arrives with its opening pages and its legacy thumbnail.
 
 **`--skip-missing`** leaves out any file set that is not in legacy Solr, has no digest, or has its
 original missing from `besties-fcrepo`, and imports its work without it.  A work that is not in

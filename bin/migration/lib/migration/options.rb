@@ -5,7 +5,7 @@ require 'optparse'
 module Migration
   class Options
     BANNER = 'usage: bin/migration/prepare_sheet tmp/migration/sheets/<name>.csv ' \
-             '[--profile NAME] [--dev|--staging|--prod] [--limit N] [--dry-run] [--skip-missing] [--yes]'
+             '[--profile NAME] [--dev|--staging|--prod] [--limit N] [--members N] [--dry-run] [--skip-missing] [--yes]'
     TARGETS = { 'dev' => 'dev', 'staging' => 'staging', 'prod' => 'production' }.freeze
 
     class << self
@@ -24,7 +24,10 @@ module Migration
       def build(options)
         OptionParser.new(BANNER) do |o|
           TARGETS.each { |flag, name| o.on("--#{flag}") { choose_target(options, name) } }
-          o.on('--limit N', OptionParser::DecimalInteger) { |n| options[:limit] = positive(n) }
+          o.on('--limit N', OptionParser::DecimalInteger) { |n| options[:limit] = positive(n, 'limit', 'works') }
+          o.on('--members N', OptionParser::DecimalInteger, 'each work keeps its first N members, by sequence') do |n|
+            options[:members] = positive(n, 'members', 'members')
+          end
           o.on('--dry-run') { options[:dry_run] = true }
           o.on('--skip-missing') { options[:skip_missing] = true }
           o.on('-y', '--yes', 'skip the confirmation prompt') { options[:yes] = true }
@@ -37,8 +40,8 @@ module Migration
         options[:target] = name
       end
 
-      def positive(number)
-        abort '🛑 --limit takes a positive number of works' unless number.positive?
+      def positive(number, flag, what)
+        abort "🛑 --#{flag} takes a positive number of #{what}" unless number.positive?
         number
       end
     end

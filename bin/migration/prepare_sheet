@@ -27,11 +27,14 @@ module Migration
 
   Confirmation.new(options, target, sheet, File.basename(ARGV[0])).ask!
 
-  if options[:limit]
-    name = "#{name}-first#{options[:limit]}"
-    sheet = sheet.first_works(options[:limit])
+  if options[:limit] || options[:members]
+    name = "#{name}-first#{options[:limit]}" if options[:limit]
+    name = "#{name}-members#{options[:members]}" if options[:members]
+    sheet = sheet.first_works(options[:limit]) if options[:limit]
+    sheet = sheet.first_members(options[:members]) if options[:members]
     sheet.write(File.join(WORK_DIR, 'sheets', "#{name}.csv"))
-    warn "tmp/migration/sheets/#{name}.csv: #{sheet.work_count == 1 ? 'first work' : "first #{sheet.work_count} works"}, " \
+    works = sheet.work_count == 1 ? 'work' : "#{sheet.work_count} works"
+    warn "tmp/migration/sheets/#{name}.csv: #{options[:limit] ? 'first ' : ''}#{works}, " \
          "#{sheet.rows.size} rows"
   end
 
