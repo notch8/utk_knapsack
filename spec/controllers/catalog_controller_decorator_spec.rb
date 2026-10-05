@@ -69,6 +69,7 @@ RSpec.describe CatalogController do
     let(:fresh_config) do
       Blacklight::Configuration.new.tap do |blacklight|
         blacklight.add_facet_field 'from_the_profile_sim', label: 'From the profile'
+        blacklight.add_facet_field 'paginated_by_hyrax_sim', limit: true
         blacklight.add_facet_field 'declared_by_hyku_sim', limit: 3
         blacklight.add_facet_field 'date_range_isim', range: { assumed_boundaries: [1800, 2030] }
       end
@@ -78,6 +79,10 @@ RSpec.describe CatalogController do
 
     it 'limits a facet registered with no limit, as Hyrax registers profile facets' do
       expect(fresh_config.facet_fields['from_the_profile_sim'].limit).to eq 5
+    end
+
+    it 'limits a facet Hyrax registers at the default limit' do
+      expect(fresh_config.facet_fields['paginated_by_hyrax_sim'].limit).to eq 5
     end
 
     it 'leaves a limit the catalog already declares' do

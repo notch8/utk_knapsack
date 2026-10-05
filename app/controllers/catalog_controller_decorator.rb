@@ -58,10 +58,10 @@ module CatalogControllerDecorator
       solr_parameters[:qf] = (solr_parameters[:qf].split | KEYWORD_SEARCH_FIELDS).join(' ')
     end
 
-    # OVERRIDE: Hyrax registers profile facets with no limit, which Blacklight reads as show every value
+    # OVERRIDE: Hyrax registers profile facets with no limit or `limit: true` (Blacklight's default of 10)
     def limit_unlimited_facets(config)
       config.facet_fields.each_value do |facet|
-        facet.limit = DEFAULT_FACET_LIMIT if facet.limit.nil? && !facet.range
+        facet.limit = DEFAULT_FACET_LIMIT if [nil, true].include?(facet.limit) && !facet.range
       end
     end
   end
