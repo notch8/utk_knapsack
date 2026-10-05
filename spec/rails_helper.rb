@@ -3,8 +3,7 @@
 # Set environment variables BEFORE requiring the Rails environment so that
 # initializers read the correct values on their first and only load.
 ENV["RAILS_ENV"] ||= "test"
-# Knapsacks that run flexible metadata set HYRAX_FLEXIBLE in their own .env.
-ENV['HYRAX_FLEXIBLE'] ||= 'false'
+ENV['HYRAX_FLEXIBLE'] = 'true'
 # Mirrors hyrax-webapp/spec/rails_helper.rb, which this file replaces.
 ENV['HYKU_ADMIN_HOST'] = 'test.host'
 ENV['HYKU_ROOT_HOST'] = 'test.host'
@@ -25,9 +24,6 @@ require "factory_bot_rails"
 require 'capybara/rails'
 require 'dry-validation'
 require 'database_cleaner'
-
-Hyrax.config.admin_set_model = "AdminSetResource"
-Hyrax.config.collection_model = "CollectionResource"
 
 # Hyrax's :hyrax_work factory declares `class: 'Hyrax::Test::SimpleWork'`, and
 # FactoryBot constantizes that when it compiles the parent chain. Requiring
@@ -63,6 +59,10 @@ Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 Dir[HykuKnapsack::Engine.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 
 ActiveRecord::Migration.maintain_test_schema!
+if Rails.env.test?
+  Hyrax::FlexibleSchema.delete_all
+  Hyrax::FlexibleSchema.create_default_schema
+end
 
 RSpec.configure do |config|
   config.fixture_paths = [Rails.root.join('spec', 'fixtures')]
@@ -79,6 +79,7 @@ RSpec.configure do |config|
   config.include ActiveJob::TestHelper
 
   config.before do
+    RequestStore.clear!
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.start
   end

@@ -1,0 +1,22 @@
+# UTK promotes main straight to production, so a hotfix that lands on production merges back to main.
+name: Auto-Merger
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+concurrency:
+  group: auto-merger-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: notch8/actions/auto-merger@v1.0.13
+        with:
+          app-id: ${{ secrets.AUTO_MERGER_APP_ID }}
+          private-key: ${{ secrets.AUTO_MERGER_APP_PRIVATE_KEY }}
+          merges: '{"production":"main"}'

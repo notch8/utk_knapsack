@@ -38,13 +38,17 @@ RSpec.describe HykuKnapsack::WorkResourceGenerator do
   describe 'the model' do
     before { generate(:create_model) }
 
-    it 'guards the schema includes at runtime rather than at generation' do
-      expect(written('app/models/thing.rb')).to include 'if Hyrax.config.work_include_metadata?'
+    it 'emits no static-schema branch, since this knapsack is always flexible' do
+      expect(written('app/models/thing.rb')).not_to include 'Hyrax.config.work_include_metadata?'
     end
 
     it 'includes the Hyku behavior the knapsack expects' do
       expect(written('app/models/thing.rb')).to include('include Hyrax::NestedWorks')
-        .and include('prepend OrderAlready.for(:creator)')
+        .and include('OrderAlready::InputOrderSerializer')
+    end
+
+    it 'splits PDFs into the generated type itself' do
+      expect(written('app/models/thing.rb')).to include 'pdf_split_child_model: self'
     end
 
     it 'includes each module exactly once' do
