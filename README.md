@@ -309,8 +309,36 @@ GitHub repo settings have "Allow squash merging" disabled. If you want a clean h
 ## CI
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
-build, test, lint, and reporting. Deploys are `workflow_dispatch`-only, against the templates in
-`ops/`.
+build, test, lint and reporting. A green push to `main` or `production` deploys that branch
+(see [Deploying](#deploying)); `workflow_dispatch` on Deploy is for ad-hoc and rollback deploys.
+
+## Deploying
+
+Procedure (promotion, verification, publishing, rollback) is the playbook's `knapsack-release`
+skill; install it with [`bin/install-skills`](https://github.com/notch8/playbook/blob/main/bin/install-skills)
+from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
+
+| Branch | Environment | kubectl context | Namespace |
+| --- | --- | --- | --- |
+| `main` | dev | `utk-staging` | `utk-knapsack-dev` |
+| `production` | production | utk-production cluster (production environment's `KUBECONFIG_FILE`) | `utk-knapsack-production` |
+
+- `utk-hyku-production` on `r2-besties` and `utk-hyku-{friends,staging}` belong to the legacy
+  utk-hyku app being migrated from. Nothing here deploys to them.
+- UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
+  the client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by
+  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` once
+  the `AUTO_MERGER_APP_ID` and `AUTO_MERGER_APP_PRIVATE_KEY` secrets are set; until then, open
+  that PR by hand.
+- Production window: none yet. UTK is pre-launch, so production deploys go out at will;
+  set a window here before launch.
+- Release tags: none yet. A production push drafts `vX.Y.Z`; after verifying the deploy, approve
+  the Publish Release run, which publishes it at the deployed commit. Each draft notes the pinned Hyku version and SHA. Publish the first
+  draft as `v0.1.0` and stay on `v0.x` until client launch, which is `v1.0.0`.
+- Production deploys wait for approval from `@notch8/hyku-knapsack-owners` on the `production`
+  environment.
+- Before merging a promotion PR, a human captures the regression baseline
+  (`deploy-regression-check`).
 
 ## License
 
