@@ -320,7 +320,7 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 
 | Branch | Environment | kubectl context | Namespace |
 | --- | --- | --- | --- |
-| `main` | dev | `r2-friends` | `utk-knapsack-dev` |
+| `main` | dev | `utk-staging` | `utk-knapsack-dev` |
 | `production` | production | utk-production cluster (production environment's `KUBECONFIG_FILE`) | `utk-knapsack-production` |
 
 - `utk-hyku-production` on `r2-besties` and `utk-hyku-{friends,staging}` belong to the legacy
