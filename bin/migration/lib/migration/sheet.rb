@@ -25,10 +25,14 @@ module Migration
       row['model'] == 'Collection'
     end
 
-    def root_of(source_id, seen = [])
+    def root_of(source_id)
+      ancestors(source_id).last || source_id
+    end
+
+    def ancestors(source_id, seen = [])
       parents = @works[source_id]&.fetch('parents', nil).to_s.split('|').map(&:strip)
       parent = parents.find { |p| @works.key?(p) && !seen.include?(p) }
-      parent ? root_of(parent, seen + [source_id]) : source_id
+      parent ? [parent, *ancestors(parent, seen + [source_id])] : []
     end
 
     def work_count
@@ -38,6 +42,24 @@ module Migration
     def first_works(limit)
       roots = @works.keys.map { |id| root_of(id) }.uniq.first(limit)
       Sheet.new(headers, rows.select { |row| !collection?(row) && roots.include?(root_of(row['source_identifier'])) })
+    end
+
+    def first_members(limit)
+      members = Hash.new { |hash, root| hash[root] = [] }
+      @works.each_key do |id|
+        chain = [id, *ancestors(id)]
+        members[chain.last] |= [chain[-2]] if chain.size > 1
+      end
+      kept = members.values.flat_map { |list| list.sort_by.with_index { |id, index| [page(id), index] }.first(limit) }
+      Sheet.new(headers, rows.select do |row|
+        chain = [row['source_identifier'], *ancestors(row['source_identifier'])]
+        chain.size == 1 || kept.include?(chain[-2])
+      end)
+    end
+
+    def page(source_id)
+      sequence = @works.dig(source_id, 'sequence').to_s
+      sequence.match?(/\A\d+\z/) ? sequence.to_i : Float::INFINITY
     end
 
     def write(path)

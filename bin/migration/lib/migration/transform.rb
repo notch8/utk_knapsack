@@ -18,12 +18,8 @@ module Migration
 
     def call
       rows = @sheet.rows.map { |row| convert(row) }
-      flagged = {}
-      if @skip_missing
-        flagged = problems(rows).group_by { |id, _| @sheet.root_of(id) }
-                                .reject { |root, _| rows.find { |r| r['source_identifier'] == root }&.fetch('model') == 'Collection' }
-        rows = rows.reject { |row| flagged.key?(@sheet.root_of(row['source_identifier'])) }
-      end
+      flagged = @skip_missing ? left_out(rows) : {}
+      rows = rows.reject { |row| flagged.key?(row['source_identifier']) }
       headers = rows.flat_map(&:keys).uniq
       Result.new(rows:, headers:, flagged:, stops: Preflight.new(rows, headers).stops)
     end
@@ -85,6 +81,16 @@ module Migration
       parsed.is_a?(Array) ? parsed.map(&:to_s) : [value]
     rescue JSON::ParserError
       [value]
+    end
+
+    def left_out(rows)
+      found = problems(rows)
+      rows.each_with_object({}) do |row, acc|
+        id = row['source_identifier']
+        gone = @sheet.ancestors(id).find { |ancestor| found.key?(ancestor) }
+        reason = found[id]&.join(', ') || ("under #{gone}, which is left out" if gone)
+        acc[id] = { 'model' => row['model'], 'parents' => row['parents'], 'reason' => reason } if reason
+      end
     end
 
     def problems(rows)

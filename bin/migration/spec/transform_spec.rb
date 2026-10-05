@@ -26,16 +26,36 @@ RSpec.describe Migration::Transform do
     expect(described_class.new(sheet, lookup).call.stops).to include(a_string_starting_with('NO DIGEST: 1'))
   end
 
-  it 'with skip_missing drops the whole work and flags it with the reason' do
+  it 'with skip_missing drops only the file set and keeps its work' do
     result = described_class.new(sheet, lookup, skip_missing: true).call
-    expect(result.rows.map { |r| r['source_identifier'] }).to eq %w[w:1 w:1_OBJ]
-    expect(result.flagged.keys).to eq ['w:2']
-    expect(result.flagged['w:2']).to eq [['w:2_OBJ', ['no digest in legacy Solr']]]
+    expect(result.rows.map { |r| r['source_identifier'] }).to eq %w[w:1 w:1_OBJ w:2]
+    expect(result.flagged).to eq('w:2_OBJ' => { 'model' => 'FileSet', 'parents' => 'w:2', 'reason' => 'no digest in legacy Solr' })
+    expect(result.stops).not_to include(a_string_starting_with('NO DIGEST'))
   end
 
-  it 'flags a work whose original the copy step found missing' do
+  it 'flags a file set whose original the copy step found missing' do
     result = described_class.new(sheet, lookup.merge('w:2_OBJ' => lookup['w:1_OBJ'].merge('id' => 'fs-2')),
                                  skip_missing: true, excluded: ['fs-2']).call
-    expect(result.flagged['w:2'].first.last).to eq ['original missing in besties-fcrepo']
+    expect(result.flagged.keys).to eq ['w:2_OBJ']
+    expect(result.flagged['w:2_OBJ']['reason']).to eq 'original missing in besties-fcrepo'
+  end
+
+  it 'with skip_missing drops a work legacy lacks with everything under it' do
+    result = described_class.new(sheet, lookup.except('w:2'), skip_missing: true).call
+    expect(result.rows.map { |r| r['source_identifier'] }).to eq %w[w:1 w:1_OBJ]
+    expect(result.flagged.transform_values { |f| f['reason'] })
+      .to eq('w:2' => 'not found in legacy Solr', 'w:2_OBJ' => 'no digest in legacy Solr')
+  end
+
+  it 'drops only the subtree of a child work legacy lacks' do
+    rows = [%w[cmp:1 CompoundObject], %w[cmp:1_p1 Image cmp:1], %w[cmp:1_p1_OBJ FileSet cmp:1_p1],
+            %w[cmp:1_p2 Image cmp:1], %w[cmp:1_p2_OBJ FileSet cmp:1_p2]]
+           .map { |id, model, parents| { 'source_identifier' => id, 'model' => model, 'parents' => parents } }
+    digest = { 'digest_ssim' => ["urn:sha1:#{'a' * 40}"] }
+    found = { 'cmp:1' => { 'id' => 'c' }, 'cmp:1_p2' => { 'id' => 'p2' },
+              'cmp:1_p1_OBJ' => digest.merge('id' => 'f1'), 'cmp:1_p2_OBJ' => digest.merge('id' => 'f2') }
+    result = described_class.new(Migration::Sheet.new(%w[source_identifier model parents], rows), found, skip_missing: true).call
+    expect(result.rows.map { |r| r['source_identifier'] }).to eq %w[cmp:1 cmp:1_p2 cmp:1_p2_OBJ]
+    expect(result.flagged['cmp:1_p1_OBJ']['reason']).to eq 'under cmp:1_p1, which is left out'
   end
 end

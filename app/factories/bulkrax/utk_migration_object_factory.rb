@@ -16,6 +16,7 @@ module Bulkrax
       resource = klass.new(**work_attributes(attrs))
       resource.id = ::Valkyrie::ID.new(attrs[:id]) if attrs[:id].present?
       resource.admin_set_id ||= self.class.find_or_create_default_admin_set.id
+      stamp_deposit(resource)
 
       saved = Hyrax.persister.save(resource:)
       apply_permissions(saved, attrs[:visibility])
@@ -41,6 +42,8 @@ module Bulkrax
 
       file_set = Hyrax::FileSet.new(**file_set_attributes(attrs))
       file_set.id = ::Valkyrie::ID.new(attrs[:id]) if attrs[:id].present?
+      file_set.creator = [@user&.user_key].compact if file_set.creator.blank?
+      stamp_deposit(file_set)
       file_set = Hyrax.persister.save(resource: file_set)
 
       file_set = attach_files(file_set, attrs, digest)
@@ -57,6 +60,11 @@ module Bulkrax
       linked = Hyrax.persister.save(resource: file_set)
       UtkMigrationCharacterizationJob.perform_later(file_metadata.id.to_s)
       linked
+    end
+
+    def stamp_deposit(resource)
+      resource.depositor ||= @user&.user_key
+      resource.date_modified = resource.date_uploaded = Hyrax::TimeService.time_in_utc
     end
 
     def digest_for(attrs)
@@ -160,7 +168,7 @@ module Bulkrax
       resource.permission_manager.acl.save
     end
 
-    NON_METADATA = %i[id sha1 mime_type file_size label original_filename visibility
+    NON_METADATA = %i[id alternate_ids sha1 mime_type file_size label original_filename visibility
                       model source_identifier parents].freeze
 
     def permitted_attributes
