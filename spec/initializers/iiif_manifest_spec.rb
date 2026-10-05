@@ -15,4 +15,11 @@ RSpec.describe 'IIIF manifest configuration' do
 
     expect(IIIFManifest.config.manifest_value_for(presenter, property: :rights)).to be_nil
   end
+
+  it 'leads with title, description, abstract and collection, keeps the rest in profile order, and ends with rights' do
+    fields = %i[rights_statement subject title creator abstract collection description].map { |name| IiifPrint::Field.new(name:) }
+    sorted = IiifPrint.sort_af_fields!(fields, sort_order: IiifPrint.config.iiif_metadata_field_presentation_order)
+
+    expect(sorted.map(&:name)).to eq %i[title description abstract collection subject creator rights_statement]
+  end
 end
