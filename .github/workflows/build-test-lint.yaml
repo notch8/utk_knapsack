@@ -50,3 +50,27 @@ jobs:
     if: always()
     needs: [test, lint]
     uses: notch8/actions/.github/workflows/report.yaml@v1.0.11
+
+  # Deploying from this run (not a separate workflow_run-triggered Deploy) keeps the run on the
+  # pushed commit: GitHub shows a workflow_run's SHA and branch as the default branch's.
+  deploy:
+    needs: [test, lint]
+    if: ${{ github.event_name == 'push' && github.ref_name != 'staging' }}
+    concurrency:
+      group: deploy-${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
+      cancel-in-progress: false
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
+    secrets: inherit
+    with:
+      environment: ${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
+
+  publish-release:
+    needs: deploy
+    if: ${{ github.ref_name == 'production' }}
+    permissions:
+      actions: read
+      contents: write
+    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.13
+    with:
+      sha: ${{ github.sha }}
+      deploy-run-id: ${{ github.run_id }}
