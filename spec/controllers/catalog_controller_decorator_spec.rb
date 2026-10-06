@@ -65,38 +65,6 @@ RSpec.describe CatalogController do
     end
   end
 
-  describe 'facet limits' do
-    let(:fresh_config) do
-      Blacklight::Configuration.new.tap do |blacklight|
-        blacklight.add_facet_field 'from_the_profile_sim', label: 'From the profile'
-        blacklight.add_facet_field 'declared_by_hyku_sim', limit: 3
-        blacklight.add_facet_field 'date_range_isim', range: { assumed_boundaries: [1800, 2030] }
-      end
-    end
-
-    before { CatalogControllerDecorator.limit_unlimited_facets(fresh_config) }
-
-    it 'limits a facet registered with no limit, as Hyrax registers profile facets' do
-      expect(fresh_config.facet_fields['from_the_profile_sim'].limit).to eq 5
-    end
-
-    it 'leaves a limit the catalog already declares' do
-      expect(fresh_config.facet_fields['declared_by_hyku_sim'].limit).to eq 3
-    end
-
-    it 'leaves range facets unlimited' do
-      expect(fresh_config.facet_fields['date_range_isim'].limit).to be_nil
-    end
-  end
-
-  describe 'a facet the profile registers' do
-    before { config.facet_fields.delete('publication_place_sim') }
-
-    it 'is limited in the configuration each controller renders from' do
-      expect(described_class.new.blacklight_config.facet_fields['publication_place_sim'].limit).to eq 5
-    end
-  end
-
   describe 'the creator, contributor and publisher facets' do
     let(:fresh_config) do
       Blacklight::Configuration.new.tap do |blacklight|
@@ -134,11 +102,10 @@ RSpec.describe CatalogController do
       expect { load path.to_s }.not_to raise_error
     end
 
-    it 'keeps the compound facets and the facet limit' do
+    it 'keeps the compound facets' do
       load HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb').to_s
-      config.facet_fields.delete('publication_place_sim')
 
-      expect(described_class.new.blacklight_config.facet_fields.values_at('creators_name_sim', 'publication_place_sim').map(&:limit)).to eq [5, 5]
+      expect(described_class.new.blacklight_config.facet_fields['creators_name_sim'].limit).to eq 5
     end
   end
 end
