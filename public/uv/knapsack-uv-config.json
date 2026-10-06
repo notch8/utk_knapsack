@@ -1,0 +1,9 @@
+{
+  "modules": {
+    "moreInfoRightPanel": {
+      "content": {
+        "rights": "Rights"
+      }
+    }
+  }
+}
