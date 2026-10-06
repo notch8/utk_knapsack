@@ -327,9 +327,8 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
   utk-hyku app being migrated from. Nothing here deploys to them.
 - UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
   the client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by
-  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` once
-  the `AUTO_MERGER_APP_ID` and `AUTO_MERGER_APP_PRIVATE_KEY` secrets are set; until then, open
-  that PR by hand.
+  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` from
+  the auto-merger; review and merge it.
 - Production window: none yet. UTK is pre-launch, so production deploys go out at will;
   set a window here before launch.
 - Release tags: none yet. A production push drafts `vX.Y.Z`; after verifying the deploy, approve
@@ -339,6 +338,23 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
   environment.
 - Before merging a promotion PR, a human captures the regression baseline
   (`deploy-regression-check`).
+- Announcement channel: **#n8-utk**, the client's channel, so write for the client there: what
+  they will notice, no PR numbers or internals. Post "deploying now" before merging the
+  production promotion, and the release notes once the release is published. Internal
+  discussion stays in #dev-utk.
+
+#### Weekly cadence
+
+| When | What |
+| --- | --- |
+| Monday | Dependabot opens the `hyrax-webapp` bump (about 3 days behind Hyku `main`) and any actions bumps. Read the Hyku commits it pulls in, merge, and check that dev deploys. |
+| During the week | The client QAs on dev. Smoke-check dev yourself after the bump: the playbook's [staging QA checklist](https://github.com/notch8/playbook/blob/main/devops/deployments/knapsack-release-onboarding.md#7-your-week), run on dev. |
+| Once the client approves | Promote `main` -> `production` with `/knapsack-release`, approve the Deploy run, verify, publish the release, post it. No window until launch. |
+| Any day | Merge the auto-merger's merge-down PRs. Hotfixes follow the skill's Hotfix section. |
+
+This is the hykuup and pals process without the staging step: dev is where QA happens, and a
+production deploy always waits for an approval from `@notch8/hyku-knapsack-owners`, the same as
+the other knapsacks. Any member of that team can approve, including the person deploying.
 
 ## License
 
