@@ -1,10 +1,10 @@
 ---
 m3_version: 1.0.beta2
 profile:
-  date_modified: '2026-09-03'
+  date_modified: '2026-10-07'
   responsibility: https://www.lib.utk.edu
   responsibility_statement: University of Tennessee Libraries
-  type: Migrated from AllinsonFlex profile
+  type: With MODS mappings
   version: 1
 classes:
   AdminControl:
@@ -117,7 +117,7 @@ properties:
     - alternative_title_sim
     - alternative_title_tesim
     mappings:
-      mods_oai_pmh: modstitleInfo[@type="alternative"]/mods:title
+      mods_oai_pmh: mods:titleInfo[@type="alternative"]/mods:title
       qualified_dc_pmh: dcterms:alternative
     property_uri: http://purl.org/dc/terms/alternative
     range: http://www.w3.org/2001/XMLSchema#string
@@ -201,7 +201,7 @@ properties:
     - creator_tesim
     mappings:
       blacklight: creator_sim
-      mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Creator')]]/mods:namePart
+      mods_oai_pmh: mods:name[mods:role/mods:roleTerm="Creator"]/mods:namePart
       qualified_dc_pmh: dcterms:creator
       simple_dc_pmh: dc:creator
     property_uri: http://purl.org/dc/elements/1.1/creator
@@ -738,7 +738,7 @@ properties:
     - publication_place_tesim
     - facetable
     mappings:
-      mods_oai_pmh: mods:originInfo/place/placeTerm
+      mods_oai_pmh: mods:originInfo/mods:place/mods:placeTerm
     property_uri: https://id.loc.gov/vocabulary/relators/pup
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
@@ -1138,7 +1138,7 @@ properties:
     - ark_sim
     - ark_tesim
     mappings:
-      mods_oai_pmh: mods:location/mods:url[access="object in context"]
+      mods_oai_pmh: mods:location/mods:url[@access="object in context"]
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://id.loc.gov/vocabulary/identifiers/ark
@@ -1707,7 +1707,7 @@ properties:
     - resource_link_tesim
     mappings:
       metatags: og:url, twitter:image
-      mods_oai_pmh: mods:location/mods:url[access="object in context"]
+      mods_oai_pmh: mods:location/mods:url[@access="object in context"]
       qualified_dc_pmh: dcterms:identifier
       simple_dc_pmh: dc:identifier
     property_uri: http://www.europeana.eu/schemas/edm/isShownAt
@@ -1745,7 +1745,6 @@ properties:
     - sequence_tesim
     mappings:
       blacklight: sequence_sim
-      mods_oai_pmh: mods:sequence
       qualified_dc_pmh: dcterms:sequence
       simple_dc_pmh: dc:sequence
     property_uri: https://schema.org/position
@@ -1894,7 +1893,7 @@ properties:
     - utk_minute_taker_sim
     - utk_minute_taker_tesim
     mappings:
-      mods_oai_pmh: mods:name[mods:role/mods:roleTerm[contains(.,'Minute taker')]]/mods:namePart
+      mods_oai_pmh: mods:name[mods:role/mods:roleTerm="Minute taker"]/mods:namePart
       qualified_dc_pmh: dcterms:contributor
       simple_dc_pmh: dc:contributor
     property_uri: https://ontology.lib.utk.edu/roles#mtk
@@ -1931,7 +1930,7 @@ properties:
     - utk_place_of_publication_sim
     - utk_place_of_publication_tesim
     mappings:
-      mods_oai_pmh: mods:originInfo/place/placeTerm
+      mods_oai_pmh: mods:originInfo/mods:place/mods:placeTerm
     property_uri: https://ontology.lib.utk.edu/roles#pup
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
@@ -2443,6 +2442,8 @@ properties:
     authority: creator_roles
     form:
       cols: 4
+    mappings:
+      mods_oai_pmh: mods:name/mods:role/mods:roleTerm[@type="text"]
   contributor_role:
     type: controlled
     name: role
@@ -2453,3 +2454,5 @@ properties:
     authority: contributor_roles
     form:
       cols: 4
+    mappings:
+      mods_oai_pmh: mods:name/mods:role/mods:roleTerm[@type="text"]
