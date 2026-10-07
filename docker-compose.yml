@@ -57,7 +57,7 @@ services:
   # Forked from hyrax-webapp/docker-compose.yml's solr service (can't extend
   # and still drop its `build:`) to run plain solr:9 with no custom image.
   solr:
-    image: solr:9
+    image: solr:9.10
     environment:
       - OOM=script
       - SOLR_ADMIN_USER=solr
