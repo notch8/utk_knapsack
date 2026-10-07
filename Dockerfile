@@ -33,3 +33,4 @@ FROM nginxinc/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/pdf.js /app/samvera/hyrax-webapp/public/pdf.js
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/uv /app/samvera/hyrax-webapp/public/uv
+COPY --chown=101:101 --from=hyku-web /app/samvera/public/uv/knapsack-uv-config.json /app/samvera/hyrax-webapp/public/uv/knapsack-uv-config.json

@@ -60,4 +60,27 @@ RSpec.describe 'utk:derivatives rake tasks' do
       expect(HykuKnapsack::MissingThumbnails).not_to have_received(:call)
     end
   end
+
+  describe 'utk:derivatives:extract_missing_pdf_text' do
+    before do
+      allow(AccountElevator).to receive(:switch!)
+      allow(HykuKnapsack::MissingPdfText).to receive(:call).and_return(0)
+    end
+
+    it 'switches to the tenant and runs the finder with DRY_RUN and LIMIT' do
+      ENV['DRY_RUN'] = '1'
+      ENV['LIMIT'] = '25'
+
+      Rake::Task['utk:derivatives:extract_missing_pdf_text'].invoke('dev.example.org')
+
+      expect(AccountElevator).to have_received(:switch!).with('dev.example.org')
+      expect(HykuKnapsack::MissingPdfText).to have_received(:call).with(dry_run: true, limit: 25)
+    end
+
+    it 'aborts without a tenant' do
+      expect { Rake::Task['utk:derivatives:extract_missing_pdf_text'].invoke }
+        .to raise_error(SystemExit).and output(/Usage/).to_stderr
+      expect(HykuKnapsack::MissingPdfText).not_to have_received(:call)
+    end
+  end
 end

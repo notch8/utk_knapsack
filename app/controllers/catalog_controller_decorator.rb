@@ -2,8 +2,8 @@
 
 # OVERRIDE Hyku v7.1.0 to facet creator and contributor from the compound
 # properties instead of the flat ones, to drop the publisher facet, to leave the
-# search result fields to the M3 profile, to keep subject, repository and
-# archival collection in keyword search, and to limit profile facets to five values.
+# search result fields to the M3 profile, and to keep subject, repository and
+# archival collection in keyword search.
 #
 # UTK records agents as `creators` / `contributors` compounds (name + role), so
 # the facetable Solr field is the sub-property's derived `<compound>_name_sim`
@@ -25,8 +25,6 @@ module CatalogControllerDecorator
     repository_tesim
     archival_collection_tesim
   ].freeze
-
-  DEFAULT_FACET_LIMIT = 5
 
   class << self
     # Blacklight's `facet_fields` is insertion-ordered and the sidebar renders in
@@ -57,19 +55,6 @@ module CatalogControllerDecorator
       solr_parameters = config.search_fields['all_fields'].solr_parameters
       solr_parameters[:qf] = (solr_parameters[:qf].split | KEYWORD_SEARCH_FIELDS).join(' ')
     end
-
-    # OVERRIDE: Hyrax registers profile facets with no limit, which Blacklight reads as show every value
-    def limit_unlimited_facets(config)
-      config.facet_fields.each_value do |facet|
-        facet.limit = DEFAULT_FACET_LIMIT if facet.limit.nil? && !facet.range
-      end
-    end
-  end
-
-  # OVERRIDE: profile facets exist only once the controller is built, so the limit is applied per instance
-  def initialize
-    super
-    CatalogControllerDecorator.limit_unlimited_facets(blacklight_config)
   end
 end
 

@@ -8,5 +8,15 @@ updates:
       timezone: "America/Los_Angeles"
     labels:
       - "dependencies"
-    reviewers:
-      - "ShanaLMoore"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "America/Los_Angeles"
+    labels:
+      - "dependencies"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
