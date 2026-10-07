@@ -1,0 +1,103 @@
+# Opens the weekly hyrax-webapp (Hyku) submodule bump. Runs only on its Monday schedule or when
+# someone presses "Run workflow", unlike Dependabot, which also re-checks whenever its config changes.
+name: Bump Hyku
+
+on:
+  schedule:
+    - cron: "0 15 * * 1" # Mondays 8am PDT / 7am PST
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Hyku commit to bump to (default: newest commit on samvera/hyku main that is at least 3 days old)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bump-hyku
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      # The pull request is opened with the auto-merger app's token so CI runs on it; a PR
+      # opened with GITHUB_TOKEN would get no checks.
+      - name: Generate a token
+        id: app-token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        with:
+          app-id: ${{ secrets.AUTO_MERGER_APP_ID }}
+          private-key: ${{ secrets.AUTO_MERGER_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Open the bump pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          current=$(git ls-tree HEAD hyrax-webapp | awk '{print $3}')
+
+          if [ -n "$INPUT_REF" ]; then
+            target=$(gh api "repos/samvera/hyku/commits/$INPUT_REF" --jq .sha)
+          else
+            # Same 3-day wait Dependabot used: let a Hyku change settle before we take it.
+            until=$(date -u -d '3 days ago' +%Y-%m-%dT%H:%M:%SZ)
+            target=$(gh api "repos/samvera/hyku/commits?sha=main&until=$until&per_page=1" --jq '.[0].sha')
+          fi
+
+          if [ "$current" = "$target" ]; then
+            echo "hyrax-webapp is already at ${target::7}; nothing to do." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          status=$(gh api "repos/samvera/hyku/compare/$current...$target" --jq .status)
+          if [ "$status" != "ahead" ]; then
+            echo "::error::${target::7} is not ahead of the pinned ${current::7} (compare status: $status)"
+            exit 1
+          fi
+
+          branch="bump-hyku/${target::7}"
+          title="Bump hyrax-webapp from \`${current::7}\` to \`${target::7}\`"
+
+          if GH_TOKEN=$APP_TOKEN gh pr list --head "$branch" --state open --json number --jq '.[0].number' | grep -q .; then
+            echo "A pull request for ${target::7} is already open." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # One bump PR at a time: close older ones this workflow opened.
+          for n in $(GH_TOKEN=$APP_TOKEN gh pr list --state open --label hyku-bump --json number --jq '.[].number'); do
+            gh pr close "$n" --delete-branch --comment "Superseded by the bump to \`${target::7}\`."
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git update-index --cacheinfo "160000,$target,hyrax-webapp"
+          git commit -m "$title"
+          git push --force origin "$branch"
+
+          {
+            echo "Bumps [hyrax-webapp](https://github.com/samvera/hyku) from \`${current::7}\` to \`${target::7}\` ([compare](https://github.com/samvera/hyku/compare/$current...$target))."
+            echo
+            echo "## Hyku pull requests in this bump"
+            echo
+            # Hyku merges some PRs with a merge commit and fast-forwards others, so look up each
+            # commit's pull request instead of parsing commit messages.
+            for sha in $(gh api "repos/samvera/hyku/compare/$current...$target?per_page=250" --jq '.commits[].sha'); do
+              gh api "repos/samvera/hyku/commits/$sha/pulls" --jq '.[] | select(.merged_at) | "\(.number)\t\(.title)"'
+            done | sort -un | awk -F'\t' '{print "- samvera/hyku#" $1 " " $2}'
+            echo
+            echo "Review what touches files this knapsack overrides or decorates; the playbook's \"Monday: the Hyku bump\" has the steps."
+          } > body.md
+
+          url=$(GH_TOKEN=$APP_TOKEN gh pr create --base main --head "$branch" --title "$title" \
+            --body-file body.md --label dependencies --label hyku-bump)
+          echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"

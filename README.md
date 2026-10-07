@@ -347,7 +347,7 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 
 | When | What |
 | --- | --- |
-| Monday | Dependabot opens the `hyrax-webapp` bump (about 3 days behind Hyku `main`) and any actions bumps. Read the Hyku commits it pulls in, merge, and check that dev deploys. |
+| Monday | The Bump Hyku workflow opens the `hyrax-webapp` bump (the newest Hyku `main` commit at least 3 days old; Dependabot still opens any actions bumps). Read the Hyku commits it pulls in, merge, and check that dev deploys. |
 | During the week | The client QAs on dev. Smoke-check dev yourself after the bump: the playbook's [staging QA checklist](https://github.com/notch8/playbook/blob/main/devops/deployments/knapsack-release-onboarding.md#7-your-week), run on dev. |
 | Once the client approves | Promote `main` -> `production` with `/knapsack-release`, approve the Deploy run, verify, publish the release, post it. No window until launch. |
 | Any day | Merge the auto-merger's merge-down PRs. Hotfixes follow the skill's Hotfix section. |

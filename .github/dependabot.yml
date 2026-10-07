@@ -1,13 +1,7 @@
 version: 2
+# Hyku (hyrax-webapp) bumps come from .github/workflows/bump-hyku.yml instead, so they only
+# open on Mondays or by hand.
 updates:
-  - package-ecosystem: "gitsubmodule"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      timezone: "America/Los_Angeles"
-    labels:
-      - "dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
