@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'a UTK work indexer' do
   it 'includes HykuIndexing last so its to_solr tap runs after the M3 schema' do
-    expect(described_class.ancestors[1]).to eq HykuIndexing
+    expect(described_class.ancestors[1, 2]).to eq [HykuKnapsack::HykuIndexingDecorator, HykuIndexing]
   end
 
   it 'indexes creation and publication years for the date range facet, but not other dates' do
