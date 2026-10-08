@@ -4,7 +4,7 @@ profile:
   date_modified: '2026-10-07'
   responsibility: https://www.lib.utk.edu
   responsibility_statement: University of Tennessee Libraries
-  type: With MODS mappings
+  type: Initial Profile
   version: 1
 classes:
   AdminControl:
@@ -137,6 +137,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -219,6 +220,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -298,6 +300,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -448,6 +451,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -494,6 +498,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -549,6 +554,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -634,6 +640,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -949,6 +956,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 1
     controlled_values:
@@ -994,6 +1002,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -1196,6 +1205,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -1529,6 +1539,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -1573,6 +1584,7 @@ properties:
       - Book
       - CompoundObject
       - Newspaper
+      - Hyrax::FileSet
     cardinality:
       minimum: 0
     controlled_values:
@@ -1746,7 +1758,6 @@ properties:
     mappings:
       blacklight: sequence_sim
       qualified_dc_pmh: dcterms:sequence
-      simple_dc_pmh: dc:sequence
     property_uri: https://schema.org/position
     range: http://www.w3.org/2001/XMLSchema#integer
     view:
@@ -1900,41 +1911,6 @@ properties:
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
     - Eaton, Andrew Chamberlain
-    view:
-      html_dl: true
-      search_results: false
-  utk_place_of_publication:
-    available_on:
-      class:
-      - DigitalCollection
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - 'null'
-    data_type: array
-    display_label:
-      default: Publication Place
-    form:
-      display: true
-    index_documentation: displayable, searchable
-    indexing:
-    - utk_place_of_publication_sim
-    - utk_place_of_publication_tesim
-    mappings:
-      mods_oai_pmh: mods:originInfo/mods:place/mods:placeTerm
-    property_uri: https://ontology.lib.utk.edu/roles#pup
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - Knoxville
     view:
       html_dl: true
       search_results: false
@@ -2359,6 +2335,7 @@ properties:
         - Newspaper
         - Pdf
         - Video
+        - Hyrax::FileSet
     data_type: array
     type: hash
     cardinality:
@@ -2385,6 +2362,7 @@ properties:
         - Newspaper
         - Pdf
         - Video
+        - Hyrax::FileSet
     data_type: array
     type: hash
     cardinality:
