@@ -32,7 +32,7 @@ RSpec.describe Bulkrax::CsvEntryDecorator do
   describe 'a file set row' do
     let(:file_set) do
       save(Hyrax::FileSet.new(title: ['Page 1'], bulkrax_identifier: 'probe:fs', alternate_ids: ['probe:fs'],
-                              visibility: 'restricted',
+                              visibility: 'restricted', primary_identifier: ['probe:fs'],
                               rdf_type: ['http://pcdm.org/use#OriginalFile']))
     end
 
