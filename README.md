@@ -325,36 +325,36 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 
 - `utk-hyku-production` on `r2-besties` and `utk-hyku-{friends,staging}` belong to the legacy
   utk-hyku app being migrated from. Nothing here deploys to them.
-- UTK skips staging: `main` is promoted straight to `production` by merge-commit PR, and
-  the client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by
-  manual dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` from
-  the auto-merger; review and merge it.
-- Production window: none yet. UTK is pre-launch, so production deploys go out at will;
-  set a window here before launch.
-- Release tags: none yet. A production push drafts `vX.Y.Z`; after verifying the deploy, approve
-  the `publish-release` job in the production Build Test Lint run, which publishes it at the deployed commit. Each draft notes the pinned Hyku version and SHA. Publish the first
-  draft as `v0.1.0` and stay on `v0.x` until client launch, which is `v1.0.0`.
-- Production deploys wait for approval from `@notch8/hyku-knapsack-owners` on the `production`
-  environment.
-- Before merging a promotion PR, a human captures the regression baseline
-  (`deploy-regression-check`).
-- Announcement channel: **#n8-utk**, the client's channel, so write for the client there: what
-  they will notice, no PR numbers or internals. Post "deploying now" before merging the
-  production promotion, and the release notes once the release is published. Internal
-  discussion stays in #dev-utk.
+- **Pre-launch (now):** UTK skips staging and production has no approvals, so it can iterate
+  fast. Release `main` by fast-forwarding `production` and pushing it:
 
-#### Weekly cadence
+  ```bash
+  git switch production && git pull && git merge --ff-only origin/main && git push
+  ```
+
+  The push runs Build Test Lint; when it passes, production deploys and the newest stable draft
+  release is published, with no approval step. Production can't be force-pushed or deleted.
+  The client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by manual
+  dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` from the
+  auto-merger; review and merge it.
+- **At launch:** UTK switches to the hykuup and pals process: `main -> staging -> production` by
+  promotion PR, approvals back on, run with the playbook's `knapsack-release` skill. The settings
+  to restore are listed in #358.
+- Production window: none yet; set one here at launch.
+- Release tags: a production push drafts `vX.Y.Z`, and the deploy publishes it at the deployed
+  commit. Each draft notes the pinned Hyku version and SHA. Stay on `v0.x` until client launch,
+  which is `v1.0.0`.
+- Announcement channel: **#n8-utk**, the client's channel, so write for the client there: what
+  they will notice, no PR numbers or internals. Internal discussion stays in #dev-utk.
+
+#### Weekly cadence (pre-launch)
 
 | When | What |
 | --- | --- |
 | Monday | Dependabot opens the `hyrax-webapp` bump (about 3 days behind Hyku `main`) and any actions bumps. Read the Hyku commits it pulls in, merge, and check that dev deploys. |
 | During the week | The client QAs on dev. Smoke-check dev yourself after the bump: the playbook's [staging QA checklist](https://github.com/notch8/playbook/blob/main/devops/deployments/knapsack-release-onboarding.md#7-your-week), run on dev. |
-| Once the client approves | Promote `main` -> `production` with `/knapsack-release`, approve the Deploy run, verify, publish the release, post it. No window until launch. |
-| Any day | Merge the auto-merger's merge-down PRs. Hotfixes follow the skill's Hotfix section. |
-
-This is the hykuup and pals process without the staging step: dev is where QA happens, and a
-production deploy always waits for an approval from `@notch8/hyku-knapsack-owners`, the same as
-the other knapsacks. Any member of that team can approve, including the person deploying.
+| Whenever it's ready | Push `main` to `production` as above, verify the deploy, post what changed in #n8-utk. |
+| Any day | Merge the auto-merger's merge-down PRs. |
 
 ## License
 
