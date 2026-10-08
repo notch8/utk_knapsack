@@ -124,6 +124,23 @@ RSpec.describe Bulkrax::CsvEntryDecorator do
       expect(entry.parsed_metadata.keys).not_to include('visibility', 'admin_set_id')
     end
 
+    it 'keeps the visibility of an existing work when the cell is blank' do
+      entry = entry_for(Bulkrax::CsvEntry, 'id' => work.id.to_s, 'model' => 'StillImage', 'abstract' => 'New abstract',
+                                           'visibility' => nil)
+
+      entry.build_metadata
+
+      expect(entry.parsed_metadata).not_to have_key('visibility')
+    end
+
+    it 'still updates the visibility the row gives' do
+      entry = entry_for(Bulkrax::CsvEntry, 'id' => work.id.to_s, 'model' => 'StillImage', 'visibility' => 'open')
+
+      entry.build_metadata
+
+      expect(entry.parsed_metadata).to include('visibility' => 'open')
+    end
+
     context 'when the importer sets a rights statement' do
       let(:rights) { 'http://rightsstatements.org/vocab/InC/1.0/' }
       let(:parser_fields) { { 'rights_statement' => rights } }

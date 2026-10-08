@@ -18,7 +18,9 @@ module Bulkrax
     end
 
     def add_visibility
-      super unless updating_existing_record?
+      return super unless updating_existing_record?
+
+      parsed_metadata.delete('visibility') if parsed_metadata['visibility'].blank?
     end
 
     def add_rights_statement
