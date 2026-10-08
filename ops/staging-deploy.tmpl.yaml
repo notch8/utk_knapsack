@@ -163,7 +163,7 @@ extraEnvVars: &envVars
   - name: HYKU_ROOT_HOST
     value: utk-knapsack-staging.notch8.cloud
   - name: HYKU_SHOW_BACKTRACE
-    value: "true"
+    value: "false"
   - name: HYRAX_ACTIVE_JOB_QUEUE
     value: good_job
   - name: HYRAX_ANALYTICS
