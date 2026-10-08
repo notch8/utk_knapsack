@@ -68,8 +68,7 @@ parser_mappings = {
   'table_of_contents' => { from: ['table_of_contents'], split: /\s*[|]\s*/ },
   'temporal' => { from: ['temporal'], split: /\s*[|]\s*/ },
   'title' => { from: ['title'], split: /\s*[|]\s*/ },
-  'utk_minute_taker' => { from: ['utk_minute_taker'], split: /\s*[|]\s*/ },
-  'utk_place_of_publication' => { from: ['utk_place_of_publication'], split: /\s*[|]\s*/ }
+  'utk_minute_taker' => { from: ['utk_minute_taker'], split: /\s*[|]\s*/ }
 }
 
 # currently Bulkrax does not support headers with spaces
