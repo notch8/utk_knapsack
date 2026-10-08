@@ -9,23 +9,22 @@ module HykuKnapsack
     private
 
     def extract_text_from_plain_text_files(object)
-      file_set_texts(object).reject { |doc| pdf?(doc) }.flat_map { |doc| doc[:text] }
+      file_set_docs(object).reject(&:pdf?).flat_map { |doc| full_text(doc) }
     end
 
     def extract_text_from_pdf_directly(object)
-      texts = file_set_texts(object).select { |doc| pdf?(doc) }.flat_map { |doc| doc[:text] }
-      texts.presence
+      file_set_docs(object).select(&:pdf?).flat_map { |doc| full_text(doc) }.presence
     end
 
-    def pdf?(doc)
-      Hyrax.config.derivative_mime_type_mappings[:pdf].include?(doc[:mime_type])
+    def full_text(doc)
+      Array(doc['all_text_tsimv']).select(&:present?)
     end
 
-    def file_set_texts(object)
-      (@file_set_texts ||= {})[object.id] ||= file_set_full_texts(object)
+    def file_set_docs(object)
+      (@file_set_docs ||= {})[object.id] ||= member_file_set_docs(object)
     end
 
-    def file_set_full_texts(object)
+    def member_file_set_docs(object)
       member_ids = Array(object.member_ids).map(&:to_s).reject(&:blank?)
       return [] if member_ids.empty?
 
@@ -37,12 +36,7 @@ module HykuKnapsack
         method: :post
       ).index_by { |doc| doc['id'].to_s }
 
-      member_ids.filter_map do |id|
-        doc = docs[id]
-        next unless doc
-
-        { mime_type: doc['mime_type_ssi'], text: Array(doc['all_text_tsimv']).select(&:present?) }
-      end
+      member_ids.filter_map { |id| docs[id] }.map { |doc| ::SolrDocument.new(doc) }
     end
   end
 end
