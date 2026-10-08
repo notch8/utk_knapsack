@@ -347,6 +347,14 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
 - Announcement channel: **#n8-utk**, the client's channel, so write for the client there: what
   they will notice, no PR numbers or internals. Internal discussion stays in #dev-utk.
 
+#### Solr schema
+
+Solr still runs the configset from before samvera/hyku#3288, while the image ships the new one
+(Point field types). The `load-solr-config` init container never replaces an existing configset,
+so deploys are safe. **Don't upload or reload the new configset on its own:** documents indexed
+under the old one then return wrong numeric and date results, and 500s on multi-valued ones,
+until a full reindex. The planned move is notch8/hyku-community-issues#158.
+
 #### Weekly cadence (pre-launch)
 
 | When | What |
