@@ -17,6 +17,10 @@ RSpec.describe Bulkrax::UtkMigrationCsvParser do
     expect(Bulkrax.parsers.map { |parser| parser[:class_name] }).to include described_class.to_s
   end
 
+  it 'is not offered in the exporter form' do
+    expect(described_class.export_supported?).to be false
+  end
+
   describe 'reading a migration sheet' do
     let(:csv) do
       Tempfile.new(['migration', '.csv']).tap do |file|

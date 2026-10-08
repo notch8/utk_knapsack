@@ -4,11 +4,8 @@ Rails.application.config.to_prepare do
   next unless Hyku.bulkrax_enabled?
 
   Bulkrax.setup do |config|
-    config.parsers -= [
-      { name: "OAI - Dublin Core", class_name: "Bulkrax::OaiDcParser", partial: "oai_fields" },
-      { name: "OAI - Qualified Dublin Core", class_name: "Bulkrax::OaiQualifiedDcParser", partial: "oai_fields" },
-      { name: "XML", class_name: "Bulkrax::XmlParser", partial: "xml_fields" }
-    ]
+    hidden_parsers = %w[Bulkrax::OaiDcParser Bulkrax::OaiQualifiedDcParser Bulkrax::XmlParser Bulkrax::BagitParser]
+    config.parsers = config.parsers.reject { |parser| hidden_parsers.include?(parser[:class_name]) }
 
     config.fill_in_blank_source_identifiers = lambda do |obj, index|
       "#{Site.instance.account.name}-#{obj.importerexporter.id}-#{index}"
