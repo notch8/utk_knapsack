@@ -33,6 +33,19 @@ RSpec.describe 'config/initializers/bulkrax_config.rb' do
     end
   end
 
+  describe 'parsers' do
+    let(:class_names) { Bulkrax.parsers.map { |parser| parser[:class_name] } }
+
+    it 'offers CSV and UTK Migration CSV' do
+      expect(class_names).to include('Bulkrax::CsvParser', 'Bulkrax::UtkMigrationCsvParser')
+    end
+
+    it 'hides Bagit, OAI and XML' do
+      expect(class_names).not_to include('Bulkrax::BagitParser', 'Bulkrax::OaiDcParser',
+                                         'Bulkrax::OaiQualifiedDcParser', 'Bulkrax::XmlParser')
+    end
+  end
+
   describe 'qa_controlled_properties' do
     it 'includes resource_types' do
       expect(Bulkrax.qa_controlled_properties).to include('resource_types')
