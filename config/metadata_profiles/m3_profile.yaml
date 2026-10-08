@@ -1758,7 +1758,6 @@ properties:
     mappings:
       blacklight: sequence_sim
       qualified_dc_pmh: dcterms:sequence
-      simple_dc_pmh: dc:sequence
     property_uri: https://schema.org/position
     range: http://www.w3.org/2001/XMLSchema#integer
     view:
