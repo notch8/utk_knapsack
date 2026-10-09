@@ -14,10 +14,12 @@ module Bulkrax
       super
       return unless @parent_record_members_added
 
-      conditionally_acquire_lock_for(parent_record.id.to_s) do
-        sort_members_and_set_representative(parent_record.id)
+      ActiveRecord::Base.uncached do
+        conditionally_acquire_lock_for(parent_record.id.to_s) do
+          sort_members_and_set_representative(parent_record.id)
+        end
+        reindex_file_sets(parent_record.id)
       end
-      reindex_file_sets(parent_record.id)
     end
 
     def reindex_file_sets(parent_id)
