@@ -238,10 +238,7 @@ properties:
     indexing:
     - date_created_sim
     - date_created_tesim
-    mappings:
-      mods_oai_pmh: mods:originInfo/mods:dateCreated
-      qualified_dc_pmh: dcterms:created
-      simple_dc_pmh: dc:date
+    mappings: {}
     property_uri: http://purl.org/dc/terms/created
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
@@ -317,10 +314,7 @@ properties:
     indexing:
     - date_issued_sim
     - date_issued_tesim
-    mappings:
-      mods_oai_pmh: mods:originInfo/mods:dateIssued
-      qualified_dc_pmh: dcterms:issued
-      simple_dc_pmh: dc:date
+    mappings: {}
     property_uri: http://purl.org/dc/terms/issued
     range: http://www.w3.org/2001/XMLSchema#string
     sample_values:
@@ -394,10 +388,7 @@ properties:
     indexing:
     - date_other_sim
     - date_other_tesim
-    mappings:
-      mods_oai_pmh: mods:originInfo/mods:dateOther
-      qualified_dc_pmh: dcterms:date
-      simple_dc_pmh: dc:date
+    mappings: {}
     property_uri: http://purl.org/dc/terms/date
     range: http://www.w3.org/2001/XMLSchema#string
     view:
@@ -824,7 +815,10 @@ properties:
     - repository_sim
     - repository_tesim
     - facetable
-    mappings: {}
+    mappings:
+      mods_oai_pmh: mods:location/mods:physicalLocation
+      qualified_dc_pmh: dcterms:publisher
+      simple_dc_pmh: dc:publisher
     property_uri: http://id.loc.gov/vocabulary/relators/rps
     range: http://www.w3.org/2001/XMLSchema#string
     view:
@@ -1373,47 +1367,6 @@ properties:
     view:
       html_dl: true
       search_results: false
-  intermediate_provider:
-    available_on:
-      class:
-      - StillImage
-      - Video
-      - Audio
-      - Pdf
-      - Book
-      - CompoundObject
-      - Newspaper
-    cardinality:
-      minimum: 0
-    controlled_values:
-      format: http://www.w3.org/2001/XMLSchema#string
-      sources:
-      - 'null'
-    data_type: array
-    definition:
-      default: The name of the organization who contributes data indirectly to an
-        aggregation service.
-    display_label:
-      default: Intermediate Provider
-    form:
-      display: true
-    index_documentation: displayable, searchable, intermediate provider facet
-    indexing:
-    - intermediate_provider_sim
-    - intermediate_provider_tesim
-    - facetable
-    mappings:
-      mods_oai_pmh: mods:location/mods:physicalLocation
-      qualified_dc_pmh: dcterms:publisher
-      simple_dc_pmh: dc:publisher
-    property_uri: http://www.europeana.eu/schemas/edm/dataProvider
-    range: http://www.w3.org/2001/XMLSchema#string
-    sample_values:
-    - Langston Hughes Library (Children's Defense Fund Haley Farm)
-    view:
-      html_dl: true
-      search_results: false
-      render_as: faceted
   is_part_of:
     available_on:
       class:
