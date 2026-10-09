@@ -301,3 +301,57 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
     end
   end
 end
+
+RSpec.describe Bulkrax::CreateRelationshipsJobDecorator, 'when another worker saves the work mid-job' do
+  let(:job) { Bulkrax::CreateRelationshipsJob.new }
+  let(:collection_id) { Valkyrie::ID.new('collection-372') }
+  let(:records) { [] }
+
+  def persist(resource)
+    Hyrax.persister.save(resource:).tap { |saved| records << saved }
+  end
+
+  def save_from_another_worker(work_id, added_member_id)
+    Thread.new do
+      ActiveRecord::Base.connection_pool.with_connection do
+        work = Hyrax.query_service.find_by(id: work_id)
+        work.member_of_collection_ids += [collection_id]
+        work.member_ids += [added_member_id]
+        Hyrax.persister.save(resource: work)
+      end
+    end.join
+  end
+
+  before { DatabaseCleaner.clean }
+
+  after do
+    records.each { |record| Hyrax.persister.delete(resource: record) }
+    DatabaseCleaner.start
+  end
+
+  it 'keeps the membership and the member that worker added' do
+    file_set_id = Valkyrie::ID.new(SecureRandom.uuid)
+    thumbnail = persist(Hyrax::FileMetadata.new(pcdm_use: [Hyrax::FileMetadata::Use::THUMBNAIL_IMAGE], file_set_id:))
+    file_set = persist(Hyrax::FileSet.new(id: file_set_id, file_ids: [thumbnail.id]))
+    added = persist(Hyrax::FileSet.new)
+    work = persist(Hyrax::Work.new(member_ids: [file_set.id]))
+    job.instance_variable_set(:@parent_record_members_added, true)
+    allow(Bulkrax::PendingRelationship).to receive(:where).and_return(Bulkrax::PendingRelationship.none)
+    allow(Bulkrax.object_factory).to receive(:save!)
+    allow(Bulkrax.object_factory).to receive(:publish)
+    allow(Bulkrax.object_factory).to receive(:update_index)
+    allow(Bulkrax.object_factory).to receive(:update_index_for_file_sets_of)
+    locks = 0
+    allow(job).to receive(:conditionally_acquire_lock_for) do |&block|
+      save_from_another_worker(work.id, added.id) if (locks += 1) == 2
+      block.call
+    end
+
+    ActiveRecord::Base.cache { job.send(:process_parent_as_work, parent_record: work, parent_identifier: work.id.to_s) }
+
+    reloaded = Hyrax.query_service.find_by(id: work.id)
+    expect(reloaded.member_of_collection_ids).to eq [collection_id]
+    expect(reloaded.member_ids).to eq [file_set.id, added.id]
+    expect(reloaded.thumbnail_id).to eq file_set.id
+  end
+end
