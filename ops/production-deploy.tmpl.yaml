@@ -270,6 +270,11 @@ worker:
       memory: "3Gi"
       cpu: "100m"
   replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 300
   extraVolumeMounts: *volMounts
   extraEnvVars: *envVars
   affinity:
@@ -291,6 +296,60 @@ podSecurityContext:
   runAsGroup: 101
   fsGroup: 101
   fsGroupChangePolicy: "OnRootMismatch"
+
+# Chart 4.1.0 has v2 HPAs for web and worker; FITS has none, so its HPA is in extraDeploy below.
+# Utilization is % of the CPU request (web 250m, worker 100m): 200% = 500m avg, 300% = 300m avg.
+# The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
+# resets them to worker.replicaCount / 1 until the HPA corrects it.
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 200
+
+extraDeploy:
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: '{{ include "hyrax.fits.fullname" . }}'
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: '{{ include "hyrax.fits.fullname" . }}'
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: AverageValue
+              averageValue: 500m
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 600
+  # cluster-autoscaler honours PDBs when draining a node.
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}'
+    spec:
+      maxUnavailable: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: hyrax
+          app.kubernetes.io/instance: '{{ .Release.Name }}'
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-worker'
+    spec:
+      maxUnavailable: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: hyrax-worker
+          app.kubernetes.io/instance: '{{ .Release.Name }}'
 
 embargoRelease:
   enabled: false
