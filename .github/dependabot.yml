@@ -3,16 +3,20 @@ updates:
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      # A fixed calendar time. A "weekly" interval runs at a random time and can skip a Monday
+      # when the config changed mid-week (2026-10-12).
+      interval: "cron"
+      cronjob: "0 6 * * 1" # Mondays 6am Pacific
       timezone: "America/Los_Angeles"
     labels:
       - "dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      # A fixed calendar time. A "weekly" interval runs at a random time and can skip a Monday
+      # when the config changed mid-week (2026-10-12).
+      interval: "cron"
+      cronjob: "0 6 * * 1" # Mondays 6am Pacific
       timezone: "America/Los_Angeles"
     labels:
       - "dependencies"
