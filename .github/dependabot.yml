@@ -2,6 +2,9 @@ version: 2
 updates:
   - package-ecosystem: "gitsubmodule"
     directory: "/"
+    # Paused 2026-10-13: Hyku bumps should come from Hyku `production`, not `main`, per the
+    # agreed flow. Remove this line once the team settles how bumps work.
+    open-pull-requests-limit: 0
     schedule:
       # A fixed calendar time. A "weekly" interval runs at a random time and can skip a Monday
       # when the config changed mid-week (2026-10-12).
