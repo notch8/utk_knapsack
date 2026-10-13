@@ -15,7 +15,7 @@ jobs:
   auto-merger:
     runs-on: ubuntu-latest
     steps:
-      - uses: notch8/actions/auto-merger@v1.0.13
+      - uses: notch8/actions/auto-merger@v1.0.14
         with:
           app-id: ${{ secrets.AUTO_MERGER_APP_ID }}
           private-key: ${{ secrets.AUTO_MERGER_APP_PRIVATE_KEY }}
