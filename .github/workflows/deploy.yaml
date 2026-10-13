@@ -26,7 +26,7 @@ jobs:
     concurrency:
       group: deploy-${{ inputs.environment }}
       cancel-in-progress: false
-    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.14
     secrets: inherit
     with:
       environment: ${{ inputs.environment }}
