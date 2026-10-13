@@ -42,6 +42,8 @@ Rails.application.config.after_initialize do
 end
 
 Rails.application.config.to_prepare do
+  Hyrax.config.iiif_av_viewer = :clover
+
   # Answers for the remote authorities UtkUriLabelIndexing writes labels for, so the
   # catalog reads those label fields instead of rendering the stored URI.
   Hyrax.config.controlled_vocabulary_label_service = Utk::ControlledVocabularyLabelService.new
