@@ -80,7 +80,7 @@ module Bulkrax
     end
 
     def intermediate_file?(member)
-      HykuKnapsack::IntermediateFile.match?(member.try(:rdf_type))
+      HykuKnapsack::PcdmUse.intermediate_file?(member.try(:rdf_type))
     end
   end
 end
