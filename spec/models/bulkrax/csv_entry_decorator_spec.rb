@@ -53,6 +53,15 @@ RSpec.describe Bulkrax::CsvEntryDecorator do
       expect { entry.build_metadata }.not_to raise_error
     end
 
+    it 'maps file_language onto language' do
+      entry = entry_for(Bulkrax::CsvFileSetEntry, 'id' => file_set.id.to_s, 'model' => 'Hyrax::FileSet',
+                                                  'file_language' => 'en')
+
+      entry.build_metadata
+
+      expect(entry.parsed_metadata).to include('language' => ['en'])
+    end
+
     it 'still checks a file the row does give' do
       entry = entry_for(Bulkrax::CsvFileSetEntry, 'id' => file_set.id.to_s, 'model' => 'Hyrax::FileSet',
                                                   'file' => 'missing.jpg')
