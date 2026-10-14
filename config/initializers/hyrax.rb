@@ -43,6 +43,7 @@ end
 
 Rails.application.config.to_prepare do
   Hyrax.config.iiif_av_viewer = :clover
+  Hyku::ListenerSubscription.replace(HykuKnapsack::AvTranscriptsListener.new)
 
   # Answers for the remote authorities UtkUriLabelIndexing writes labels for, so the
   # catalog reads those label fields instead of rendering the stored URI.
