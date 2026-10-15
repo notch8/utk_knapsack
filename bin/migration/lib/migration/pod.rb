@@ -3,6 +3,10 @@
 module Migration
   class Pod
     SCRIPTS = File.join(__dir__, 'pod')
+    TIMEOUT = Integer(ENV.fetch('POD_TIMEOUT', 1800))
+    ATTEMPTS = 2
+
+    class Hung < Stop; end
 
     class << self
       def legacy
@@ -24,7 +28,7 @@ module Migration
       code = Base64.strict_encode64(File.read(File.join(SCRIPTS, "#{script}.rb")))
       path = "/tmp/migration-#{script}-#{Process.pid}.rb"
       command = "#{cd}echo #{code} | base64 -d > #{path}; #{ruby} #{path} #{args.shelljoin}; s=$?; rm -f #{path}; exit $s"
-      return Open3.capture3(*prefix, 'bash', '-lc', command, stdin_data: stdin, chdir: ROOT) unless block
+      return capture(script, command, stdin) unless block
 
       Open3.popen2e(*prefix, 'bash', '-lc', command, chdir: ROOT) do |input, output, wait|
         input.write(stdin)
@@ -35,6 +39,38 @@ module Migration
     end
 
     private
+
+    def capture(script, command, stdin, attempt = 1)
+      Open3.popen3(*prefix, 'bash', '-lc', command, chdir: ROOT) do |input, output, error, wait|
+        feed(input, stdin)
+        out = Thread.new { output.read }
+        err = Thread.new { error.read }
+        return [out.value, err.value, wait.value] if wait.join(TIMEOUT)
+
+        kill(wait.pid)
+        [wait, out, err].each(&:join)
+        raise Hung, "#{script} on #{self} ran past #{TIMEOUT}s, #{attempt} times" if attempt == ATTEMPTS
+
+        warn "#{script} on #{self} ran past #{TIMEOUT}s, retrying"
+      end
+      capture(script, command, stdin, attempt + 1)
+    end
+
+    def kill(pid)
+      Process.kill('KILL', pid)
+    rescue Errno::ESRCH
+      nil
+    end
+
+    def feed(input, stdin)
+      Thread.new do
+        input.write(stdin)
+      rescue Errno::EPIPE, IOError
+        nil
+      ensure
+        input.close unless input.closed?
+      end
+    end
 
     def prefix
       ['kubectl', '--context', @context, '-n', @namespace, 'exec', '-i', @deployment, '-c', @container, '--']

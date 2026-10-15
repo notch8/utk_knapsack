@@ -170,3 +170,4 @@ bin/migration/
 | `DST_BUCKET`, `DERIVATIVES_BUCKET`, `DST_POD`, `DST_ROOT`, `DEST_CONTEXT` | from the destination preset | where things go |
 | `AWS_REGION` | `us-east-2` | the destination buckets |
 | `THREADS`, `BATCH` | `8`; `50` to stage, `200` to fill | copy threads, files per derivative batch |
+| `POD_TIMEOUT` | `1800` | seconds before a hung `kubectl exec` (lookup, stage, fill) is killed and tried once more; at most `1800`, since the retry reuses URLs signed for an hour |
