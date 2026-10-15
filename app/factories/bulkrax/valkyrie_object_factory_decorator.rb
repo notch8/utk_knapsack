@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Bulkrax
-  # OVERRIDE Bulkrax 9.5.1: `add_child_to_parent_work` returns `true` rather
+  # OVERRIDE Bulkrax 10.0.0: `add_child_to_parent_work` returns `true` rather
   # than the parent when the child is already a member, and
   # {Bulkrax::CreateRelationshipsJob} hands that return value back as a
   # resource. Any relationship pass that revisits an existing membership then

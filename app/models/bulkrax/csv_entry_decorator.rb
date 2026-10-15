@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 9.5.1: a row that resolves to an existing record changes
+# OVERRIDE Bulkrax 10.0.0: a row that resolves to an existing record changes
 # only the columns it gives. Skip the create-time checks (title, file, parent)
 # and the importer defaults (visibility, admin set, rights statement,
 # collection type) that would otherwise overwrite what the record already has.

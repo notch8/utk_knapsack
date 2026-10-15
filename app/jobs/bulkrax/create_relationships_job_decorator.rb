@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 9.5.1: after the relationship pass assembles a work's
+# OVERRIDE Bulkrax 10.0.0: after the relationship pass assembles a work's
 # member_ids, rewrite them in sequence order and set representative_id /
 # thumbnail_id to the member the legacy app would have shown. The migration
 # factory bypasses the transaction that normally does this. Then reindex the

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 9.5.1: Bulkrax fills a missing title with [], which on an
+# OVERRIDE Bulkrax 10.0.0: Bulkrax fills a missing title with [], which on an
 # update blanks the record's title and fails validation for a sheet that has
 # no title column. Leave it out so the record keeps the title it has.
 module Bulkrax
