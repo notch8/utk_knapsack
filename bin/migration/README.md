@@ -35,6 +35,9 @@ It stops at the first failure, including any stop line in the transform's report
 identifiers, missing required properties, file sets with no digest, unknown role columns, values
 off their local vocabulary.  A real run on prod asks you to type `prod` instead of `y`.
 
+Every unmatched identifier is written to `tmp/migration/out/<sheet>-unmatched.txt`, empty when there are
+none; the stop line names only the first five.
+
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
 **`--members N`** adds `-membersN` to that name and keeps each work's first N pages by `sequence`,

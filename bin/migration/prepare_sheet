@@ -73,7 +73,9 @@ module Migration
     out.each_line { |line| JSON.parse(line).then { |doc| Array(doc['bulkrax_identifier_tesim']).each { |id| lookup[id] ||= doc } } }
     unmatched = sheet.identifiers - lookup.keys
     warn "DONE #{lookup.size} matched of #{sheet.identifiers.size} identifiers (#{unmatched.size} unmatched)"
-    raise Stop, "unmatched: #{unmatched.first(5).inspect}" if unmatched.any? && !options[:skip_missing]
+    unmatched_path = "tmp/migration/out/#{name}-unmatched.txt"
+    File.write(File.join(ROOT, unmatched_path), unmatched.map { |id| "#{id}\n" }.join)
+    raise Stop, "unmatched: #{unmatched.first(5).inspect}, all #{unmatched.size} in #{unmatched_path}" if unmatched.any? && !options[:skip_missing]
   end
 
   report.step("2. transform -> #{import_path}") do
