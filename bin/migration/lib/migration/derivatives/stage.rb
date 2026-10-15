@@ -7,6 +7,7 @@ module Migration
 
       def call(ids, legacy)
         @without = []
+        @failed_paths = []
         ids.each_slice(Integer(ENV.fetch('BATCH', 50))) do |slice|
           files = list(slice, legacy)
           @without.concat(slice.reject { |id| files.any? { |path, _| path.start_with?("#{Migration.pairtree(id)}-") } })
@@ -24,6 +25,17 @@ module Migration
         ids = without.to_set
         models = rows.to_h { |row| [row['source_identifier'], row['model']] }
         rows.select { |row| ids.include?(row['id']) && expected?(row, models[row['parents']]) }
+      end
+
+      def unregenerated_failures(rows)
+        models = rows.to_h { |row| [row['source_identifier'], row['model']] }
+        prefixes = rows.select { |row| row['model'] == 'FileSet' && expected?(row, models[row['parents']]) }
+                       .map { |row| "#{Migration.pairtree(row['id'])}-" }
+        @failed_paths.reject do |path|
+          prefix = prefixes.find { |candidate| path.start_with?(candidate) }
+          thumbnail = prefix && @failed_paths.find { |failed| failed.start_with?("#{prefix}thumbnail.") }
+          thumbnail && !present?(thumbnail)
+        end
       end
 
       private
@@ -52,6 +64,7 @@ module Migration
         files.each do |path, size|
           next record(path, size) if staged?(path, size)
 
+          @failed_paths << path
           @failures << "#{path}: #{out[/^(\S+)\t#{Regexp.escape(path)}$/, 1] || 'no response'}"
           @report.item('FAILED', @failures.last)
         end
@@ -64,6 +77,13 @@ module Migration
 
       def staged?(path, size)
         @s3.head_object(bucket:, key: "#{PREFIX}/#{path}").content_length == size
+      rescue Aws::S3::Errors::NotFound
+        false
+      end
+
+      def present?(path)
+        @s3.head_object(bucket:, key: "#{PREFIX}/#{path}")
+        true
       rescue Aws::S3::Errors::NotFound
         false
       end

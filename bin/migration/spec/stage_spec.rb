@@ -38,4 +38,43 @@ RSpec.describe Migration::Derivatives::Stage do
     expect { stage.call(ids, legacy) }.to output.to_stderr
     expect(stage.missing(rows).map { |row| row['source_identifier'] }).to eq(%w[pdf_without page_without])
   end
+
+  context 'when an upload fails' do
+    subject(:stage) { described_class.new(Migration::Target.for(nil), report, dry_run: false) }
+
+    let(:thumbnail) { "#{Migration.pairtree('aa-with')}-thumbnail.jpeg" }
+    let(:text) { "#{Migration.pairtree('aa-with')}-txt.txt" }
+    let(:original) { "#{Migration.pairtree('dd-without')}-thumbnail.jpeg" }
+    let(:sizes) { { thumbnail => 100, text => 200, original => 300 } }
+    let(:listing) { sizes.map { |path, size| "#{size}\t#{path}\n" }.join }
+
+    def fail_uploads(*paths, stale: [])
+      Aws.config[:s3] = { stub_responses: { head_object: lambda { |context|
+        key = context.params[:key]
+        next 'NotFound' if paths.any? { |path| key.end_with?(path) }
+
+        { content_length: stale.any? { |path| key.end_with?(path) } ? 1 : sizes.find { |path, _| key.end_with?(path) }.last }
+      } } }
+    end
+
+    after { Aws.config.delete(:s3) }
+
+    it 'waives a file set the import regenerates once its thumbnail is missing' do
+      fail_uploads(thumbnail, text, original)
+      expect { stage.call(ids, legacy) }.to output.to_stderr
+      expect(stage.unregenerated_failures(rows)).to eq([original])
+    end
+
+    it 'keeps every failure on a file set whose failed thumbnail left a stale copy in S3' do
+      fail_uploads(text, original, stale: [thumbnail])
+      expect { stage.call(ids, legacy) }.to output.to_stderr
+      expect(stage.unregenerated_failures(rows)).to eq([thumbnail, text, original])
+    end
+
+    it 'keeps a failure on a file set whose thumbnail staged, since the import skips it' do
+      fail_uploads(text)
+      expect { stage.call(ids, legacy) }.to output.to_stderr
+      expect(stage.unregenerated_failures(rows)).to eq([text])
+    end
+  end
 end

@@ -101,7 +101,11 @@ module Migration
     cname, = legacy.run('lookup', 'cname', tenant)
     expected = ENV.fetch('UTK_CNAME', 'digitalcollections.lib.utk.edu')
     raise Stop, "#{legacy} does not answer as #{expected}" unless cname.strip == expected
-    raise Stop unless stage.call(file_set_ids, legacy)
+    unless stage.call(file_set_ids, legacy)
+      raise Stop if stage.unregenerated_failures(result.rows).any?
+
+      warn 'Every failed derivative belongs to a file set left without a thumbnail, which the import regenerates; continuing'
+    end
 
     missing = stage.missing(result.rows)
     report.failures(missing.map { |row| "#{row['source_identifier']} (#{row['id']})" },

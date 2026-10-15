@@ -36,7 +36,9 @@ identifiers, missing required properties, file sets with no digest, unknown role
 off their local vocabulary.  A real run on prod asks you to type `prod` instead of `y`.
 
 Every unmatched identifier is written to `tmp/migration/out/<sheet>-unmatched.txt`, empty when there are
-none; the stop line names only the first five.
+none; the stop line names only the first five.  A derivative that fails to stage stops the run, unless its file set is a
+PDF or an intermediate file whose thumbnail also failed: the import regenerates every derivative of a
+file set like that, since it arrives with no thumbnail.
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
