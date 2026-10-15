@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Bulkrax::ApplicationMatcherDecorator do
+RSpec.describe Bulkrax::ApplicationMatcher do
   subject(:matcher) { Bulkrax::ApplicationMatcher.new(to: 'subject', parsed: true, split: nil, if: nil, excluded: false, nested_type: nil) }
 
   describe '#parse_subject' do
