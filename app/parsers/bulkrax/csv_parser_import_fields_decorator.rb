@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 9.5.1: read the column names from the first row instead of
+# OVERRIDE Bulkrax 10.0.0: read the column names from the first row instead of
 # parsing and merging every row. Importer#mapping asks for them in every
 # ImportWorkJob, so the whole sheet was read once per record.
 module Bulkrax

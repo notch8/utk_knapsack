@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 9.5.1: keep waiting for a parent work whose entry is still
+# OVERRIDE Bulkrax 10.0.0: keep waiting for a parent work whose entry is still
 # Pending instead of failing the file set after five tries. A deep work queue
 # can hold the parent back for hours; stop a day into the run.
 module Bulkrax
