@@ -77,4 +77,39 @@ RSpec.describe Migration::Derivatives::Stage do
       expect(stage.unregenerated_failures(rows)).to eq([text])
     end
   end
+
+  context 'with a progress file' do
+    subject(:stage) { described_class.new(Migration::Target.for(nil), report, dry_run: false) }
+
+    let(:progress) { instance_double(Migration::Progress, cursor: 2, advance!: nil) }
+    let(:legacy) { double('legacy') }
+
+    before { stub_const('ENV', ENV.to_h.merge('BATCH' => '1')) }
+
+    it 'resumes after the file sets an earlier run finished and moves the cursor batch by batch' do
+      allow(legacy).to receive(:run).and_return(['', '', instance_double(Process::Status, success?: true)])
+      expect { stage.call(ids, legacy, progress) }.to output.to_stderr
+
+      expect(legacy).to have_received(:run).with('list', stdin: "#{Migration.pairtree(ids[2])}\n")
+      expect(legacy).to have_received(:run).exactly(ids.size - 2).times
+      expect(progress).to have_received(:advance!).with('stage', 1).exactly(ids.size - 2).times
+    end
+
+    it 'stops moving the cursor once a batch fails, so a rerun retries it' do
+      first_id = ids[2]
+      listing = "10\t#{Migration.pairtree(first_id)}-thumbnail.jpeg\n"
+      allow(legacy).to receive(:run) do |script, stdin:|
+        [script == 'list' && stdin.start_with?(Migration.pairtree(first_id)) ? listing : '', '',
+         instance_double(Process::Status, success?: true)]
+      end
+      Aws.config[:s3] = { stub_responses: { head_object: 'NotFound' } }
+      begin
+        expect { stage.call(ids, legacy, progress) }.to output.to_stderr
+      ensure
+        Aws.config.delete(:s3)
+      end
+
+      expect(progress).not_to have_received(:advance!)
+    end
+  end
 end

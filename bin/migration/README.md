@@ -29,6 +29,7 @@ derivatives, and prints the file to import.  Import it with `import_sheet` (belo
 | `--members N` | each work keeps only its first N members (file sets, or child works with theirs), by `sequence`, unsequenced last |
 | `--dry-run` | report what would happen; copy nothing |
 | `--skip-missing` | set aside rows legacy cannot supply instead of stopping |
+| `--recheck` | ignore the progress file and check every original and derivative again |
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
 
 It stops at the first failure, including any stop line in the transform's report: unmatched
@@ -39,6 +40,11 @@ Every unmatched identifier is written to `tmp/migration/out/<sheet>-unmatched.tx
 none; the stop line names only the first five.  A derivative that fails to stage stops the run, unless its file set is a
 PDF or an intermediate file whose thumbnail also failed: the import regenerates every derivative of a
 file set like that, since it arrives with no thumbnail.
+
+A rerun resumes: `tmp/migration/out/<sheet>-progress.json` records which of steps 3 to 5 finished and,
+within staging and filling, how many file sets are done, so it skips them instead of checking each
+one again.  It applies only while the transformed sheet is unchanged; delete it or pass `--recheck`
+to check everything.  A batch with a failure stops the count, so the rerun retries from there.
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.

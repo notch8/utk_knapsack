@@ -82,10 +82,18 @@ module Migration
     write_result.call(Transform.new(sheet, lookup, skip_missing: options[:skip_missing]).call)
   end
 
+  progress = Progress.new(File.join(ROOT, "tmp/migration/out/#{name}-progress.json"), target,
+                          read: !options[:dry_run] && !options[:recheck], write: !options[:dry_run])
+  progress.key!('originals', result.rows)
+
   originals = Originals.new(target, report, dry_run: options[:dry_run])
   report.step("3. copy originals: #{Originals::SRC} -> s3://#{target.bucket}") do
-    raise Stop unless originals.copy(result.rows)
-    raise Stop if originals.missing.any? && !options[:skip_missing]
+    progress.run('originals') do
+      raise Stop unless originals.copy(result.rows)
+      raise Stop if originals.missing.any? && !options[:skip_missing]
+
+      originals.missing.empty?
+    end
   end
 
   if originals.missing.any?
@@ -95,25 +103,23 @@ module Migration
   end
 
   file_set_ids = result.rows.select { |row| row['model'] == 'FileSet' }.map { |row| row['id'] }
+  %w[stage fill].each { |step| progress.key!(step, file_set_ids) }
   stage = Derivatives::Stage.new(target, report, dry_run: options[:dry_run])
   missing = []
   report.step("4. stage derivatives: legacy EFS -> s3://#{target.derivatives_bucket}/#{PREFIX}") do
     cname, = legacy.run('lookup', 'cname', tenant)
     expected = ENV.fetch('UTK_CNAME', 'digitalcollections.lib.utk.edu')
     raise Stop, "#{legacy} does not answer as #{expected}" unless cname.strip == expected
-    unless stage.call(file_set_ids, legacy)
-      raise Stop if stage.unregenerated_failures(result.rows).any?
-
-      warn 'Every failed derivative belongs to a file set left without a thumbnail, which the import regenerates; continuing'
+    progress.run('stage') do
+      stage.call(file_set_ids, legacy, progress) || stage.waive!(result.rows)
+      missing = stage.missing(result.rows)
+      report.failures(missing.map { |row| "#{row['source_identifier']} (#{row['id']})" },
+                      'file sets legacy should have made derivatives for and did not; the import generates them')
     end
-
-    missing = stage.missing(result.rows)
-    report.failures(missing.map { |row| "#{row['source_identifier']} (#{row['id']})" },
-                    'file sets legacy should have made derivatives for and did not; the import generates them')
   end
 
   report.step("5. fill derivatives: s3://#{target.derivatives_bucket}/#{PREFIX} -> #{target.fill_destination}") do
-    raise Stop unless Derivatives::Fill.new(target, report, dry_run: options[:dry_run]).call(file_set_ids)
+    progress.run('fill') { Derivatives::Fill.new(target, report, dry_run: options[:dry_run]).call(file_set_ids, progress) || raise(Stop) }
   end
 
   puts

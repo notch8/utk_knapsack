@@ -5,7 +5,7 @@ require 'optparse'
 module Migration
   class Options
     BANNER = 'usage: bin/migration/prepare_sheet tmp/migration/sheets/<name>.csv ' \
-             '[--profile NAME] [--dev|--staging|--prod] [--limit N] [--members N] [--dry-run] [--skip-missing] [--yes]'
+             '[--profile NAME] [--dev|--staging|--prod] [--limit N] [--members N] [--dry-run] [--skip-missing] [--recheck] [--yes]'
     TARGETS = { 'dev' => 'dev', 'staging' => 'staging', 'prod' => 'production' }.freeze
 
     class << self
@@ -30,6 +30,7 @@ module Migration
           end
           o.on('--dry-run') { options[:dry_run] = true }
           o.on('--skip-missing') { options[:skip_missing] = true }
+          o.on('--recheck', 'ignore the progress file and check every item again') { options[:recheck] = true }
           o.on('-y', '--yes', 'skip the confirmation prompt') { options[:yes] = true }
           o.on('--profile NAME', 'AWS profile, as with the aws CLI') { |name| ENV['AWS_PROFILE'] = name }
         end

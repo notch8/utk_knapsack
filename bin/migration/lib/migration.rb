@@ -2,6 +2,7 @@
 
 require 'base64'
 require 'csv'
+require 'digest'
 require 'fileutils'
 require 'json'
 require 'open3'
@@ -25,6 +26,7 @@ end
 
 require_relative 'migration/options'
 require_relative 'migration/report'
+require_relative 'migration/progress'
 require_relative 'migration/confirmation'
 require_relative 'migration/target'
 require_relative 'migration/pod'
