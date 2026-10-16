@@ -14,13 +14,18 @@ $stdin.each_line do |line|
 
   FileUtils.mkdir_p(File.dirname(target))
   uri = URI(url)
-  Net::HTTP.start(uri.host, uri.port, use_ssl: true, read_timeout: 600) do |http|
-    http.request(Net::HTTP::Get.new(uri)) do |response|
-      next puts("failed #{response.code}\t#{path}") unless response.code == '200'
+  begin
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true, read_timeout: 600) do |http|
+      http.request(Net::HTTP::Get.new(uri)) do |response|
+        next puts("failed #{response.code}\t#{path}") unless response.code == '200'
 
-      File.open("#{target}.part", 'wb') { |file| response.read_body { |chunk| file.write(chunk) } }
-      File.rename("#{target}.part", target)
-      puts "filled\t#{path}"
+        File.open("#{target}.part", 'wb') { |file| response.read_body { |chunk| file.write(chunk) } }
+        File.rename("#{target}.part", target)
+        puts "filled\t#{path}"
+      end
     end
+  rescue StandardError => e
+    FileUtils.rm_f("#{target}.part")
+    puts "failed #{e.class}\t#{path}"
   end
 end

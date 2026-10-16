@@ -5,16 +5,26 @@ module Migration
     class Fill < Base
       LABELS = { 'filled' => 'filled', 'present' => 'exists', 'pending' => 'would fill' }.freeze
 
-      def call(ids)
-        objects = ids.flat_map { |id| @s3.list_objects_v2(bucket:, prefix: "#{PREFIX}/#{Migration.pairtree(id)}-").contents }
-        without = ids.count { |id| objects.none? { |o| o.key.start_with?("#{PREFIX}/#{Migration.pairtree(id)}-") } }
-        @target.pod ? from_pod(objects) : locally(objects)
+      def call(ids, progress = nil)
+        without = 0
+        resumed = progress&.cursor('fill').to_i
+        warn "resuming after #{resumed} file sets done in an earlier run; the counts below cover this run" if resumed.positive?
+        ids.drop(resumed).each_slice(Integer(ENV.fetch('BATCH', 200))) do |chunk|
+          without += fill_chunk(chunk)
+          progress&.advance!('fill', chunk.size) if @failures.empty?
+        end
         summarize(format('DONE %d filled, %d already present, %d failed, %d file sets with nothing staged',
                          @tally['filled'], @tally['present'], @failures.size, without),
                   "dry run: #{@tally['pending']} files would be filled into #{@target.fill_destination}")
       end
 
       private
+
+      def fill_chunk(ids)
+        objects = ids.flat_map { |id| @s3.list_objects_v2(bucket:, prefix: "#{PREFIX}/#{Migration.pairtree(id)}-").contents }
+        @target.pod ? from_pod(objects) : locally(objects)
+        ids.count { |id| objects.none? { |o| o.key.start_with?("#{PREFIX}/#{Migration.pairtree(id)}-") } }
+      end
 
       def relative(object)
         object.key.delete_prefix("#{PREFIX}/")

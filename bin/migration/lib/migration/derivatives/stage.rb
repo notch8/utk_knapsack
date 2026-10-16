@@ -5,15 +5,14 @@ module Migration
     class Stage < Base
       attr_reader :without
 
-      def call(ids, legacy)
+      def call(ids, legacy, progress = nil)
         @without = []
-        ids.each_slice(Integer(ENV.fetch('BATCH', 50))) do |slice|
-          files = list(slice, legacy)
-          @without.concat(slice.reject { |id| files.any? { |path, _| path.start_with?("#{Migration.pairtree(id)}-") } })
-          present, todo = files.partition { |path, size| staged?(path, size) }
-          present.each { |path, size| @report.item('exists', path, size) }
-          @tally[:present] += present.size
-          @dry_run ? plan(todo) : upload(todo, legacy)
+        @failed_paths = []
+        resumed = progress&.cursor('stage').to_i
+        warn "resuming after #{resumed} file sets done in an earlier run; the counts below cover this run" if resumed.positive?
+        ids.drop(resumed).each_slice(Integer(ENV.fetch('BATCH', 50))) do |slice|
+          stage_slice(slice, legacy)
+          progress&.advance!('stage', slice.size) if @failures.empty?
         end
         summarize(format('DONE %d staged, %d already staged, %d failed, %d file sets with no derivatives',
                          @tally[:staged], @tally[:present], @failures.size, @without.size),
@@ -26,7 +25,33 @@ module Migration
         rows.select { |row| ids.include?(row['id']) && expected?(row, models[row['parents']]) }
       end
 
+      def waive!(rows)
+        raise Stop if unregenerated_failures(rows).any?
+
+        warn 'Every failed derivative belongs to a file set left without a thumbnail, which the import regenerates; continuing'
+      end
+
+      def unregenerated_failures(rows)
+        models = rows.to_h { |row| [row['source_identifier'], row['model']] }
+        prefixes = rows.select { |row| row['model'] == 'FileSet' && expected?(row, models[row['parents']]) }
+                       .map { |row| "#{Migration.pairtree(row['id'])}-" }
+        @failed_paths.reject do |path|
+          prefix = prefixes.find { |candidate| path.start_with?(candidate) }
+          thumbnail = prefix && @failed_paths.find { |failed| failed.start_with?("#{prefix}thumbnail.") }
+          thumbnail && !present?(thumbnail)
+        end
+      end
+
       private
+
+      def stage_slice(slice, legacy)
+        files = list(slice, legacy)
+        @without.concat(slice.reject { |id| files.any? { |path, _| path.start_with?("#{Migration.pairtree(id)}-") } })
+        present, todo = files.partition { |path, size| staged?(path, size) }
+        present.each { |path, size| @report.item('exists', path, size) }
+        @tally[:present] += present.size
+        @dry_run ? plan(todo) : upload(todo, legacy)
+      end
 
       def expected?(row, parent_model)
         parent_model == 'Pdf' ||
@@ -52,6 +77,7 @@ module Migration
         files.each do |path, size|
           next record(path, size) if staged?(path, size)
 
+          @failed_paths << path
           @failures << "#{path}: #{out[/^(\S+)\t#{Regexp.escape(path)}$/, 1] || 'no response'}"
           @report.item('FAILED', @failures.last)
         end
@@ -64,6 +90,13 @@ module Migration
 
       def staged?(path, size)
         @s3.head_object(bucket:, key: "#{PREFIX}/#{path}").content_length == size
+      rescue Aws::S3::Errors::NotFound
+        false
+      end
+
+      def present?(path)
+        @s3.head_object(bucket:, key: "#{PREFIX}/#{path}")
+        true
       rescue Aws::S3::Errors::NotFound
         false
       end
