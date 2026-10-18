@@ -5,19 +5,22 @@ module Migration
     SCRIPTS = File.join(__dir__, 'pod')
     TIMEOUT = Integer(ENV.fetch('POD_TIMEOUT', 1800))
     ATTEMPTS = 2
+    SLOTS = '/tmp/utk-migration-legacy-slots'
 
     class Hung < Stop; end
 
     class << self
       def legacy
         new([ENV.fetch('UTK_CONTEXT', 'r2-besties'), ENV.fetch('UTK_NAMESPACE', 'utk-hyku-production'),
-             ENV.fetch('UTK_DEPLOYMENT', 'deploy/utk-hyku-production-hyrax')].join('/'))
+             ENV.fetch('UTK_DEPLOYMENT', 'deploy/utk-hyku-production-hyrax')].join('/'),
+            slots: Integer(ENV.fetch('LEGACY_SLOTS', 2)))
       end
     end
 
-    def initialize(spec, container: ENV.fetch('UTK_CONTAINER', 'hyrax'))
+    def initialize(spec, container: ENV.fetch('UTK_CONTAINER', 'hyrax'), slots: nil)
       @context, @namespace, @deployment = spec.split('/', 3)
       @container = container
+      @slots = slots
     end
 
     def to_s
@@ -28,17 +31,37 @@ module Migration
       code = Base64.strict_encode64(File.read(File.join(SCRIPTS, "#{script}.rb")))
       path = "/tmp/migration-#{script}-#{Process.pid}.rb"
       command = "#{cd}echo #{code} | base64 -d > #{path}; #{ruby} #{path} #{args.shelljoin}; s=$?; rm -f #{path}; exit $s"
-      return capture(script, command, stdin) unless block
+      with_slot do
+        stdin = stdin.call if stdin.respond_to?(:call)
+        next capture(script, command, stdin) unless block
 
-      Open3.popen2e(*prefix, 'bash', '-lc', command, chdir: ROOT) do |input, output, wait|
-        input.write(stdin)
-        input.close
-        output.each_line(&block)
-        wait.value
+        Open3.popen2e(*prefix, 'bash', '-lc', command, chdir: ROOT) do |input, output, wait|
+          input.write(stdin)
+          input.close
+          output.each_line(&block)
+          wait.value
+        end
       end
     end
 
     private
+
+    def with_slot
+      return yield unless @slots
+
+      FileUtils.mkdir_p(SLOTS)
+      waited = false
+      loop do
+        @slots.times do |n|
+          File.open(File.join(SLOTS, n.to_s), File::RDWR | File::CREAT) do |lock|
+            return yield if lock.flock(File::LOCK_EX | File::LOCK_NB)
+          end
+        end
+        warn "waiting for a slot on #{self}, all #{@slots} in use" unless waited
+        waited = true
+        sleep 5
+      end
+    end
 
     def capture(script, command, stdin, attempt = 1)
       Open3.popen3(*prefix, 'bash', '-lc', command, chdir: ROOT) do |input, output, error, wait|

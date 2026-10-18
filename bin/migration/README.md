@@ -182,3 +182,4 @@ bin/migration/
 | `AWS_REGION` | `us-east-2` | the destination buckets |
 | `THREADS`, `BATCH` | `8`; `50` to stage, `200` to fill | copy threads, files per derivative batch |
 | `POD_TIMEOUT` | `1800` | seconds before a hung `kubectl exec` (lookup, stage, fill) is killed and tried once more; at most `1800`, since the retry reuses URLs signed for an hour |
+| `LEGACY_SLOTS` | `2` | `kubectl exec` calls into legacy at once, across every prepare on this machine; more waits for a slot, since 7 at once took legacy's web pods down |

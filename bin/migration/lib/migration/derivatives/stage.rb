@@ -73,7 +73,7 @@ module Migration
       def upload(files, legacy)
         return if files.empty?
 
-        out, = legacy.run('upload', stdin: files.map { |path, _| "#{presign(:put_object, "#{PREFIX}/#{path}")}\t#{path}\n" }.join)
+        out, = legacy.run('upload', stdin: -> { files.map { |path, _| "#{presign(:put_object, "#{PREFIX}/#{path}")}\t#{path}\n" }.join })
         files.each do |path, size|
           next record(path, size) if staged?(path, size)
 
