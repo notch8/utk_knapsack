@@ -7,8 +7,8 @@ RSpec.describe Hyku::Forms::Admin::AppearanceDecorator do
 
   let(:utk_colors) do
     {
-      link_color: '#4b4b4b',
-      link_hover_color: '#4b4b4b',
+      link_color: '#006c93',
+      link_hover_color: '#005c7d',
       primary_button_background_color: '#4b4b4b',
       primary_button_border_color: '#4b4b4b',
       primary_button_hover_color: '#4b4b4b',
@@ -41,13 +41,13 @@ RSpec.describe Hyku::Forms::Admin::AppearanceDecorator do
     expect(Hyku::Forms::Admin::Appearance.new.link_color).to eq('#123456')
   end
 
-  it "gives the Digital Collection theme UTK's message and visited link colors from the gray link" do
+  it "gives the Digital Collection theme UTK's message and visited link colors from the blue link" do
     helpers = ApplicationController.helpers
     link = form.link_color
 
-    expect(helpers.dc_darken_until(link, '#ffffff', 4.5)).to eq('#4b4b4b')
-    expect(helpers.dc_status_color(:success, link)).to eq('#3f6d40')
-    expect(helpers.dc_status_color(:danger, link)).to eq('#9f453f')
-    expect(helpers.dc_visited_color(link, helpers.dc_mix('#000000', '#ffffff', 0.92))).to eq('#4b4b4b')
+    expect(helpers.dc_darken_until(link, '#ffffff', 4.5)).to eq('#006c93')
+    expect(helpers.dc_status_color(:success, link)).to eq('#33754a')
+    expect(helpers.dc_status_color(:danger, link)).to eq('#904b4d')
+    expect(helpers.dc_visited_color(link, helpers.dc_mix('#000000', '#ffffff', 0.92))).to eq('#1d0093')
   end
 end
