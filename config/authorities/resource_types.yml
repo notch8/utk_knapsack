@@ -8,6 +8,9 @@ terms:
   - id: http://id.loc.gov/vocabulary/resourceTypes/aud
     term: Audio
     active: true
+  - id: http://id.loc.gov/vocabulary/resourceTypes/aun
+    term: Audio non-musical
+    active: true
   - id: http://id.loc.gov/vocabulary/resourceTypes/car
     term: Cartographic
     active: true
