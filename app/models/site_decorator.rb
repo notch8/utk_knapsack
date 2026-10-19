@@ -10,3 +10,7 @@ module SiteDecorator
 end
 
 Site.singleton_class.prepend(SiteDecorator)
+
+# OVERRIDE Hyku: a new UTK site starts on the Digital Collection home and show themes
+Site.attribute :home_theme, :string, default: 'digital_collection'
+Site.attribute :show_theme, :string, default: 'digital_collection_show'
