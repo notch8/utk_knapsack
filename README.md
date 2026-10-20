@@ -204,6 +204,10 @@ named for the latter never matches. Either recreate the containers so the labels
 or name the tenant to match what is routed. A styled Rails 404 means Traefik routed and no account
 matched the host; a plain-text `404 page not found` is Traefik's own and means no route at all.
 
+Plain `docker compose up` routes the wrong hostnames: with no `APP_NAME` in the shell it reads
+`APP_NAME=hyku` from Hyku's `.env`, so the labels match `*-hyku.localhost.direct` and every UTK
+hostname gets Traefik's 404. Use `sc up`, or `APP_NAME=utk-knapsack docker compose up -d`.
+
 ## Migrations
 
 `initialize_app` runs `bin/db-migrate-seed.sh` on `sc up`, which creates, migrates, and seeds the
