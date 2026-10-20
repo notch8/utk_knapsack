@@ -81,12 +81,12 @@ that does not match.  It asks before importing, and on prod asks you to type `pr
 | --- | --- |
 | `--dev`, `--staging`, `--prod` | destination, as above; none means local |
 | `--tenant CNAME` | required on staging and prod; local is `dev-utk-knapsack.localhost.direct`, dev is `demo.utk-knapsack-dev.notch8.cloud` |
-| `--visibility V` | what rows with a blank `visibility` get, as on the form; default `open` |
+| `--visibility V` | what work and collection rows with a blank `visibility` get, as on the form; default `open`. File set rows with none take their work's |
 | `--email E` | the importer's owner; default `admin@example.com` |
 | `--yes`, `-y` | skip the confirmation prompt |
 
 It needs a running worker and takes at least six minutes, since Bulkrax starts the relationship pass
-five minutes after the entries are queued.
+only once no entry is still Pending, first checking five minutes after the entries are queued.
 
 ## Setting up on a new machine
 

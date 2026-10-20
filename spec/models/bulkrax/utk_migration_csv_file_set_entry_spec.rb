@@ -78,10 +78,7 @@ RSpec.describe Bulkrax::UtkMigrationCsvFileSetEntry do
   end
 
   describe 'parent relationships' do
-    # Upstream suppresses these for file sets because the stock factory attaches
-    # them itself. This one does not, so without the pending relationship no file
-    # set is ever attached to its work.
-    it 'records a pending relationship per parent' do
+    it 'records a pending relationship per parent, since its factory never attaches the file set' do
       Bulkrax::ImporterRun.create!(importer:)
 
       expect { entry.parent_jobs }
