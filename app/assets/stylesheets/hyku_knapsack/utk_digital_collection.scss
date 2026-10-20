@@ -1,3 +1,6 @@
+@import 'themes/digital_collection/tokens';
+@import 'themes/digital_collection/primitives';
+
 // ---- UTK brand settings (Hyku: themes/digital_collection/_primitives.scss, _catalog.scss, _shell.scss, shared/_appearance_styles.html.erb) ----
 body.digital_collection,
 body.digital_collection_show {
@@ -38,5 +41,108 @@ body.digital_collection_show.public-facing {
 body.catalog-index.digital_collection.public-facing {
   .dc-toolbar {
     border-bottom-color: var(--dc-section-rule);
+  }
+}
+
+// ---- banner overlay (Hyku: digital_collection.scss .dc-hero-slides, digital_collection_show.scss .dc-collection-banner) ----
+@mixin utk-banner-overlay {
+  backdrop-filter: blur(2px);
+  background: rgba(75, 75, 75, 0.85);
+  content: '';
+  inset: 0;
+  position: absolute;
+}
+
+// ---- homepage hero (Hyku: digital_collection.scss, .dc-hero-plate, .dc-hero-headline, .dc-hero-stats, .dc-hero-caption) ----
+.digital_collection.hyrax-homepage {
+  .dc-hero .carousel-item::after {
+    @include utk-banner-overlay;
+    z-index: 1;
+  }
+
+  .dc-hero-plate,
+  .dc-hero-search .dc-search-advanced {
+    text-align: center;
+  }
+
+  .dc-hero-plate {
+    background: none;
+  }
+
+  .dc-hero-headline:not([role='heading']) p,
+  .dc-hero-caption-label {
+    color: #e6e6e6;
+  }
+
+  .dc-hero-headline[role='heading'] p {
+    color: $dc-overlay-heading;
+  }
+
+  .dc-hero-stats {
+    justify-content: center;
+  }
+}
+
+// ---- collection banner (Hyku: digital_collection_show.scss, .dc-collection-banner, .dc-collection-plate, .dc-collection-banner-plain) ----
+body.digital_collection_show.hyrax-collections-show {
+  .dc-collection-banner {
+    align-items: flex-end;
+    position: relative;
+
+    &::before {
+      @include utk-banner-overlay;
+      z-index: 1;
+    }
+  }
+
+  .dc-collection-banner-inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  .dc-collection-plate {
+    background: none;
+    padding: 0;
+  }
+
+  .dc-collection-meta {
+    color: #e6e6e6;
+  }
+
+  .dc-collection-banner-plain {
+    background: #4b4b4b;
+    min-height: $dc-height-banner;
+
+    @media (max-width: $dc-laptop-max) {
+      min-height: $dc-height-banner-laptop;
+    }
+
+    @media (max-width: $dc-tablet-max) {
+      min-height: $dc-height-banner-tablet;
+    }
+
+    @media (max-width: $dc-mobile-max) {
+      min-height: $dc-height-banner-mobile;
+    }
+
+    .dc-collection-plate,
+    .dc-collection-title,
+    .dc-collection-meta strong {
+      color: $dc-overlay-text;
+    }
+
+    .dc-collection-meta {
+      color: #e6e6e6;
+    }
+
+    .copy-permalink-button {
+      @include dc-button(small, $on: dark);
+    }
+
+    .dc-collection-search-form .form-control:focus-visible,
+    #collection_submit:focus-visible,
+    .dc-collection-logos a:focus-visible {
+      @include dc-focus-ring($on: dark);
+    }
   }
 }
