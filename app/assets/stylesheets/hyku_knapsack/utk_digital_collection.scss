@@ -1,15 +1,28 @@
-// ---- UTK brand settings (Hyku: themes/digital_collection/_primitives.scss, _shell.scss, shared/_appearance_styles.html.erb) ----
+// ---- UTK brand settings (Hyku: themes/digital_collection/_primitives.scss, _catalog.scss, _shell.scss, shared/_appearance_styles.html.erb) ----
 body.digital_collection,
 body.digital_collection_show {
   --dc-accent: #ff8200;
+  --dc-badge: #ffffff;
+  --dc-badge-case: none;
+  --dc-badge-edge: #ff8200;
+  --dc-badge-ink: #4b4b4b;
+  --dc-badge-tracking: normal;
+  --dc-chip: #ffffff;
+  --dc-chip-edge: #ff8200;
+  --dc-chip-remove: #e67500;
   --dc-cta-icon: #ff8200;
   --dc-cta-icon-hover: #e67500;
+  --dc-facet-rule: #ff8200;
+  --dc-facet-selected-icon: #e67500;
   --dc-focus-ring: #4b4b4b;
   --dc-ink-heading: #4b4b4b;
   --dc-label-case: none;
   --dc-label-tracking: normal;
   --dc-link-on-dark: #ffffff;
   --dc-section-rule: #ff8200;
+  --dc-selected: #4b4b4b;
+  --dc-selected-edge: #4b4b4b;
+  --dc-selected-ink: #ffffff;
 }
 
 // ---- current page and language in the masthead (Hyku: _shell.scss, .dc-masthead-nav and .dc-language-row links) ----
@@ -25,16 +38,5 @@ body.digital_collection_show.public-facing {
 body.catalog-index.digital_collection.public-facing {
   .dc-toolbar {
     border-bottom-color: var(--dc-section-rule);
-  }
-}
-
-// ---- hero search focus on the dark plate (Hyku: digital_collection.scss, .dc-hero-search via dc-search-form) ----
-.digital_collection.hyrax-homepage .dc-hero-search {
-  .q.form-control,
-  .btn,
-  .dropdown-toggle {
-    &:focus-visible {
-      outline-color: #ffffff;
-    }
   }
 }
