@@ -11,8 +11,8 @@ RSpec.describe Bulkrax::ValkyrieObjectFactoryFileSetDecorator do
                                                   has_work_type: ['StillImage']))
   end
 
-  def build_factory(title, files: 1)
-    attributes = { 'title' => [title], 'parents' => [work.id.to_s], 'file' => [fixture_path.to_s] * files }
+  def build_factory(title, visibility: nil, files: 1)
+    attributes = { 'title' => [title], 'parents' => [work.id.to_s], 'file' => [fixture_path.to_s] * files, 'visibility' => visibility }.compact
     Bulkrax::ValkyrieObjectFactory.new(attributes:,
                                        source_identifier_value: title,
                                        work_identifier: 'bulkrax_identifier',
@@ -27,8 +27,21 @@ RSpec.describe Bulkrax::ValkyrieObjectFactoryFileSetDecorator do
     end
   end
 
-  def create_file_set(title, upload = uploaded_file)
-    build_factory(title).send(:create_file_set, uploaded_files: [upload.id])
+  def create_file_set(title, upload = uploaded_file, visibility: nil)
+    build_factory(title, visibility:).send(:create_file_set, uploaded_files: [upload.id])
+  end
+
+  def embargo_work(release_date: 1.month.from_now.to_date)
+    work.embargo = Hyrax.persister.save(resource: Hyrax::Embargo.new(embargo_release_date: release_date,
+                                                                     visibility_during_embargo: 'restricted',
+                                                                     visibility_after_embargo: 'open'))
+    Hyrax::EmbargoManager.apply_embargo_for(resource: work)
+    work.permission_manager.acl.save
+    Hyrax.persister.save(resource: work)
+  end
+
+  def reloaded(file_set)
+    Hyrax.query_service.find_by(id: file_set.id)
   end
 
   def uploaded_file
@@ -58,6 +71,69 @@ RSpec.describe Bulkrax::ValkyrieObjectFactoryFileSetDecorator do
     expect(file_set).to be_a(Hyrax::FileSet).and(be_persisted)
     expect(file_set.title).to eq ['first']
     expect(Hyrax.query_service.find_by(id: work.id).member_ids).to be_empty
+  end
+
+  context 'with a visibility on the row' do
+    it "gives the file set that visibility rather than the work's" do
+      file_set = create_file_set('first', visibility: 'open')
+
+      expect(Hyrax.query_service.find_by(id: work.id).visibility).to eq 'restricted'
+      expect(reloaded(file_set).visibility).to eq 'open'
+    end
+
+    it "does not copy down the work's embargo" do
+      embargo_work
+      file_set = create_file_set('first', visibility: 'open')
+
+      expect(reloaded(file_set).embargo).to be_nil
+      expect(reloaded(file_set).visibility).to eq 'open'
+    end
+  end
+
+  context 'without a visibility on the row' do
+    it "inherits the work's visibility" do
+      work.visibility = 'authenticated'
+      work.permission_manager.acl.save
+
+      expect(reloaded(create_file_set('first')).visibility).to eq 'authenticated'
+    end
+
+    it "inherits the work's embargo" do
+      release_date = 1.month.from_now.to_date
+      embargo_work(release_date:)
+
+      file_set = reloaded(create_file_set('first'))
+
+      expect(file_set.embargo.embargo_release_date.to_date).to eq release_date
+      expect(file_set.embargo.visibility_after_embargo).to eq 'open'
+      expect(file_set.visibility).to eq 'restricted'
+    end
+
+    it "saves the work's embargo on the file set before queuing its ingest, which saves the copy it loads" do
+      embargo_work
+      embargo_at_enqueue = []
+      allow_any_instance_of(ValkyrieIngestJob).to receive(:enqueue) do |job|
+        embargo_at_enqueue << Hyrax.query_service.find_by(id: job.arguments.first.file_set_uri).embargo
+      end
+
+      create_file_set('first')
+
+      expect(embargo_at_enqueue).to contain_exactly(be_present)
+    end
+
+    it "inherits the work's lease" do
+      work.lease = Hyrax.persister.save(resource: Hyrax::Lease.new(lease_expiration_date: 1.month.from_now.to_date,
+                                                                   visibility_during_lease: 'open',
+                                                                   visibility_after_lease: 'restricted'))
+      Hyrax::LeaseManager.apply_lease_for(resource: work)
+      work.permission_manager.acl.save
+      Hyrax.persister.save(resource: work)
+
+      file_set = reloaded(create_file_set('first'))
+
+      expect(file_set.lease.visibility_after_lease).to eq 'restricted'
+      expect(file_set.visibility).to eq 'open'
+    end
   end
 
   it 'fails a row with more than one file without creating anything' do

@@ -9,11 +9,28 @@ RSpec.describe Bulkrax::CsvFileSetEntryDecorator do
   end
   let(:entry) do
     Bulkrax::CsvFileSetEntry.create!(identifier: 'probe:fs', importerexporter: importer,
+                                     raw_metadata: { 'source_identifier' => 'probe:fs' },
                                      parsed_metadata: { 'parents' => parents })
   end
   let(:parents) { ['probe:work'] }
 
   before { Bulkrax::ImporterRun.create!(importer:) }
+
+  describe '#add_visibility' do
+    it "leaves a blank visibility blank instead of taking the importer's default" do
+      entry.parsed_metadata['visibility'] = ''
+      entry.add_visibility
+
+      expect(entry.parsed_metadata).not_to have_key('visibility')
+    end
+
+    it "keeps the row's visibility" do
+      entry.parsed_metadata['visibility'] = 'restricted'
+      entry.add_visibility
+
+      expect(entry.parsed_metadata['visibility']).to eq 'restricted'
+    end
+  end
 
   it 'records a pending relationship to the parent work' do
     entry.parent_jobs
