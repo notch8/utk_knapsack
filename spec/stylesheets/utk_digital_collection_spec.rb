@@ -17,10 +17,16 @@ RSpec.describe 'UTK Digital Collection stylesheet' do
     expect(settings.reject { |name| hyku_theme.match?(/var\(#{Regexp.escape(name)}(?![\w-])/) }).to be_empty
   end
 
-  it "styles only Digital Collection elements Hyku's theme still has" do
+  let(:knapsack_theme_views) { HykuKnapsack::Engine.root.glob('app/views/themes/**/*.erb').map(&:read).join("\n") }
+
+  it "styles only Digital Collection elements Hyku's theme or the knapsack's theme views still have" do
     classes = stylesheet.scan(/\.(dc-[\w-]+)/).flatten.uniq
+    missing = classes.reject do |name|
+      hyku_theme.match?(/\.#{Regexp.escape(name)}(?![\w-])/) ||
+        knapsack_theme_views.match?(/class="[^"]*(?<![\w-])#{Regexp.escape(name)}(?![\w-])/)
+    end
 
     expect(classes).not_to be_empty
-    expect(classes.reject { |name| hyku_theme.match?(/\.#{Regexp.escape(name)}(?![\w-])/) }).to be_empty
+    expect(missing).to be_empty
   end
 end
