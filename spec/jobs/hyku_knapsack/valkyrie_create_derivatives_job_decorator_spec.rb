@@ -21,6 +21,7 @@ RSpec.describe HykuKnapsack::ValkyrieCreateDerivativesJobDecorator do
     allow(Hyrax.query_service).to receive(:find_by).with(id: 'work-1').and_return(parent)
     allow(job).to receive(:acquire_lock_for).and_yield
     allow(Hyrax.custom_queries).to receive(:find_parent_work).with(resource: file_set).and_return(parent)
+    allow(Hyrax.custom_queries).to receive(:find_parent_work_id).with(resource: file_set).and_return(parent&.id)
     allow(Hyrax).to receive_messages(persister:, index_adapter:)
     allow(persister).to receive(:save) { |resource:| resource }
     allow(Hyrax.custom_queries).to receive(:find_file_metadata_by).with(id: 'fm-1').and_return(file_metadata)
@@ -119,6 +120,21 @@ RSpec.describe HykuKnapsack::ValkyrieCreateDerivativesJobDecorator do
       it 'is not looked for twice' do
         expect(persister).not_to have_received(:save)
       end
+
+      it 'queues no reindex' do
+        expect(HykuKnapsack::ReindexWorkJob).not_to have_been_enqueued
+      end
+    end
+
+    context 'once any page has its derivatives, thumbnail or not' do
+      let(:parent) { Pdf.new(id: 'work-1', title: ['parent'], thumbnail_id: 'fs-0', representative_id: 'fs-0') }
+
+      it 'is reindexed after a delay, so its search text picks up the page' do
+        reindex = enqueued_jobs.find { |job| job['job_class'] == 'HykuKnapsack::ReindexWorkJob' }
+
+        expect(reindex['arguments']).to eq ['work-1']
+        expect(Time.zone.parse(reindex['scheduled_at'])).to be_within(5.seconds).of(HykuKnapsack::ReindexWorkJob::DELAY.from_now)
+      end
     end
 
     context 'when the guard rejects the file' do
@@ -126,7 +142,9 @@ RSpec.describe HykuKnapsack::ValkyrieCreateDerivativesJobDecorator do
 
       it 'is not touched' do
         expect(Hyrax.custom_queries).not_to have_received(:find_parent_work)
+        expect(Hyrax.custom_queries).not_to have_received(:find_parent_work_id)
         expect(persister).not_to have_received(:save)
+        expect(HykuKnapsack::ReindexWorkJob).not_to have_been_enqueued
       end
     end
   end
