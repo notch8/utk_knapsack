@@ -11,12 +11,12 @@ module Hyku
           'header_and_footer_background_color' => '#4b4b4b',
           'header_and_footer_text_color' => '#ffffff',
           'default_button_text_color' => '#4b4b4b',
-          'link_color' => '#4b4b4b',
-          'link_hover_color' => '#4b4b4b',
-          'primary_button_background_color' => '#4b4b4b',
-          'primary_button_border_color' => '#4b4b4b',
-          'primary_button_hover_color' => '#4b4b4b',
-          'primary_button_text_color' => '#ffffff'
+          'link_color' => '#006c93',
+          'link_hover_color' => '#005c7d',
+          'primary_button_background_color' => '#ffffff',
+          'primary_button_border_color' => '#ff8200',
+          'primary_button_hover_color' => '#ffffff',
+          'primary_button_text_color' => '#006c93'
         }.freeze
 
         UTK_FONTS = {
