@@ -6,12 +6,11 @@
 #     imported at once for one work each save a copy without the other, and one
 #     drops out of member_ids. The file set entry records a pending relationship
 #     instead, and CreateRelationshipsJob attaches every file set for the work
-#     in one pass.
+#     in one pass, then queues its ingest, so characterization and derivatives
+#     run once the file set has a parent.
 #   - give the file set the row's visibility, which Bulkrax drops because it
 #     passes file set params without the uploaded file id the handler matches
-#     on. A row without one inherits the work's visibility, embargo and lease,
-#     before the ingest job is queued, since that job saves the copy of the
-#     file set it loaded.
+#     on. A row without one inherits the work's visibility, embargo and lease.
 #   - fail a row that lists more than one file. Each file becomes a file set,
 #     but the row's one identifier can relate only one of them to the work.
 module Bulkrax
@@ -25,9 +24,7 @@ module Bulkrax
       # OVERRIDE: one file per file set row
       raise StandardError, "#{source_identifier_value} lists #{uploaded_files.size} files; a file set row takes one" if uploaded_files.size > 1
 
-      payload = attach_unrelated(parent, uploaded_files, attrs.merge(attributes).symbolize_keys)
-      payload[:job].enqueue
-      payload[:file_set]
+      attach_unrelated(parent, uploaded_files, attrs.merge(attributes).symbolize_keys)[:file_set]
     end
 
     # OVERRIDE: create the file set outside update_work, keyed by uploaded file id so the row's visibility applies

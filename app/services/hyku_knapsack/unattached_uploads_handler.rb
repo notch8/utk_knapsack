@@ -2,8 +2,8 @@
 
 # OVERRIDE Hyrax 5.3.0 Hyrax::WorkUploadsHandler#attach and #append_to_work to
 # create file sets without adding them to the work, leaving the work unsaved and
-# each ingest job for the caller to enqueue once it has finished changing the
-# file set; the caller attaches them afterwards
+# the ingest unqueued; Bulkrax's relationship pass attaches each file set and then
+# queues its ingest
 module HykuKnapsack
   class UnattachedUploadsHandler < Hyrax::WorkUploadsHandler
     # @return [Array<Hash>] a { file_set:, user:, job: } payload per file set created

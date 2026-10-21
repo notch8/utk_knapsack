@@ -73,6 +73,10 @@ RSpec.describe Bulkrax::ValkyrieObjectFactoryFileSetDecorator do
     expect(Hyrax.query_service.find_by(id: work.id).member_ids).to be_empty
   end
 
+  it 'leaves the ingest for the relationship pass' do
+    expect { create_file_set('first') }.not_to have_enqueued_job(ValkyrieIngestJob)
+  end
+
   context 'with a visibility on the row' do
     it "gives the file set that visibility rather than the work's" do
       file_set = create_file_set('first', visibility: 'open')
@@ -107,18 +111,6 @@ RSpec.describe Bulkrax::ValkyrieObjectFactoryFileSetDecorator do
       expect(file_set.embargo.embargo_release_date.to_date).to eq release_date
       expect(file_set.embargo.visibility_after_embargo).to eq 'open'
       expect(file_set.visibility).to eq 'restricted'
-    end
-
-    it "saves the work's embargo on the file set before queuing its ingest, which saves the copy it loads" do
-      embargo_work
-      embargo_at_enqueue = []
-      allow_any_instance_of(ValkyrieIngestJob).to receive(:enqueue) do |job|
-        embargo_at_enqueue << Hyrax.query_service.find_by(id: job.arguments.first.file_set_uri).embargo
-      end
-
-      create_file_set('first')
-
-      expect(embargo_at_enqueue).to contain_exactly(be_present)
     end
 
     it "inherits the work's lease" do
