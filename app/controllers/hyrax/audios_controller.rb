@@ -16,5 +16,6 @@ module Hyrax
     self.work_form_service = Hyrax::FormFactory.new
     self.iiif_file_set_metadata = true
     self.iiif_viewing_hint = nil
+    self.iiif_manifest_presenter_class = HykuKnapsack::AvIiifManifestPresenter
   end
 end
