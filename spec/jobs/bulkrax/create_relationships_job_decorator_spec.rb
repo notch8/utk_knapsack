@@ -103,6 +103,49 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
     end
   end
 
+  describe '#add_to_work' do
+    let(:relationship) { instance_double(Bulkrax::PendingRelationship, child_id: 'fs-3-entry', destroy: true) }
+    let(:ability) { instance_double(Ability, authorize!: true) }
+    let(:upload) do
+      Hyrax::UploadedFile.create!(file: File.open(HykuKnapsack::Engine.root.join('spec', 'fixtures', 'pdfs', 'portrait.pdf')),
+                                  user: create(:user), file_set_uri: fs3_id.to_s)
+    end
+
+    before do
+      allow(fs3).to receive(:collection?).and_return(false)
+      allow(fs3).to receive(:try).with(:file_ids) { fs3.file_ids }
+      allow(parent).to receive(:work?).and_return(true)
+      allow(job).to receive(:find_record).with('fs-3-entry', anything).and_return([nil, fs3])
+      allow(Bulkrax.object_factory).to receive(:update_index_for_file_sets_of)
+      upload
+    end
+
+    it 'queues the ingest of the upload whose file set it attaches' do
+      allow(parent).to receive(:member_ids).and_return([fs1_id])
+      allow(fs3).to receive(:file_ids).and_return([])
+      allow(Bulkrax.object_factory).to receive(:add_child_to_parent_work).and_return(parent)
+
+      expect { job.send(:add_to_work, relationship:, parent_record: parent, ability:) }
+        .to have_enqueued_job(ValkyrieIngestJob).with(upload).exactly(:once)
+    end
+
+    it 'queues no ingest for a file set that already has its files, as when a second parent attaches it' do
+      allow(parent).to receive(:member_ids).and_return([fs1_id])
+      allow(Bulkrax.object_factory).to receive(:add_child_to_parent_work).and_return(parent)
+
+      expect { job.send(:add_to_work, relationship:, parent_record: parent, ability:) }
+        .not_to have_enqueued_job(ValkyrieIngestJob)
+    end
+
+    it 'queues no ingest for a file set that was already a member, as when its work row also lists it' do
+      allow(fs3).to receive(:file_ids).and_return([])
+      allow(Bulkrax.object_factory).to receive(:add_child_to_parent_work).and_return(parent)
+
+      expect { job.send(:add_to_work, relationship:, parent_record: parent, ability:) }
+        .not_to have_enqueued_job(ValkyrieIngestJob)
+    end
+  end
+
   describe '#sort_members_and_set_representative' do
     it 'reorders member_ids by sequence' do
       job.send(:sort_members_and_set_representative, parent_id)

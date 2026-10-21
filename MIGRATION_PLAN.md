@@ -99,8 +99,9 @@ and which bucket that is remains open; see **Open questions**.
   success.
 - **The collections sheet has been ingested.**  A work sheet run before it accumulates a
   relationship backlog that only resolves once the collections exist.
-- **The importer form's Visibility is set deliberately.**  A row with no `visibility` takes that
-  field's value, and the form defaults it to `open`.  4,681 rows across the sheets are blank, 4,366
+- **The importer form's Visibility is set deliberately.**  A work or collection row with no
+  `visibility` takes that field's value, and the form defaults it to `open`; a file set row with
+  none takes its work's.  4,681 rows across the sheets are blank, 4,366
   of them in `gsmrc_pcard00`; an unattended default publishes them.
 
 ## Where things live
