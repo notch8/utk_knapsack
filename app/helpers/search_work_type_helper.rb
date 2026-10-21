@@ -19,10 +19,11 @@ module SearchWorkTypeHelper
     chosen.first if chosen.one?
   end
 
+  # A type the menu does not offer, such as collections picked from the sidebar, still shows by name,
+  # since the next search submits it.
   def chosen_search_work_type_label
     chosen = chosen_search_work_type
-    search_work_type_options.find { |_label, value| value == chosen }&.first ||
-      t('hyrax.search.form.option.all.label_short')
+    chosen ? work_type_facet_label(chosen) : t('hyrax.search.form.option.all.label_short')
   end
 
   # The menu submits the work type itself, so a new choice replaces the old one instead of narrowing to no results.

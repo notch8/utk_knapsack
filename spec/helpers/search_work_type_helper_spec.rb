@@ -61,6 +61,14 @@ RSpec.describe SearchWorkTypeHelper, type: :helper do
         expect(helper.chosen_search_work_type_label).to eq 'All'
       end
     end
+
+    context 'with a type the menu does not offer, such as collections from the sidebar' do
+      let(:search_params) { { f: { has_model_ssim: ['DigitalCollection'] } } }
+
+      it "is that type's facet label, since the next search still submits it" do
+        expect(helper.chosen_search_work_type_label).to eq 'Digital Collection'
+      end
+    end
   end
 
   describe '#search_params_without_work_type' do
