@@ -7,7 +7,7 @@ module HykuKnapsack
     # Rails serves the host app's public/ only; without this anything the
     # knapsack ships there, such as a generated IIIF viewer, 404s.
     initializer 'hyku_knapsack.static_assets' do |app|
-      app.middleware.use ::ActionDispatch::Static, HykuKnapsack::Engine.root.join('public').to_s
+      app.middleware.insert_after ::Rack::Sendfile, ::ActionDispatch::Static, HykuKnapsack::Engine.root.join('public').to_s
     end
 
     # Flipflop loads the host app's config/features.rb only; register the
