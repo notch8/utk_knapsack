@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <base target="_top" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700" />
+        <style>
+          /* Clover inherits its text colour from this page, and every show theme frames the
+             viewer in black, so a transparent page left the panel black on black. */
+          :root { --colors-accent: #ff8200 !important; }
+          html, body { margin: 0; height: 100%; background: #4b4b4b; color: #fff; color-scheme: dark; font-family: Montserrat, Helvetica, Arial, sans-serif; }
+          #information-toggle span { color: #4b4b4b; opacity: 1; }
+          #information-toggle[aria-checked="false"] { background-color: #a7a9ac; }
+          #information-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+          [data-testid="information-panel-list"] { align-self: flex-start; width: fit-content; }
+          [data-testid="information-panel-list"] [role="tab"][data-state] { font-weight: 600; }
+          .content-search-form button[type="submit"] svg { fill: #4b4b4b; }
+          .clover-viewer-information-panel a { color: #fff !important; text-decoration: underline; }
+          clover-viewer { display: block; height: 100%; }
+          clover-viewer :has(.clover-viewer-content) { height: 100% !important; }
+          .clover-viewer-content { height: 100% !important; }
+          .clover-viewer-player-wrapper,
+          .clover-viewer-painting :has(> .clover-viewer-player-wrapper) { background-color: transparent !important; }
+          .clover-viewer-information-panel { overflow-wrap: anywhere; }
+          [data-testid="information-panel-cue"] strong { white-space: nowrap; margin-left: .75rem; }
+          .clover-viewer-information-panel [data-testid="information-panel-cue"]:hover { color: #fff; box-shadow: inset 4px 0 #ff8200; }
+          .clover-viewer-information-panel [data-testid="information-panel-cue"][aria-checked="true"] { background: #fff; color: #4b4b4b; box-shadow: inset 4px 0 #ff8200; }
+          .clover-viewer-information-panel, .clover-viewer-information-panel * { box-sizing: border-box; }
+          .clover-viewer-header > span:first-child { padding-left: 1rem !important; }
+          .clover-viewer-header > div:last-child { padding-right: 1rem !important; }
+        </style>
+    </head>
+    <body>
+    <script type="text/javascript" src="clover.js"></script>
+    <clover-viewer></clover-viewer>
+    <script>
+        const manifestUrl = new URLSearchParams(window.location.search).get('manifest');
+        const viewer = document.querySelector('clover-viewer');
+        // Clover takes the manifest URL from `id`, and setAttribute would stringify
+        // a missing one to "null" rather than leaving it unset.
+        if (manifestUrl) viewer.setAttribute('id', manifestUrl);
+
+        // The web component cannot pass Clover the option to start with its information panel
+        // closed, and Clover opens it once mounted, so close it whenever it opens until the
+        // visitor uses the toggle themselves.
+        const keepPanelClosed = new MutationObserver(() => {
+          const toggle = document.getElementById('information-toggle');
+          if (toggle?.getAttribute('aria-checked') === 'true') toggle.click();
+        });
+        keepPanelClosed.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-checked'] });
+        ['pointerdown', 'keydown', 'click'].forEach((type) => {
+          document.addEventListener(type, (event) => {
+            if (event.isTrusted && event.target.closest?.('#information-toggle')) keepPanelClosed.disconnect();
+          }, true);
+        });
+    </script>
+    </body>
+</html>
