@@ -6,7 +6,10 @@ RSpec.describe 'The work type menu in the home page search', type: :request, sin
   include Devise::Test::IntegrationHelpers
 
   let(:doc) { Nokogiri::HTML(response.body) }
-  let(:type_select) { doc.at_css('#search-form-header select#search-work-type') }
+  let(:form) { doc.at_css('#search-form-header') }
+  let(:menu_items) { form.css('.dropdown-menu [data-work-type]') }
+  let(:toggle) { form.at_css('#search-work-type-toggle') }
+  let(:chosen_field) { form.at_css('input#search-work-type') }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:home_page_theme).and_return('digital_collection')
@@ -15,24 +18,32 @@ RSpec.describe 'The work type menu in the home page search', type: :request, sin
 
   shared_examples 'a work type menu' do
     it 'lists All, then every enabled work type' do
-      expect(type_select.css('option').map(&:text)).to eq(
-        ['All', 'Still Image', 'Audio', 'Book', 'Compound Object', 'Newspaper', 'Pdf', 'Video']
-      )
-      expect(type_select.css('option').map { |option| option['value'] }).to eq(
-        ['', 'StillImage', 'Audio', 'Book', 'CompoundObject', 'Newspaper', 'Pdf', 'Video']
-      )
+      expect(menu_items.first.text).to start_with 'All of '
+      expect(menu_items.drop(1).map(&:text)).to eq ['Still Image', 'Audio', 'Book', 'Compound Object', 'Newspaper', 'Pdf', 'Video']
+      expect(menu_items.map { |item| item['data-work-type'] }).to eq ['', 'StillImage', 'Audio', 'Book', 'CompoundObject', 'Newspaper', 'Pdf', 'Video']
     end
 
-    it 'filters on the work type facet' do
-      expect(type_select['name']).to eq 'f[has_model_ssim][]'
+    it 'submits the chosen type as the work type facet' do
+      expect(chosen_field['name']).to eq 'f[has_model_ssim][]'
+      expect(chosen_field['value']).to be_blank
     end
 
-    it 'has a label for screen readers' do
-      expect(doc.at_css("label[for='search-work-type']").text.strip).to eq 'Limit search to a work type'
+    it 'names the menu and its current choice for screen readers' do
+      expect(toggle.text.squish).to eq 'Limit search to a work type: All'
+    end
+
+    it 'comes before Search in focus order, as it does on screen' do
+      focusable = form.css('input#search-field-header, #search-work-type-toggle, #search-submit-header').map { |node| node['id'] }
+
+      expect(focusable).to eq %w[search-field-header search-work-type-toggle search-submit-header]
     end
 
     it 'does not route the search to the dashboard' do
-      expect(doc.at_css('#search-form-header [data-search-option]')).to be_nil
+      expect(form.at_css('[data-search-option]')).to be_nil
+    end
+
+    it 'loads the script that sets the chosen type' do
+      expect(doc.at_css("script[src*='hyku_knapsack/search_work_type']")).to be_present
     end
   end
 
@@ -49,7 +60,7 @@ RSpec.describe 'The work type menu in the home page search', type: :request, sin
     end
 
     it 'lists only the enabled types, in registration order' do
-      expect(type_select.css('option').map(&:text)).to eq %w[All Audio Book]
+      expect(menu_items.drop(1).map(&:text)).to eq %w[Audio Book]
     end
   end
 
@@ -73,7 +84,9 @@ RSpec.describe 'The work type menu in the home page search', type: :request, sin
       expect(response.body).not_to include('Harbor history')
       expect(doc.at_css('#appliedParams .filter-has_model_ssim').text.squish).to include('Work Type', 'Audio')
       expect(doc.at_css('#appliedParams .filter-has_model_ssim a.remove')).to be_present
-      expect(type_select.at_css('option[selected]')['value']).to eq 'Audio'
+      expect(chosen_field['value']).to eq 'Audio'
+      expect(toggle.text.squish).to eq 'Limit search to a work type: Audio'
+      expect(form.at_css("[data-work-type='Audio']")['aria-current']).to eq 'true'
     end
   end
 
