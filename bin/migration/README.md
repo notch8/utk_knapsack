@@ -29,11 +29,22 @@ derivatives, and prints the file to import.  Import it with `import_sheet` (belo
 | `--members N` | each work keeps only its first N members (file sets, or child works with theirs), by `sequence`, unsequenced last |
 | `--dry-run` | report what would happen; copy nothing |
 | `--skip-missing` | set aside rows legacy cannot supply instead of stopping |
+| `--recheck` | ignore the progress file and check every original and derivative again |
 | `--yes`, `-y` | skip the confirmation prompt (required when there is no terminal) |
 
 It stops at the first failure, including any stop line in the transform's report: unmatched
 identifiers, missing required properties, file sets with no digest, unknown role columns, values
 off their local vocabulary.  A real run on prod asks you to type `prod` instead of `y`.
+
+Every unmatched identifier is written to `tmp/migration/out/<sheet>-unmatched.txt`, empty when there are
+none; the stop line names only the first five.  A derivative that fails to stage stops the run, unless its file set is a
+PDF or an intermediate file whose thumbnail also failed: the import regenerates every derivative of a
+file set like that, since it arrives with no thumbnail.
+
+A rerun resumes: `tmp/migration/out/<sheet>-progress.json` records which of steps 3 to 5 finished and,
+within staging and filling, how many file sets are done, so it skips them instead of checking each
+one again.  It applies only while the transformed sheet is unchanged; delete it or pass `--recheck`
+to check everything.  A batch with a failure stops the count, so the rerun retries from there.
 
 **`--limit N`** saves its slice as `tmp/migration/sheets/<sheet>-firstN.csv`, so its output never
 overwrites a full run's, and leaves out the Collection row, which is imported separately first.
@@ -170,3 +181,5 @@ bin/migration/
 | `DST_BUCKET`, `DERIVATIVES_BUCKET`, `DST_POD`, `DST_ROOT`, `DEST_CONTEXT` | from the destination preset | where things go |
 | `AWS_REGION` | `us-east-2` | the destination buckets |
 | `THREADS`, `BATCH` | `8`; `50` to stage, `200` to fill | copy threads, files per derivative batch |
+| `POD_TIMEOUT` | `1800` | seconds before a hung `kubectl exec` (lookup, stage, fill) is killed and tried once more; at most `1800`, since the retry reuses URLs signed for an hour |
+| `LEGACY_SLOTS` | `2` | `kubectl exec` calls into legacy at once, across every prepare on this machine; more waits for a slot, since 7 at once took legacy's web pods down |
