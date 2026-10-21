@@ -1,4 +1,7 @@
 it:
+  digital_collection:
+    search:
+      work_type: Limita la ricerca a un tipo di opera
   hyrax:
     base:
       file_manager_actions:
