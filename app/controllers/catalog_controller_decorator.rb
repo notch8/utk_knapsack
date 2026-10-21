@@ -2,8 +2,9 @@
 
 # OVERRIDE Hyku v7.1.0 to facet creator and contributor from the compound
 # properties instead of the flat ones, to drop the publisher facet, to leave the
-# search result fields to the M3 profile, and to keep subject, repository and
-# archival collection in keyword search.
+# search result fields to the M3 profile, to keep subject, repository and
+# archival collection in keyword search, and to ignore blank filter values from
+# the search bar's work type menu.
 #
 # UTK records agents as `creators` / `contributors` compounds (name + role), so
 # the facetable Solr field is the sub-property's derived `<compound>_name_sim`
@@ -56,9 +57,21 @@ module CatalogControllerDecorator
       solr_parameters[:qf] = (solr_parameters[:qf].split | KEYWORD_SEARCH_FIELDS).join(' ')
     end
   end
+
+  private
+
+  # OVERRIDE: the search bar's "All" work type submits a blank filter value, which Blacklight counts as an applied filter
+  def drop_blank_filter_values
+    return unless params[:f].respond_to?(:each_pair)
+
+    filters = params[:f].to_unsafe_h.transform_values { |values| values.is_a?(Array) ? values.compact_blank : values }.compact_blank
+    filters.empty? ? params.delete(:f) : params[:f] = filters
+  end
 end
 
 CatalogController.prepend(CatalogControllerDecorator)
+# Prepended: later callbacks build and memoize the search state from the raw params.
+CatalogController.prepend_before_action :drop_blank_filter_values, only: :index
 
 CatalogController.configure_blacklight do |config|
   CatalogControllerDecorator.swap_in_compound_facets(config)

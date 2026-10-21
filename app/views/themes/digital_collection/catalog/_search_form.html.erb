@@ -1,0 +1,40 @@
+<%# OVERRIDE Hyku v7.2.0
+  #   - to let every visitor limit a search to one of the tenant's enabled work types, as on the legacy site, in place of the signed-in My Works / My Collections menu
+  #   - to leave the work type out of the carried filters, so a new choice replaces the old one instead of narrowing to no results %>
+<%# OVERRIDE: the menu shows a single chosen type; several types from advanced search show as All %>
+<% chosen_type = search_state.params.dig(:f, :has_model_ssim)&.first %>
+<%# OVERRIDE: offer only the work types this tenant has enabled %>
+<% enabled_types = Array(Site.instance.available_works) %>
+<% work_types = Hyrax.config.curation_concerns.select { |klass| enabled_types.include?(klass.to_s) } %>
+<%# OVERRIDE: drop the work type from the carried filters %>
+<% carried = search_state.params_for_search.except(:q, :search_field, :qt, :page, :utf8) %>
+<% %i[f f_inclusive].each { |key| carried[key] = carried[key].except(:has_model_ssim) if carried[key] } %>
+<%= form_tag search_form_action, method: :get, class: "search-form", id: "search-form-header", role: "search" do %>
+  <%# OVERRIDE: carry the filters without the work type %>
+  <%= render Blacklight::HiddenSearchStateComponent.new(params: carried) %>
+  <%= hidden_field_tag :search_field, 'all_fields' %>
+  <div class="form-group row pt-4 pt-sm-0">
+    <label class="col-sm-3 mb-0" for="search-field-header">
+      <%= t("hyrax.search.form.q.label", application_name: application_name) %>
+    </label>
+    <div class="input-group">
+      <%= text_field_tag :q, current_search_parameters, class: "q form-control", id: "search-field-header", placeholder: t("hyrax.search.form.q.placeholder") %>
+      <div class="input-group-append">
+        <%# OVERRIDE: a work type menu for everyone, in place of the signed-in dashboard menu %>
+        <label class="sr-only" for="search-work-type"><%= t('digital_collection.search.work_type') %></label>
+        <%= select_tag 'f[has_model_ssim][]',
+                       options_for_select(work_types.map { |klass| [work_type_facet_label(klass.to_s), klass.to_s] }, chosen_type),
+                       include_blank: t("hyrax.search.form.option.all.label_short"),
+                       id: "search-work-type", class: "custom-select dc-search-work-type" %>
+        <button type="submit" class="btn btn-primary" id="search-submit-header">
+          <%= t('digital_collection.search.submit') %>
+        </button>
+      </div>
+    </div>
+    <% unless controller_name == 'advanced' %>
+      <p class="dc-search-advanced">
+        <%= link_to t('digital_collection.search.advanced'), blacklight_advanced_search_engine.advanced_search_path, id: 'advanced-top-button' %>
+      </p>
+    <% end %>
+  </div>
+<% end %>

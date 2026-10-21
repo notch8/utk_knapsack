@@ -173,3 +173,59 @@ body.digital_collection_show.hyrax-collections-show {
     }
   }
 }
+
+// ---- work type menu in the search bar (Hyku: _primitives.scss dc-search-form, .input-group-append .dropdown-toggle; digital_collection.scss, .dc-hero-search) ----
+// OVERRIDE Hyku v7.2.0 to style the work type menu like the scope menu it replaces, so the search bar keeps its shape
+body.digital_collection,
+body.digital_collection_show {
+  #search-form-header .dc-search-work-type {
+    @include dc-select-chevron;
+    background-color: $dc-surface-alt;
+    border: $dc-border solid $dc-input-edge;
+    border-radius: 0;
+    border-right-width: 0;
+    color: $dc-ink;
+    field-sizing: content;
+    flex: none;
+    font-size: $dc-text-sm;
+    height: var(--dc-search-height, #{$dc-control-height});
+    width: auto;
+
+    &:focus-visible {
+      @include dc-focus-ring;
+    }
+  }
+
+  .dc-hero-search #search-form-header .dc-search-work-type:focus-visible {
+    @include dc-focus-ring($on: dark);
+  }
+
+  // the menu grows to the chosen type, or to its longest type where field-sizing is unsupported, so on phones the field takes its own row, as in the hero
+  @media (max-width: $dc-mobile-max) {
+    #search-form-header {
+      .input-group {
+        flex-wrap: wrap;
+      }
+
+      #search-field-header {
+        border-radius: var(--dc-radius, #{$dc-radius});
+        border-right: $dc-border solid $dc-input-edge;
+        flex-basis: 100%;
+      }
+
+      .input-group-append {
+        margin-top: $dc-space-2;
+        width: 100%;
+      }
+
+      .input-group-append .dc-search-work-type {
+        border-radius: var(--dc-radius, #{$dc-radius}) 0 0 var(--dc-radius, #{$dc-radius});
+        flex: 1;
+      }
+
+      .input-group-append:has(.dc-search-work-type) #search-submit-header {
+        border-radius: 0 var(--dc-radius, #{$dc-radius}) var(--dc-radius, #{$dc-radius}) 0;
+      }
+    }
+  }
+}
