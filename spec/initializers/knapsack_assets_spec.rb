@@ -51,6 +51,16 @@ RSpec.describe 'config/initializers/knapsack_assets.rb' do
     expect(Rails.application.config.assets.precompile).to include('hyku_knapsack/file_manager_sequence_sort.js')
   end
 
+  it 'builds the search bar work type script, which no manifest requires' do
+    filename = precompile_environment.find_asset('hyku_knapsack/search_work_type.js')&.filename.to_s
+
+    expect(filename).to eq HykuKnapsack::Engine.root.join('app', 'assets', 'javascripts', 'hyku_knapsack', 'search_work_type.js').to_s
+  end
+
+  it 'names the search bar work type script for precompilation' do
+    expect(Rails.application.config.assets.precompile).to include('hyku_knapsack/search_work_type.js')
+  end
+
   it 'names it once, though the initializer is evaluated more than once per boot' do
     entries = Rails.application.config.assets.precompile.count('hyku_knapsack/file_manager_sequence_sort.js')
 

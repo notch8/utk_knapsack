@@ -13,7 +13,7 @@ unless Rails.application.config.assets.knapsack_paths_prepended
   end
 end
 
-# The file manager's sequence sort loads on its own, not through the host app's
-# `application.js` manifest, so sprockets has to be told to build it. `|=` keeps
-# a single entry across the repeated evaluation above.
-Rails.application.config.assets.precompile |= ['hyku_knapsack/file_manager_sequence_sort.js']
+# The knapsack's scripts load on their own, not through the host app's
+# `application.js` manifest, so sprockets has to be told to build them. `|=` keeps
+# a single entry each across the repeated evaluation above.
+Rails.application.config.assets.precompile |= ['hyku_knapsack/file_manager_sequence_sort.js', 'hyku_knapsack/search_work_type.js']

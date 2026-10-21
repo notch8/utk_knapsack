@@ -1,4 +1,7 @@
 pt-BR:
+  digital_collection:
+    search:
+      work_type: Limitar a pesquisa a um tipo de obra
   hyrax:
     base:
       file_manager_actions:

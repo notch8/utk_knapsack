@@ -80,29 +80,9 @@ module HykuKnapsack
         if Hyrax.config.respond_to?(:schema_loader_config_search_paths)
     end
 
-    config.to_prepare do
-      HykuKnapsack::Engine.root.glob("app/**/*_decorator*.rb").sort.each do |c|
-        Rails.configuration.cache_classes ? require(c) : load(c)
-      end
-
-      HykuKnapsack::Engine.root.glob("lib/**/*_decorator*.rb").sort.each do |c|
-        Rails.configuration.cache_classes ? require(c) : load(c)
-      end
-
-      # Reload pass only: to_prepare runs before concern registration. A knapsack
-      # that DEFERS registration must also call this at the end of its own
-      # registration block for the boot pass. See HykuKnapsack::ReseedValidChildConcerns.
-      HykuKnapsack::ReseedValidChildConcerns.call
-    end
-
-    config.after_initialize do
-      derivative_services = [IiifPrint::PluggableDerivativeService]
-      if Hyrax.config.respond_to?(:derivative_services=)
-        Hyrax.config.derivative_services = derivative_services
-      else
-        Hyrax::DerivativeService.services = derivative_services
-      end
-
+    # Put the knapsack's views first and register its helpers. Called from both
+    # `to_prepare` and `after_initialize`; see the `to_prepare` block for why.
+    def self.prepend_knapsack_view_paths!
       # This is the opposite of what you usually want to do.  Normally app views override engine
       # views but in our case things in the Knapsack override what is in the application.
       # Furthermore we need to account for when the ApplicationController and it's descendants set
@@ -120,6 +100,38 @@ module HykuKnapsack
         klass.view_paths = paths.uniq
       end
       ::ApplicationController.send :helper, HykuKnapsack::Engine.helpers
+    end
+
+    config.to_prepare do
+      HykuKnapsack::Engine.root.glob("app/**/*_decorator*.rb").sort.each do |c|
+        Rails.configuration.cache_classes ? require(c) : load(c)
+      end
+
+      HykuKnapsack::Engine.root.glob("lib/**/*_decorator*.rb").sort.each do |c|
+        Rails.configuration.cache_classes ? require(c) : load(c)
+      end
+
+      # Reload pass only: to_prepare runs before concern registration. A knapsack
+      # that DEFERS registration must also call this at the end of its own
+      # registration block for the boot pass. See HykuKnapsack::ReseedValidChildConcerns.
+      HykuKnapsack::ReseedValidChildConcerns.call
+
+      # The dev reloader replaces ApplicationController, dropping the view paths and
+      # helpers `after_initialize` set at boot (that hook runs only once), so re-apply
+      # them on every reload. Before ApplicationController loads (early boot
+      # `to_prepare`), `after_initialize` handles the boot pass.
+      HykuKnapsack::Engine.prepend_knapsack_view_paths! if defined?(::ApplicationController)
+    end
+
+    config.after_initialize do
+      derivative_services = [IiifPrint::PluggableDerivativeService]
+      if Hyrax.config.respond_to?(:derivative_services=)
+        Hyrax.config.derivative_services = derivative_services
+      else
+        Hyrax::DerivativeService.services = derivative_services
+      end
+
+      HykuKnapsack::Engine.prepend_knapsack_view_paths!
     end
 
     ##

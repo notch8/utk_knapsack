@@ -1,4 +1,7 @@
 en:
+  digital_collection:
+    search:
+      work_type: Limit search to a work type
   blacklight:
     search:
       facets:

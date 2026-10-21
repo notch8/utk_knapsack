@@ -173,3 +173,36 @@ body.digital_collection_show.hyrax-collections-show {
     }
   }
 }
+
+// ---- search bar on phones (Hyku: _shell.scss, .dc-searchbar; digital_collection.scss, .dc-hero-search) ----
+// OVERRIDE Hyku v7.2.0 to give the search field its own row on phones, as the hero does, since every visitor now has the work type menu beside it
+body.digital_collection,
+body.digital_collection_show {
+  @media (max-width: $dc-mobile-max) {
+    .dc-searchbar #search-form-header {
+      .input-group {
+        flex-wrap: wrap;
+      }
+
+      #search-field-header {
+        border-radius: var(--dc-radius, #{$dc-radius});
+        border-right: $dc-border solid $dc-input-edge;
+        flex-basis: 100%;
+      }
+
+      .input-group-append {
+        margin-top: $dc-space-2;
+        width: 100%;
+      }
+
+      .input-group-append .dropdown-toggle {
+        border-radius: var(--dc-radius, #{$dc-radius}) 0 0 var(--dc-radius, #{$dc-radius});
+      }
+
+      #search-submit-header {
+        border-radius: 0 var(--dc-radius, #{$dc-radius}) var(--dc-radius, #{$dc-radius}) 0;
+        flex: 1;
+      }
+    }
+  }
+}

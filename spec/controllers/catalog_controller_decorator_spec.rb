@@ -95,6 +95,50 @@ RSpec.describe CatalogController do
     end
   end
 
+  describe 'limiting a search to a work type', singletenant: true do
+    let(:filter_queries) { assigns(:response)['responseHeader']['params']['fq'] }
+
+    it 'filters Solr on the chosen type' do
+      get :index, params: { q: 'harbor', f: { has_model_ssim: ['Audio'] } }
+
+      expect(filter_queries).to include('{!term f=has_model_ssim}Audio')
+    end
+
+    context 'with All chosen, which submits a blank type' do
+      let(:search_state) { controller.view_context.search_state }
+
+      before { get :index, params: { q: 'harbor', f: { has_model_ssim: [''], resource_type_sim: ['Map'] } } }
+
+      it 'applies no work type filter' do
+        expect(filter_queries.grep(/\{!term f=has_model_ssim\}/)).to be_empty
+      end
+
+      it 'keeps the other filters' do
+        expect(filter_queries).to include('{!term f=resource_type_sim}Map')
+      end
+
+      it 'does not count the blank type as an applied filter' do
+        expect(search_state.filters.map(&:key)).to eq ['resource_type_sim']
+      end
+    end
+
+    context 'with a sidebar type added after an All search' do
+      before { get :index, params: { q: 'harbor', f: { has_model_ssim: ['', 'Audio'] } } }
+
+      it 'treats the sidebar type as the only work type' do
+        expect(controller.view_context.search_state.filter('has_model_ssim').values).to eq ['Audio']
+      end
+    end
+
+    context 'with All chosen and nothing else' do
+      before { get :index, params: { q: '', f: { has_model_ssim: [''] } } }
+
+      it 'shows no applied constraints' do
+        expect(controller.view_context.search_state.has_constraints?).to be false
+      end
+    end
+  end
+
   describe 'reloading the decorator, as to_prepare does on every dev reload' do
     it 'does not raise on a duplicate field key' do
       path = HykuKnapsack::Engine.root.join('app', 'controllers', 'catalog_controller_decorator.rb')

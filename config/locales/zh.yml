@@ -1,4 +1,7 @@
 zh:
+  digital_collection:
+    search:
+      work_type: 将搜索限定为一种作品类型
   hyrax:
     base:
       file_manager_actions:

@@ -23,7 +23,7 @@ RSpec.describe 'UTK Digital Collection stylesheet' do
     classes = stylesheet.scan(/\.(dc-[\w-]+)/).flatten.uniq
     missing = classes.reject do |name|
       hyku_theme.match?(/\.#{Regexp.escape(name)}(?![\w-])/) ||
-        knapsack_theme_views.match?(/class="[^"]*(?<![\w-])#{Regexp.escape(name)}(?![\w-])/)
+        knapsack_theme_views.match?(/class(?:=|:\s*)"[^"]*(?<![\w-])#{Regexp.escape(name)}(?![\w-])/)
     end
 
     expect(classes).not_to be_empty

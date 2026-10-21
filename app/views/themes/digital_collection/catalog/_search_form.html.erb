@@ -1,0 +1,41 @@
+<%# OVERRIDE Hyku v7.2.0
+  #   - to let every visitor limit a search to one of the tenant's enabled work types, as on the legacy site, in place of the signed-in My Works / My Collections menu
+  #   - to leave the work type out of the carried filters, so a new choice replaces the old one instead of narrowing to no results %>
+<%= form_tag search_form_action, method: :get, class: "search-form", id: "search-form-header", role: "search" do %>
+  <%# OVERRIDE: carry the filters without the work type %>
+  <%= render Blacklight::HiddenSearchStateComponent.new(params: search_params_without_work_type) %>
+  <%= hidden_field_tag :search_field, 'all_fields' %>
+  <div class="form-group row pt-4 pt-sm-0">
+    <label class="col-sm-3 mb-0" for="search-field-header">
+      <%= t("hyrax.search.form.q.label", application_name: application_name) %>
+    </label>
+    <div class="input-group">
+      <%= text_field_tag :q, current_search_parameters, class: "q form-control", id: "search-field-header", placeholder: t("hyrax.search.form.q.placeholder") %>
+      <div class="input-group-append">
+        <%# OVERRIDE: a work type menu for everyone, in place of the signed-in dashboard menu, ahead of Search so focus follows the visual order %>
+        <% chosen_type = chosen_search_work_type %>
+        <%= hidden_field_tag 'f[has_model_ssim][]', chosen_type, id: "search-work-type" %>
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="search-work-type-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only"><%= t('digital_collection.search.work_type') %>:</span>
+          <span data-work-type-current><%= chosen_search_work_type_label %></span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="search-work-type-toggle">
+          <%= button_tag t("hyrax.search.form.option.all.label_long", application_name: application_name), type: "button", class: "dropdown-item",
+                         data: { work_type: "", work_type_label: t("hyrax.search.form.option.all.label_short") }, aria: { current: chosen_type.nil? } %>
+          <% search_work_type_options.each do |label, value| %>
+            <%= button_tag label, type: "button", class: "dropdown-item", data: { work_type: value, work_type_label: label }, aria: { current: value == chosen_type } %>
+          <% end %>
+        </div>
+        <button type="submit" class="btn btn-primary" id="search-submit-header">
+          <%= t('digital_collection.search.submit') %>
+        </button>
+      </div>
+    </div>
+    <% unless controller_name == 'advanced' %>
+      <p class="dc-search-advanced">
+        <%= link_to t('digital_collection.search.advanced'), blacklight_advanced_search_engine.advanced_search_path, id: 'advanced-top-button' %>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+<%= javascript_include_tag "hyku_knapsack/search_work_type" %>
