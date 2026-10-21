@@ -1,8 +1,9 @@
 <%# OVERRIDE Hyku v7.2.0
   #   - to let every visitor limit a search to one of the tenant's enabled work types, as on the legacy site, in place of the signed-in My Works / My Collections menu
   #   - to leave the work type out of the carried filters, so a new choice replaces the old one instead of narrowing to no results %>
-<%# OVERRIDE: the menu shows a single chosen type; several types from advanced search show as All %>
-<% chosen_type = search_state.params.dig(:f, :has_model_ssim)&.first %>
+<%# OVERRIDE: the menu shows a single chosen type, which advanced search sends as f_inclusive; several types show as All %>
+<% chosen_types = %i[f f_inclusive].flat_map { |key| Array(search_state.params.dig(key, :has_model_ssim)) }.uniq %>
+<% chosen_type = chosen_types.first if chosen_types.one? %>
 <%# OVERRIDE: offer only the work types this tenant has enabled %>
 <% enabled_types = Array(Site.instance.available_works) %>
 <% work_types = Hyrax.config.curation_concerns.select { |klass| enabled_types.include?(klass.to_s) } %>

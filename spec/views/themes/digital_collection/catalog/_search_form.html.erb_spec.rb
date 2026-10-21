@@ -28,6 +28,18 @@ RSpec.describe 'themes/digital_collection/catalog/_search_form.html.erb', type: 
     expect(page.at_css("input[type='hidden'][name='f[resource_type_sim][]']")['value']).to eq 'Map'
   end
 
+  context 'with one work type from advanced search' do
+    let(:search_params) { { q: 'harbor', f_inclusive: { has_model_ssim: ['Audio'] } } }
+
+    it 'selects that type, so the next search keeps it' do
+      expect(type_select.at_css('option[selected]')['value']).to eq 'Audio'
+    end
+
+    it 'leaves it out of the carried filters, since the menu submits it' do
+      expect(page.at_css("input[type='hidden'][name^='f_inclusive[has_model_ssim]']")).to be_nil
+    end
+  end
+
   context 'with several work types from advanced search' do
     let(:search_params) { { q: 'harbor', f_inclusive: { has_model_ssim: %w[Audio Video] } } }
 
