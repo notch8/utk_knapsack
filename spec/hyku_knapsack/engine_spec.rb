@@ -13,6 +13,11 @@ RSpec.describe HykuKnapsack::Engine do
     it 'serves the knapsack public directory' do
       expect(static_roots).to include described_class.root.join('public').to_s
     end
+
+    it "serves the knapsack public directory ahead of Hyku's" do
+      expect(static_roots.index(described_class.root.join('public').to_s))
+        .to be < static_roots.index(Rails.public_path.to_s)
+    end
   end
 
   describe 'translations' do
