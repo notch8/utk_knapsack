@@ -58,6 +58,43 @@ RSpec.describe DigitalCollectionHelperDecorator, type: :helper do
     end
   end
 
+  context "for a member work listed on its collection's show page" do
+    let(:catalog_fields) do
+      Blacklight::Configuration.new.tap do |blacklight|
+        blacklight.add_index_field 'abstract_tesim', label: 'Abstract'
+        blacklight.add_index_field 'creator_tesim', label: 'Creator'
+        blacklight.add_show_field 'subject_tesim', label: 'Subject'
+      end
+    end
+    let(:member_work) do
+      SolrDocument.new('id' => 'w2', 'abstract_tesim' => ['A survey.'], 'creator_tesim' => ['Wiley, Catherine'],
+                       'subject_tesim' => ['http://id.loc.gov/authorities/names/n79109786'])
+    end
+
+    before do
+      blacklight = catalog_fields
+      helper.define_singleton_method(:blacklight_config) { blacklight }
+      helper.define_singleton_method(:blacklight_configuration_context) { Blacklight::Configuration::Context.new(self) }
+      allow(helper).to receive_messages(action_name: 'show', document_index_view_type: :list, dc_part_of_links: nil)
+    end
+
+    describe '#dc_result_fields' do
+      it 'lists the fields catalog search results show' do
+        expect(helper.dc_result_fields(member_work).map(&:first)).to eq %i[abstract creator]
+      end
+
+      it 'leaves out a field only the show page shows' do
+        expect(helper.dc_result_fields(member_work).map(&:first)).not_to include(:subject)
+      end
+    end
+
+    describe '#dc_creator_names' do
+      it 'lists the creator, since catalog search results show the creator field' do
+        expect(helper.dc_creator_names(member_work)).to eq ['Wiley, Catherine']
+      end
+    end
+  end
+
   describe '#dc_work_shown_elsewhere' do
     it 'leaves the abstract out of the metadata rows, since the summary already shows it' do
       expect(helper.dc_work_shown_elsewhere).to include('.attribute-description', '.attribute-abstract')

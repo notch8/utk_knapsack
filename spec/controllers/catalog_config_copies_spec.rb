@@ -49,6 +49,15 @@ RSpec.describe 'The catalog config of work, file set and collection pages' do
           expect(config.index_fields.keys).to include('title_tesim')
           expect(config.index_fields.keys).to eq CatalogController.blacklight_config.index_fields.keys
         end
+
+        it 'answers each display condition the catalog fields name, such as render_optionally?' do
+          CatalogController.load_flexible_schema
+          fields = [config.facet_fields, config.index_fields, config.search_fields].flat_map(&:values)
+          conditions = fields.flat_map { |field| [field.if, field.unless] }.grep(Symbol).uniq
+
+          expect(conditions).to include(:render_optionally?)
+          conditions.each { |condition| expect(page.method(condition).call(fields.first, SolrDocument.new)).to be true }
+        end
       end
     end
   end
