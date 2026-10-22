@@ -36,6 +36,26 @@ RSpec.describe CatalogController do
       expect(config.index_fields.keys & index_fields_of.call(hidden)).to be_empty
     end
 
+    context 'when the profile shows a controlled property, resource type, in search results' do
+      let(:profile) { super().tap { |shown| shown['properties']['resource_type']['view']['search_results'] = true } }
+      let(:resource_type) { config.index_fields['resource_type_tesim'] }
+
+      around do |example|
+        loaded = config.index_fields.dup
+        example.run
+      ensure
+        config.index_fields.replace(loaded)
+      end
+
+      it 'displays its label rather than its stored value' do
+        expect(resource_type.reads_labels).to be true
+      end
+
+      it 'links it to the label facet' do
+        expect(resource_type.link_to_facet).to eq 'resource_type_label_sim'
+      end
+    end
+
     it 'include every displayed property the profile leaves in search results' do
       expect(config.index_fields.keys).to include(*displayed.map { |key| "#{profile['properties'][key].fetch('name', key)}_tesim" })
     end

@@ -20,6 +20,19 @@ RSpec.describe HykuKnapsack::Engine do
     end
   end
 
+  describe 'helpers' do
+    before do
+      stub_const('ApplicationController', Class.new(ApplicationController))
+      stub_const('SearchWorkTypeHelper', Module.new { def reloaded_helper_method; end })
+    end
+
+    it "register a knapsack helper's current code after a development reload" do
+      described_class.prepend_knapsack_view_paths!
+
+      expect(ApplicationController.helpers).to respond_to(:reloaded_helper_method)
+    end
+  end
+
   describe 'translations' do
     it "win over a key Hyku's own locales define once boot reorders Hyku's" do
       files = [Rails.root.join('config', 'application.rb').to_s, described_class.root.join('lib', 'hyku_knapsack', 'engine.rb').to_s]
