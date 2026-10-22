@@ -1,0 +1,14 @@
+<%# OVERRIDE Hyku v7.2.0 (f908dc6e) to badge a featured work with its resource type's label, and no badge rather than the stored URI when none is indexed %>
+<%# TEMPORARY: delete when samvera/hyku#3445 is in the pinned submodule (refs notch8/utk_knapsack#262) %>
+<%# OVERRIDE Hyku 7.1.0: shared featured row with creator, date, description and resource type %>
+<% document = featured.solr_document %>
+<% url = generate_work_url(featured, request) %>
+<% link_data = { turbolinks: block_valkyrie_redirect? } %>
+
+<%= render layout: 'hyrax/homepage/dc_featured_row',
+           locals: { url:, link_data:, title: document.title_or_label, thumb_class: dc_thumb_placeholder_class(document),
+                     meta: [dc_creator_names(featured).first, (document['date_created_tesim']&.first.presence || document['date_issued_tesim']&.first)].compact_blank,
+                     description: dc_summary(featured).first,
+                     badge: theme_resource_type_label(document) } do %>
+  <%= render_thumbnail_tag(featured, { alt: '' }, { suppress_link: true }) %>
+<% end %>
