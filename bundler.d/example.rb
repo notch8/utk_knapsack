@@ -7,5 +7,5 @@
 # override or not
 override_gem "bulkrax", github: "samvera/bulkrax", ref: "1bd53d2f"
 # 3.2 builds a flexible record's manifest metadata from its profile (hyrax-webapp's ~> 3.1 locks 3.1.1)
-override_gem "iiif_print", "~> 3.2"
+override_gem "iiif_print", "~> 3.2.3"
 override_gem "rails", ">= 7.2.3.2"
