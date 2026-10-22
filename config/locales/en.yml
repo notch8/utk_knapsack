@@ -1,4 +1,7 @@
 en:
+  browse_everything:
+    provider_error:
+      message: "Cloud files can't be loaded right now. Please contact support so the storage connection can be checked."
   digital_collection:
     search:
       work_type: Limit search to a work type

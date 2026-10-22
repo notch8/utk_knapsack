@@ -1,4 +1,7 @@
 fr:
+  browse_everything:
+    provider_error:
+      message: "Impossible de charger les fichiers cloud pour le moment. Contactez le support afin que la connexion au stockage soit vérifiée."
   digital_collection:
     search:
       work_type: Limiter la recherche à un type d'œuvre

@@ -84,6 +84,21 @@ RSpec.describe 'Browse Everything', type: :request, singletenant: true do
       expect(response.body).to include('burial_001.tif')
     end
 
+    it 'opens the picker on the bucket' do
+      get '/browse/', xhr: true
+
+      expect(response.body).to include('burial_001.tif', 'ev-cancel')
+    end
+
+    it 'explains in the picker when the bucket cannot be listed' do
+      Aws.config[:s3] = { stub_responses: { list_objects: 'NoSuchBucket' } }
+      get '/browse/', xhr: true
+
+      expect(response).to be_successful
+      expect(CGI.unescapeHTML(response.body)).to include(I18n.t('browse_everything.provider_error.message'), 'ev-cancel')
+      expect(response.body).to include('id="beModalLabel"')
+    end
+
     it 'signs a download link for the selected file' do
       resolve
 

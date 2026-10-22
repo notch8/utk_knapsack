@@ -1,4 +1,7 @@
 zh:
+  browse_everything:
+    provider_error:
+      message: "目前无法加载云端文件。请联系支持人员检查存储连接。"
   digital_collection:
     search:
       work_type: 将搜索限定为一种作品类型
