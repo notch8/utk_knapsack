@@ -99,7 +99,8 @@ module HykuKnapsack
         paths = [HykuKnapsack::Engine.root.join('app', 'views').to_s] + paths
         klass.view_paths = paths.uniq
       end
-      ::ApplicationController.send :helper, HykuKnapsack::Engine.helpers
+      # By name, not `Engine.helpers`, which is built once and would keep the helper modules from before a reload.
+      ::ApplicationController.helper(*ActionController::Base.all_helpers_from_path(HykuKnapsack::Engine.helpers_paths))
     end
 
     config.to_prepare do
