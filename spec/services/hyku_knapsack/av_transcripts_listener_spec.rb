@@ -7,8 +7,8 @@ RSpec.describe HykuKnapsack::AvTranscriptsListener do
 
   before { stub_request(:get, %r{\Ahttps?://pcdm\.org/}).to_return(status: 404) }
 
-  def file_set(use, ingested: true)
-    file_set = Hyrax.persister.save(resource: Hyrax::FileSet.new(rdf_type: ["http://pcdm.org/use##{use}"]))
+  def file_set(use, ingested: true, sequence: [])
+    file_set = Hyrax.persister.save(resource: Hyrax::FileSet.new(rdf_type: ["http://pcdm.org/use##{use}"], sequence:))
     return file_set unless ingested
 
     file = Hyrax.persister.save(resource: Hyrax::FileMetadata.new(file_set_id: file_set.id,
@@ -46,6 +46,49 @@ RSpec.describe HykuKnapsack::AvTranscriptsListener do
       expect(transcript_ids_of(media)).to contain_exactly(english.id.to_s, spanish.id.to_s)
       expect(transcript_ids_of(english)).to be_empty
     end
+  end
+
+  context 'with parts in sequence' do
+    let(:part_one) { file_set('IntermediateFile', sequence: ['1']) }
+    let(:part_two) { file_set('IntermediateFile', sequence: ['2']) }
+    let(:transcript_one) { file_set('Transcript', sequence: ['1']) }
+    let(:transcript_two) { file_set('Transcript', sequence: ['2']) }
+
+    it 'points each part at the transcripts sharing its sequence' do
+      membership_updated(work(Audio, part_one, part_two, transcript_one, transcript_two))
+
+      expect(transcript_ids_of(part_one)).to eq [transcript_one.id.to_s]
+      expect(transcript_ids_of(part_two)).to eq [transcript_two.id.to_s]
+    end
+
+    it 'points every part at a transcript without a sequence' do
+      membership_updated(work(Audio, part_one, part_two, english))
+
+      expect(transcript_ids_of(part_one)).to eq [english.id.to_s]
+      expect(transcript_ids_of(part_two)).to eq [english.id.to_s]
+    end
+
+    it 'points no part at a transcript whose sequence matches none' do
+      parent = work(Audio, part_one, transcript_two)
+      expect_no_save
+
+      membership_updated(parent)
+    end
+
+    it 'links a part only to its own transcript when the other has not arrived yet' do
+      parent = work(Audio, part_one, part_two, transcript_one)
+      membership_updated(parent)
+
+      expect(transcript_ids_of(part_two)).to be_empty
+    end
+  end
+
+  it 'leaves file sets that are not intermediate files without transcripts' do
+    mods = file_set('Markup')
+
+    membership_updated(work(Audio, media, mods, english))
+
+    expect(transcript_ids_of(mods)).to be_empty
   end
 
   it 'links from a file set event through its parent work' do
