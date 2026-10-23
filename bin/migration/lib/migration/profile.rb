@@ -24,8 +24,9 @@ module Migration
     class << self
       def missing_required(row)
         model = MODELS.fetch(row['model'].to_s, row['model'].to_s)
-        REQUIRED[model].select { |property| row[property].to_s.strip.empty? }
-                       .map { |property| "#{row['source_identifier']} (#{model}) missing #{property}" }
+        REQUIRED[model].filter_map do |property|
+          "#{row['source_identifier']} (#{model}) missing #{property}" if row[property].to_s.strip.empty?
+        end
       end
 
       def vocabulary_for(config)

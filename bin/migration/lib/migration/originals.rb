@@ -29,8 +29,11 @@ module Migration
     private
 
     def jobs_for(rows)
-      rows.select { |row| row['model'] == 'FileSet' && row['id'] && !row['sha1'].to_s.empty? }
-          .map { |row| [Bulkrax::UtkMigrationObjectKey.for(file_set_id: row['id'], sha1: row['sha1']), row['sha1'], row['file_size'].to_i] }
+      rows.filter_map do |row|
+        next unless row['model'] == 'FileSet' && row['id'] && !row['sha1'].to_s.empty?
+
+        [Bulkrax::UtkMigrationObjectKey.for(file_set_id: row['id'], sha1: row['sha1']), row['sha1'], row['file_size'].to_i]
+      end
     end
 
     def each_in_parallel(jobs)

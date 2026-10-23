@@ -17,7 +17,7 @@ module Migration
     def unmatched_stop
       return unless @looked_up
 
-      unmatched = @rows.select { |row| row['id'].nil? }.map { |row| row['source_identifier'] }
+      unmatched = @rows.filter_map { |row| row['source_identifier'] if row['id'].nil? }
       "unmatched source_identifiers: #{unmatched.size} #{unmatched.first(5).inspect}" if unmatched.any?
     end
 
