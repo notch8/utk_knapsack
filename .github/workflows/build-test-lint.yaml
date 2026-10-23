@@ -28,28 +28,28 @@ on:
 jobs:
   build:
     permissions: write-all
-    uses: notch8/actions/.github/workflows/build.yaml@v1.0.11
+    uses: notch8/actions/.github/workflows/build.yaml@v1.0.15
     secrets: inherit
     with:
       components: '["web","worker","nginx"]'
 
   test:
     needs: build
-    uses: notch8/actions/.github/workflows/test.yaml@v1.0.11
+    uses: notch8/actions/.github/workflows/test.yaml@v1.0.15
     with:
       confdir: "/app/samvera/solr/conf"
       rspec_cmd: "cd .. && cp hyrax-webapp/Gemfile.lock Gemfile.lock && gem install semaphore_test_boosters && bundle && rspec_booster --job $CI_NODE_INDEX/$CI_NODE_TOTAL"
 
   lint:
     needs: build
-    uses: notch8/actions/.github/workflows/lint.yaml@v1.0.11
+    uses: notch8/actions/.github/workflows/lint.yaml@v1.0.15
     with:
       rubocop_cmd: "cd .. && cp hyrax-webapp/Gemfile.lock Gemfile.lock && bundle && bundle exec rubocop --parallel --format progress --format junit --out rubocop.xml"
 
   reports:
     if: always()
     needs: [test, lint]
-    uses: notch8/actions/.github/workflows/report.yaml@v1.0.11
+    uses: notch8/actions/.github/workflows/report.yaml@v1.0.15
 
   # Deploying from this run (not a separate workflow_run-triggered Deploy) keeps the run on the
   # pushed commit: GitHub shows a workflow_run's SHA and branch as the default branch's.
@@ -59,7 +59,7 @@ jobs:
     concurrency:
       group: deploy-${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
       cancel-in-progress: false
-    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.15
     secrets: inherit
     with:
       environment: ${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
@@ -70,7 +70,7 @@ jobs:
     permissions:
       actions: read
       contents: write
-    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.13
+    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.15
     with:
       sha: ${{ github.sha }}
       deploy-run-id: ${{ github.run_id }}
