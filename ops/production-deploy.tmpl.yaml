@@ -1,4 +1,4 @@
-replicaCount: 3
+replicaCount: 2
 
 resources:
   limits:
@@ -268,13 +268,13 @@ worker:
       cpu: "1000m"
     requests:
       memory: "3Gi"
-      cpu: "100m"
-  replicaCount: 2
+      cpu: "700m"
+  replicaCount: 1
   autoscaling:
     enabled: true
     minReplicas: 1
     maxReplicas: 6
-    targetCPUUtilizationPercentage: 300
+    targetCPUUtilizationPercentage: 100
   extraVolumeMounts: *volMounts
   extraEnvVars: *envVars
   affinity:
@@ -298,12 +298,14 @@ podSecurityContext:
   fsGroupChangePolicy: "OnRootMismatch"
 
 # Chart 4.1.0 has v2 HPAs for web and worker; FITS has none, so its HPA is in extraDeploy below.
-# Utilization is % of the CPU request (web 250m, worker 100m): 200% = 500m avg, 300% = 300m avg.
+# Utilization is % of the CPU request (web 250m, worker 700m): 200% = 500m avg, 100% = 700m avg.
+# The worker request matches its real steady-state use (~700m) so the scheduler spreads workers
+# and cluster-autoscaler adds nodes; a lower request packs them onto the web nodes unnoticed.
 # The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
 # resets them to worker.replicaCount / 1 until the HPA corrects it.
 autoscaling:
   enabled: true
-  minReplicas: 3
+  minReplicas: 2
   maxReplicas: 6
   targetCPUUtilizationPercentage: 200
 
