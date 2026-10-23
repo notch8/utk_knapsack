@@ -15,4 +15,4 @@ concurrency:
 
 jobs:
   draft:
-    uses: notch8/actions/.github/workflows/release-draft.yaml@v1.0.13
+    uses: notch8/actions/.github/workflows/release-draft.yaml@v1.0.15
