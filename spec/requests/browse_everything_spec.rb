@@ -65,6 +65,13 @@ RSpec.describe 'Browse Everything', type: :request, singletenant: true do
 
       expect(response.body).not_to include('X-Amz-Signature')
     end
+
+    it 'offers no cloud files on the importer' do
+      get '/importers/new'
+
+      expect(response).to be_successful
+      expect(response.body).not_to include('data-toggle="browse-everything"')
+    end
   end
 
   context 'when signed in as an admin' do
@@ -81,6 +88,23 @@ RSpec.describe 'Browse Everything', type: :request, singletenant: true do
       resolve
 
       expect(response.parsed_body.first['url']).to include('utk-ingest', 'burial_001.tif', 'X-Amz-Signature')
+    end
+
+    it 'offers cloud files on the importer' do
+      get '/importers/new'
+
+      expect(response.body).to include('data-toggle="browse-everything"')
+    end
+
+    it 'offers no cloud files on the importer without a provider' do
+      BrowseEverything.configure({})
+      get '/importers/new'
+
+      expect(response.body).not_to include('data-toggle="browse-everything"')
+    end
+
+    it 'keeps cloud files off the work form' do
+      expect(Hyrax.config.browse_everything?).to be_falsey
     end
   end
 end
