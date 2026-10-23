@@ -39,6 +39,9 @@ Metrics/ParameterLists:
   Exclude:
   - "docs/m3_migration/scripts/*.rb"
 
+Performance/SelectMap:
+  Enabled: true
+
 Style/AsciiComments:
   Enabled: false
 
