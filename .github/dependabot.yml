@@ -2,6 +2,10 @@ version: 2
 updates:
   - package-ecosystem: "gitsubmodule"
     directory: "/"
+    # Paused: with no branch in .gitmodules, Dependabot offered Hyku's latest release tag
+    # (v7.2.0), which is behind the Hyku main this knapsack runs (#421). Bump Hyku by hand
+    # while utk is pre-launch; revisit at launch, when utk takes Hyku releases like the others.
+    open-pull-requests-limit: 0
     schedule:
       # A fixed calendar time. A "weekly" interval runs at a random time and can skip a Monday
       # when the config changed mid-week (2026-10-12).
