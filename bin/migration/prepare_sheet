@@ -102,7 +102,7 @@ module Migration
     end
   end
 
-  file_set_ids = result.rows.select { |row| row['model'] == 'FileSet' }.map { |row| row['id'] }
+  file_set_ids = result.rows.filter_map { |row| row['id'] if row['model'] == 'FileSet' }
   %w[stage fill].each { |step| progress.key!(step, file_set_ids) }
   stage = Derivatives::Stage.new(target, report, dry_run: options[:dry_run])
   missing = []
