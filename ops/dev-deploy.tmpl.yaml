@@ -1,4 +1,4 @@
-replicaCount: 2
+replicaCount: 1
 
 resources:
   limits:
@@ -289,7 +289,7 @@ podSecurityContext:
 # resets them to worker.replicaCount / 1 until the HPA corrects it.
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 200
 
