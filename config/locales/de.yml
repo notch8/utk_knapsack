@@ -1,4 +1,7 @@
 de:
+  browse_everything:
+    provider_error:
+      message: "Cloud-Dateien können gerade nicht geladen werden. Bitte wenden Sie sich an den Support, damit die Speicherverbindung geprüft werden kann."
   digital_collection:
     search:
       work_type: Suche auf eine Werkart beschränken

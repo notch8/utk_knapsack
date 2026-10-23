@@ -1,4 +1,7 @@
 it:
+  browse_everything:
+    provider_error:
+      message: "Al momento non è possibile caricare i file cloud. Contatta il supporto per far verificare la connessione allo storage."
   digital_collection:
     search:
       work_type: Limita la ricerca a un tipo di opera

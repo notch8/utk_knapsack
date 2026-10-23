@@ -1,4 +1,7 @@
 pt-BR:
+  browse_everything:
+    provider_error:
+      message: "Não é possível carregar os arquivos na nuvem agora. Entre em contato com o suporte para que a conexão de armazenamento seja verificada."
   digital_collection:
     search:
       work_type: Limitar a pesquisa a um tipo de obra

@@ -1,4 +1,7 @@
 es:
+  browse_everything:
+    provider_error:
+      message: "No se pueden cargar los archivos en la nube en este momento. Póngase en contacto con soporte para que se revise la conexión de almacenamiento."
   digital_collection:
     search:
       work_type: Limitar la búsqueda a un tipo de obra
