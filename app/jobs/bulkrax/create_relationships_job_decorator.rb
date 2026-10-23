@@ -81,7 +81,7 @@ module Bulkrax
       file_ids = members.select(&:file_set?).flat_map(&:file_ids)
       return [] if file_ids.empty?
 
-      Hyrax.query_service.find_many_by_ids(ids: file_ids).select(&:thumbnail_file?).map(&:file_set_id)
+      Hyrax.query_service.find_many_by_ids(ids: file_ids).filter_map { |file| file.file_set_id if file.thumbnail_file? }
     end
 
     def intermediate_file?(member)

@@ -33,8 +33,9 @@ module Migration
 
       def unregenerated_failures(rows)
         models = rows.to_h { |row| [row['source_identifier'], row['model']] }
-        prefixes = rows.select { |row| row['model'] == 'FileSet' && expected?(row, models[row['parents']]) }
-                       .map { |row| "#{Migration.pairtree(row['id'])}-" }
+        prefixes = rows.filter_map do |row|
+          "#{Migration.pairtree(row['id'])}-" if row['model'] == 'FileSet' && expected?(row, models[row['parents']])
+        end
         @failed_paths.reject do |path|
           prefix = prefixes.find { |candidate| path.start_with?(candidate) }
           thumbnail = prefix && @failed_paths.find { |failed| failed.start_with?("#{prefix}thumbnail.") }

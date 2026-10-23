@@ -54,7 +54,7 @@ module Migration
     end
 
     def collections_named
-      collections = @sheet.rows.select { |row| row['model'] == 'Collection' }.map { |row| row['source_identifier'] }
+      collections = @sheet.rows.filter_map { |row| row['source_identifier'] if row['model'] == 'Collection' }
       collections + existing.select { |_, model| model.to_s.include?('Collection') }.keys
     end
 
