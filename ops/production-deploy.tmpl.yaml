@@ -153,6 +153,8 @@ extraEnvVars: &envVars
     value: "$GOOGLE_ANALYTICS_PROPERTY_ID"
   - name: GOOGLE_ACCOUNT_JSON
     value: $GOOGLE_ACCOUNT_JSON
+  - name: GOOD_JOB_MAX_THREADS
+    value: "5"
   - name: HYKU_ADMIN_HOST
     value: utk-knapsack-production.notch8.cloud
   - name: HYKU_ADMIN_ONLY_TENANT_CREATION
@@ -265,7 +267,7 @@ worker:
   resources:
     limits:
       memory: "6Gi"
-      cpu: "1000m"
+      cpu: "1500m"
     requests:
       memory: "3Gi"
       cpu: "700m"
