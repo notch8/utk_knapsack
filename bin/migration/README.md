@@ -96,6 +96,7 @@ that does not match.  It asks before importing, and on prod asks you to type `pr
 | `--email E` | the importer's owner; default `admin@example.com` |
 | `--csv` | a regular CSV import instead: no `prepare_sheet`, the stock **CSV - Comma Separated Values** parser, files fetched from `remote_files` (below) |
 | `--dry-run` | with `--csv`, run its checks and stop |
+| `--again` | import a sheet whose name the tenant already imported in the last day; without it the import stops, so two runs of one sheet never overlap |
 | `--yes`, `-y` | skip the confirmation prompt |
 
 It needs a running worker and takes at least six minutes, since Bulkrax starts the relationship pass
@@ -169,6 +170,11 @@ the old file.  Works already on the tenant are noted: the import updates their m
 file named in its folder's Apache listing passes without a fetch; the rest are fetched one by one, and
 a 404 names any listed file that differs only by underscores, case or extension.
 
+Imports into a deployed tenant wait for one of `IMPORT_SLOTS` (3) on this machine, and a second run
+of the same sheet stops at once, so any number can be started together: each starts when a slot
+frees.  The wait counts only the importer's own Bulkrax jobs, so one import's failures never fail
+another's check.
+
 After the import it checks each work holds the sheet's members and each file set has its parent, a
 file, and is not an HTML page.  It does not check thumbnails, which come later from the derivative
 jobs.
@@ -223,4 +229,5 @@ bin/migration/
 | `AWS_REGION` | `us-east-2` | the destination buckets |
 | `THREADS`, `BATCH` | `8`; `50` to stage, `200` to fill | copy threads, files per derivative batch |
 | `POD_TIMEOUT` | `1800` | seconds before a hung `kubectl exec` (lookup, stage, fill) is killed and tried once more; at most `1800`, since the retry reuses URLs signed for an hour |
+| `IMPORT_SLOTS` | `3` | imports into one deployed tenant at once from this machine; more wait for a slot, since 5 at once restarted FITS and a prod web pod |
 | `LEGACY_SLOTS` | `2` | `kubectl exec` calls into legacy at once, across every prepare on this machine; more waits for a slot, since 7 at once took legacy's web pods down |

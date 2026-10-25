@@ -2,7 +2,7 @@
 
 require 'csv'
 
-cname, email, visibility, name, parser = ARGV
+cname, email, visibility, name, parser, again = ARGV
 Rails.logger = Logger.new(IO::NULL)
 ActiveRecord::Base.logger = Logger.new(IO::NULL)
 $stdout.sync = true
@@ -12,6 +12,9 @@ AccountElevator.switch!(cname)
 csv = File.join(Dir.tmpdir, "#{name}.csv")
 File.write(csv, $stdin.read)
 rows = CSV.read(csv, headers: true)
+
+recent = Bulkrax::Importer.where(name:).where('created_at > ?', 1.day.ago).pluck(:id)
+abort "MARKER 🛑 importer #{recent.join(', ')} already imported #{name} in the last day; pass --again to import it again" if recent.any? && again != 'again'
 
 importer = Bulkrax::Importer.new(
   name:,
@@ -32,13 +35,21 @@ say.call("importer #{importer.id} (#{name}) queued with #{rows.size} rows")
 
 jobs = GoodJob::Job.where('created_at >= ?', importer.created_at)
                    .where("serialized_params->>'tenant' = ?", Apartment::Tenant.current)
-relationship_jobs = jobs.where(job_class: %w[Bulkrax::ScheduleRelationshipsJob Bulkrax::CreateRelationshipsJob])
-retrying_jobs = jobs.where.not(error: nil).where(finished_at: nil)
+own_jobs = lambda do
+  run_id = importer.last_run&.id.to_s
+  jobs.where(job_class: 'Bulkrax::ScheduleRelationshipsJob').where("serialized_params->'arguments'->0->>'importer_id' = ?", importer.id.to_s)
+      .or(jobs.where(job_class: 'Bulkrax::CreateRelationshipsJob').where("serialized_params->'arguments'->0->>'importer_run_id' = ?", run_id))
+      .or(jobs.where(job_class: %w[Bulkrax::ImportWorkJob Bulkrax::ImportFileSetJob Bulkrax::ImportCollectionJob])
+              .where("serialized_params->'arguments'->>1 = ?", run_id))
+end
 ingest_jobs = jobs.where(job_class: 'ValkyrieIngestJob', finished_at: nil)
 last = nil
 loop do
   importer.reload
   abort "MARKER importer failed: #{importer.error_class} #{importer.status_message}" if importer.error_class.present?
+
+  relationship_jobs = own_jobs.call.where(job_class: %w[Bulkrax::ScheduleRelationshipsJob Bulkrax::CreateRelationshipsJob])
+  retrying_jobs = own_jobs.call.where.not(error: nil).where(finished_at: nil)
 
   statuses = importer.entries.map(&:status)
   open = relationship_jobs.where(finished_at: nil).count
@@ -111,7 +122,7 @@ failed.each do |entry|
   say.call("FAILED #{entry.identifier}: #{entry.last_error.to_s[0, 240]}")
 end
 (problems + file_set_problems).each { |problem| say.call("PROBLEM #{problem}") }
-errors = jobs.discarded.group(:job_class).count
+errors = own_jobs.call.discarded.group(:job_class).count
 say.call("job errors: #{errors}") if errors.any?
 say.call("#{works.size - problems.size} of #{works.size} works landed as the sheet says")
 say.call("#{file_sets.size - file_set_problems.size} of #{file_sets.size} file sets landed as the sheet says") if regular_csv

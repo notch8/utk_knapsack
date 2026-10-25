@@ -17,10 +17,11 @@ module Migration
       end
     end
 
-    def initialize(spec, container: ENV.fetch('UTK_CONTAINER', 'hyrax'), slots: nil)
+    def initialize(spec, container: ENV.fetch('UTK_CONTAINER', 'hyrax'), slots: nil, slot_dir: SLOTS)
       @context, @namespace, @deployment = spec.split('/', 3)
       @container = container
       @slots = slots
+      @slot_dir = slot_dir
     end
 
     def to_s
@@ -49,11 +50,11 @@ module Migration
     def with_slot
       return yield unless @slots
 
-      FileUtils.mkdir_p(SLOTS)
+      FileUtils.mkdir_p(@slot_dir)
       waited = false
       loop do
         @slots.times do |n|
-          File.open(File.join(SLOTS, n.to_s), File::RDWR | File::CREAT) do |lock|
+          File.open(File.join(@slot_dir, n.to_s), File::RDWR | File::CREAT) do |lock|
             return yield if lock.flock(File::LOCK_EX | File::LOCK_NB)
           end
         end
