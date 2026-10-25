@@ -411,12 +411,8 @@ fits:
     requests:
       memory: "1Gi"
       cpu: "250m"
-  livenessProbe:
-    initialDelaySeconds: 60
-    failureThreshold: 6
-  readinessProbe:
-    initialDelaySeconds: 60
-    failureThreshold: 6
+  healthCheck:
+    initialDelay: 60
 externalPostgresql:
   host: postgres-18-pooler.postgres.svc.cluster.local
   username: postgres
