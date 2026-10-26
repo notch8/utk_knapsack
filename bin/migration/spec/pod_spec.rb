@@ -53,16 +53,15 @@ RSpec.describe Migration::Pod do
         def prefix
           ['env']
         end
-      end.new('ctx/ns/deploy', slots: 1)
+      end.new('ctx/ns/deploy', slots: 1, slot_dir: slots)
     end
 
     let(:slots) { Dir.mktmpdir }
 
-    before { stub_const("#{described_class}::SLOTS", slots) }
     after { FileUtils.rm_rf(slots) }
 
     it 'waits for a slot another process holds' do
-      File.open(File.join(described_class::SLOTS, '0'), File::RDWR | File::CREAT) do |held|
+      File.open(File.join(slots, '0'), File::RDWR | File::CREAT) do |held|
         held.flock(File::LOCK_EX)
         released = false
         allow(pod).to receive(:sleep) { released = held.flock(File::LOCK_UN) }

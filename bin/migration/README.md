@@ -94,6 +94,9 @@ that does not match.  It asks before importing, and on prod asks you to type `pr
 | `--tenant CNAME` | required on staging and prod; local is `dev-utk-knapsack.localhost.direct`, dev is `demo.utk-knapsack-dev.notch8.cloud` |
 | `--visibility V` | what work and collection rows with a blank `visibility` get, as on the form; default `open`. File set rows with none take their work's |
 | `--email E` | the importer's owner; default `admin@example.com` |
+| `--csv` | a regular CSV import instead: no `prepare_sheet`, the stock **CSV - Comma Separated Values** parser, files fetched from `remote_files` (below) |
+| `--dry-run` | with `--csv`, run its checks and stop |
+| `--again` | import a sheet whose name the tenant already imported in the last day; without it the import stops, so two runs of one sheet never overlap |
 | `--yes`, `-y` | skip the confirmation prompt |
 
 It needs a running worker and takes at least six minutes, since Bulkrax starts the relationship pass
@@ -148,12 +151,53 @@ file set with no derivatives is usually correct; see `MIGRATION_PLAN.md`.  Step 
 warning rather than a stop, the ones legacy should have made derivatives for (an intermediate file,
 or a file set of a `Pdf`), since the import has to generate them.
 
+## Importing a regular CSV
+
+A sheet of new files on remote URLs (`hykuimports.lib.utk.edu`) rather than records in legacy skips
+`prepare_sheet` and goes straight to the destination from UTK's sheet:
+
+```bash
+bin/migration/import_sheet tmp/migration/sheets/collections_bakerav_replace.csv --prod \
+  --tenant dc.utk-knapsack-production.notch8.cloud --email support@notch8.com --csv --dry-run
+```
+
+Before importing it stops on: duplicate rows; role columns (`creator`, `utk_composer`), which only
+`prepare_sheet` converts to `creator_name_N`/`creator_role_N`; `https://pcdm.org` in `rdf_type`; a
+missing required property; a file set with no `remote_files`; a remote file that is not 2xx or comes
+back as an HTML page (islandora `datastream/OBJ` links answer with a bot check); a parent neither in
+the sheet nor on the tenant; a file set whose parent is a collection rather than its work; and a file set already on the tenant, since Bulkrax's update path keeps
+the old file.  Works already on the tenant are noted: the import updates their metadata.  A remote
+file named in its folder's Apache listing passes without a fetch; the rest are fetched one by one, and
+a 404 names any listed file that differs only by underscores, case or extension.
+
+Imports into a deployed tenant wait for one of `IMPORT_SLOTS` (3) on this machine, and a second run
+of the same sheet stops at once, so any number can be started together: each starts when a slot
+frees.  The wait counts only the importer's own Bulkrax jobs, so one import's failures never fail
+another's check.
+
+After the import it checks each work holds the sheet's members and each file set has its parent, a
+file, and is not an HTML page.  It does not check thumbnails, which come later from the derivative
+jobs.
+
+To replace files, list the file sets the sheet names that are already on the tenant, then delete
+them and import:
+
+```bash
+bin/migration/delete_file_sets tmp/migration/sheets/<name>.csv --prod \
+  --tenant dc.utk-knapsack-production.notch8.cloud --email support@notch8.com           # lists
+bin/migration/delete_file_sets ... --apply                                               # deletes
+```
+
+It only touches a file set whose `source_identifier` matches exactly once and whose work is the
+row's parent.
+
 ## Layout
 
 ```
 bin/migration/
   prepare_sheet            the command
-  import_sheet             imports its output
+  import_sheet             imports its output, or a regular CSV with --csv
+  delete_file_sets         lists, then deletes, a sheet's file sets already on a tenant
   lib/migration/
     options.rb             flags
     confirmation.rb        the prompt
@@ -161,6 +205,9 @@ bin/migration/
     sheet.rb               reading, slicing, finding a row's top-level work
     transform.rb           the import CSV
     preflight.rb           its stop lines: unmatched, missing required, no digest, unknown columns
+    csv_preflight.rb       the --csv stop lines on the sheet itself
+    remote_files.rb        checks remote files against folder listings, fetching the rest
+    csv_check.rb           runs both, then checks the sheet against the tenant
     profile.rb             required properties and role columns, from the metadata profile
     originals.rb           step 3
     derivatives/           steps 4 and 5
@@ -182,4 +229,5 @@ bin/migration/
 | `AWS_REGION` | `us-east-2` | the destination buckets |
 | `THREADS`, `BATCH` | `8`; `50` to stage, `200` to fill | copy threads, files per derivative batch |
 | `POD_TIMEOUT` | `1800` | seconds before a hung `kubectl exec` (lookup, stage, fill) is killed and tried once more; at most `1800`, since the retry reuses URLs signed for an hour |
+| `IMPORT_SLOTS` | `3` | imports into one deployed tenant at once from this machine; more wait for a slot, since 5 at once restarted FITS and a prod web pod |
 | `LEGACY_SLOTS` | `2` | `kubectl exec` calls into legacy at once, across every prepare on this machine; more waits for a slot, since 7 at once took legacy's web pods down |

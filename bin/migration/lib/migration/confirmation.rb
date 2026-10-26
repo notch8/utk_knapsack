@@ -32,6 +32,8 @@ module Migration
     end
 
     def scope
+      return paint("#{@sheet.rows.size} rows #{@sheet.rows.map { |row| row['model'] }.tally}", :magenta) if @options[:csv]
+
       total = @sheet.work_count
       count = [@options[:limit] || total, total].min
       return "the #{paint(count == 1 ? 'first work' : "first #{count} works", :magenta)}" if @options[:limit]

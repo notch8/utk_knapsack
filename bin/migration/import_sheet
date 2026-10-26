@@ -10,8 +10,9 @@ $stdout.sync = true
 
 module Migration
   BANNER = 'usage: bin/migration/import_sheet tmp/migration/out/<name>.csv ' \
-           '[--dev|--staging|--prod] [--tenant CNAME] [--visibility V] [--email E] [--yes]'
+           '[--dev|--staging|--prod] [--tenant CNAME] [--visibility V] [--email E] [--csv] [--dry-run] [--again] [--yes]'
   TENANTS = { 'local' => 'dev-utk-knapsack.localhost.direct', 'dev' => 'demo.utk-knapsack-dev.notch8.cloud' }.freeze
+  IMPORT_SLOTS = Integer(ENV.fetch('IMPORT_SLOTS', 3))
 
   options = { visibility: 'open', email: 'admin@example.com' }
   begin
@@ -25,6 +26,9 @@ module Migration
       o.on('--tenant CNAME') { |cname| options[:tenant] = cname }
       o.on('--visibility V', 'for rows with a blank visibility (default open)') { |v| options[:visibility] = v }
       o.on('--email E', 'the importer owner (default admin@example.com)') { |e| options[:email] = e }
+      o.on('--csv', 'a regular CSV import: remote_files, Bulkrax::CsvParser') { options[:csv] = true }
+      o.on('--dry-run', 'with --csv, run the checks and stop') { options[:dry_run] = true }
+      o.on('--again', 'import a sheet the tenant already imported in the last day') { options[:again] = true }
       o.on('-y', '--yes', 'skip the confirmation prompt') { options[:yes] = true }
     end.parse!(ARGV)
   rescue OptionParser::ParseError => e
@@ -37,12 +41,24 @@ module Migration
   tenant = options[:tenant] || TENANTS[target.name] || abort("🛑 No default tenant on #{target.name}; pass --tenant")
   app = target.pod ? Pod.new(target.pod) : LocalApp.new('local')
   name = File.basename(path, '.csv')
+  sheet = Sheet.read(path)
+  abort '🛑 --dry-run only checks a --csv sheet' if options[:dry_run] && !options[:csv]
 
-  Confirmation.new(options, target, Sheet.read(path), "#{File.basename(path)} into #{tenant}").ask!
+  if options[:csv]
+    CsvCheck.new(sheet, app, tenant).run!
+    exit if options[:dry_run]
+  end
 
+  Confirmation.new(options, target, sheet, "#{File.basename(path)} into #{tenant}").ask!
+
+  lock = File.open("/tmp/utk-migration-import-#{tenant}-#{name}.lock", File::RDWR | File::CREAT)
+  abort "🛑 #{name} is already importing into #{tenant} from this machine" unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+  app = Pod.new(target.pod, slots: IMPORT_SLOTS, slot_dir: "/tmp/utk-migration-import-slots-#{tenant}") if target.pod
+
+  parser = options[:csv] ? 'Bulkrax::CsvParser' : 'Bulkrax::UtkMigrationCsvParser'
   output = []
-  status = app.run('import', tenant, options[:email], options[:visibility], name,
-                   stdin: File.read(path), ruby: 'bundle exec rails runner') do |line|
+  status = app.run('import', tenant, options[:email], options[:visibility], name, parser, options[:again] ? 'again' : '',
+                   stdin: File.read(path, encoding: 'bom|utf-8'), ruby: 'bundle exec rails runner') do |line|
     line.start_with?('MARKER ') ? puts(line.delete_prefix('MARKER ')) : output << line
   end
   exit if status.success?
