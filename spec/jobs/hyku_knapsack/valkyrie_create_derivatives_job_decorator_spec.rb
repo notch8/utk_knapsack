@@ -104,6 +104,24 @@ RSpec.describe HykuKnapsack::ValkyrieCreateDerivativesJobDecorator do
       end
     end
 
+    context 'when the relationship pass gave it a supplied thumbnail but no representative' do
+      let(:parent) { Pdf.new(id: 'work-1', title: ['parent'], thumbnail_id: 'fs-0') }
+
+      it 'gains the representative and keeps its thumbnail' do
+        expect(parent.thumbnail_id).to eq 'fs-0'
+        expect(parent.representative_id).to eq 'fs-1'
+      end
+    end
+
+    context 'when the file set is a supplied thumbnail image' do
+      let(:rdf_type) { ['http://pcdm.org/use#ThumbnailImage'] }
+
+      it 'becomes the thumbnail but never the representative' do
+        expect(parent.thumbnail_id).to eq 'fs-1'
+        expect(parent.representative_id).to be_nil
+      end
+    end
+
     context 'when it already shows another file set' do
       let(:parent) { Pdf.new(id: 'work-1', title: ['parent'], thumbnail_id: 'fs-0', representative_id: 'fs-0') }
 

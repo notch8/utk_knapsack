@@ -333,6 +333,44 @@ RSpec.describe Bulkrax::CreateRelationshipsJobDecorator do
       end
     end
 
+    context 'when a member is a supplied ThumbnailImage' do
+      before { stub_member(fs3, sequence: ['3'], rdf_type: ['http://pcdm.org/use#ThumbnailImage']) }
+
+      it 'uses it as the thumbnail and keeps the IntermediateFile as representative' do
+        job.send(:sort_members_and_set_representative, parent_id)
+
+        expect(parent).to have_received(:representative_id=).with(fs2_id)
+        expect(parent).to have_received(:thumbnail_id=).with(fs3_id)
+      end
+
+      context 'and no other member is an IntermediateFile or has a thumbnail' do
+        before do
+          stub_member(fs1, sequence: ['2'], rdf_type: [markup], thumbnail: false)
+          stub_member(fs2, sequence: ['1'], rdf_type: [markup], thumbnail: false)
+        end
+
+        it 'never makes it the representative' do
+          job.send(:sort_members_and_set_representative, parent_id)
+
+          expect(parent).not_to have_received(:representative_id=)
+          expect(parent).to have_received(:thumbnail_id=).with(fs3_id)
+        end
+      end
+
+      context 'and the work already points at it' do
+        let(:parent) do
+          double('parent', id: parent_id, member_ids: [fs2_id, fs1_id, fs3_id],
+                           representative_id: fs2_id, thumbnail_id: fs3_id)
+        end
+
+        it 'skips the save' do
+          job.send(:sort_members_and_set_representative, parent_id)
+
+          expect(persister).not_to have_received(:save)
+        end
+      end
+    end
+
     context 'when members are empty' do
       before { allow(query_service).to receive(:find_members).with(resource: parent).and_return([].lazy) }
 

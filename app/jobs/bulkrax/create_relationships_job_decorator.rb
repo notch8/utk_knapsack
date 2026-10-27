@@ -2,7 +2,8 @@
 
 # OVERRIDE Bulkrax 10.0.0: after the relationship pass assembles a work's
 # member_ids, rewrite them in sequence order and set representative_id /
-# thumbnail_id to the member the legacy app would have shown. The migration
+# thumbnail_id to the member the legacy app would have shown, or thumbnail_id
+# to a member UTK supplied as its ThumbnailImage. The migration
 # factory bypasses the transaction that normally does this. Then reindex the
 # work's file sets, which were indexed before they had a parent and so lack
 # the `is_page_of_ssim` IIIF search filters on. Queue the ingest of each file
@@ -47,25 +48,14 @@ module Bulkrax
       return if members.empty?
 
       sorted = sort_by_sequence(members)
-      sorted_ids = sorted.map(&:id)
       representative_id = representative_for(sorted)&.id
-      return if already_ordered?(parent, sorted_ids, representative_id)
+      thumbnail_id = sorted.find { |member| thumbnail_image?(member) }&.id || representative_id
+      updates = { member_ids: sorted.map(&:id), representative_id:, thumbnail_id: }.compact
+      return if updates.all? { |attribute, value| parent.public_send(attribute) == value }
 
-      parent.member_ids = sorted_ids
-      if representative_id
-        parent.representative_id = representative_id
-        parent.thumbnail_id = representative_id
-      end
+      updates.each { |attribute, value| parent.public_send("#{attribute}=", value) }
       saved_parent = Hyrax.persister.save(resource: parent)
       Bulkrax.object_factory.update_index(resources: [saved_parent])
-    end
-
-    def already_ordered?(parent, sorted_ids, representative_id)
-      return false unless parent.member_ids == sorted_ids
-      return true if representative_id.nil?
-
-      parent.representative_id == representative_id &&
-        parent.thumbnail_id == representative_id
     end
 
     def sort_by_sequence(members)
@@ -76,7 +66,8 @@ module Bulkrax
     end
 
     def representative_for(members)
-      members.find { |member| intermediate_file?(member) } || first_with_thumbnail(members)
+      candidates = members.reject { |member| thumbnail_image?(member) }
+      candidates.find { |member| intermediate_file?(member) } || first_with_thumbnail(candidates)
     end
 
     def first_with_thumbnail(members)
@@ -95,6 +86,10 @@ module Bulkrax
 
     def intermediate_file?(member)
       HykuKnapsack::PcdmUse.intermediate_file?(member.try(:rdf_type))
+    end
+
+    def thumbnail_image?(member)
+      HykuKnapsack::PcdmUse.thumbnail_image?(member.try(:rdf_type))
     end
   end
 end

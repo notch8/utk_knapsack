@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# OVERRIDE Hyrax 5.3.0: generate derivatives only for intermediate files and PDFs, point a parent
-# that has no thumbnail yet at the file set once its thumbnail exists, and queue a reindex of the
-# parent so its text includes every page, not only the thumbnail's
+# OVERRIDE Hyrax 5.3.0: generate derivatives only for intermediate files, supplied thumbnail images
+# and PDFs, point a parent that has no thumbnail or representative yet at the file set once its
+# thumbnail exists, and queue a reindex of the parent so its text includes every page, not only the
+# thumbnail's
 module HykuKnapsack
   module ValkyrieCreateDerivativesJobDecorator
     include Hyrax::Lockable
@@ -33,12 +34,13 @@ module HykuKnapsack
     def adopt_as_thumbnail(file_set, parent_id)
       return unless file_set.thumbnail
 
+      roles = PcdmUse.thumbnail_image?(file_set.try(:rdf_type)) ? %i[thumbnail_id] : %i[thumbnail_id representative_id]
       acquire_lock_for(parent_id.to_s) do
         parent = Hyrax.query_service.find_by(id: parent_id)
-        next if parent.thumbnail_id.present?
+        vacant = roles.select { |role| parent.public_send(role).blank? }
+        next if vacant.empty?
 
-        parent.thumbnail_id = file_set.id
-        parent.representative_id = file_set.id if parent.representative_id.blank?
+        vacant.each { |role| parent.public_send("#{role}=", file_set.id) }
         Hyrax.persister.save(resource: parent)
       end
     end
