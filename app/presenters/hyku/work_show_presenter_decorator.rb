@@ -3,6 +3,7 @@
 # OVERRIDE Hyku (submodule) to pass the query positionally so
 # Hyrax::SolrService.post merges in qt=standard - passing it as `q:` silently
 # skips that merge, which Solr 9 needs for {!join} queries to resolve correctly.
+# OVERRIDE Hyku to name Clover for a Compound Object with no viewer chosen.
 module Hyku
   module WorkShowPresenterDecorator
     def authorized_member_models
@@ -13,6 +14,10 @@ module Hyku
                         .dig('response', 'docs')
                         .to_a
                         .to_h { |doc| [doc['id'], Array(doc['has_model_ssim']).first.to_s] }
+    end
+
+    def iiif_viewer
+      chosen_viewer.nil? && solr_document.hydra_model == CompoundObject ? :clover : super
     end
   end
 end
