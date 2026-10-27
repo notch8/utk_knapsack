@@ -21,3 +21,30 @@ en:
     select_type:
       compound_object:
         description: Two or more worktypes
+  shared:
+    footer:
+      about: About
+      accessibility: Accessibility
+      apply: Apply
+      campus_directory: Directory
+      directory: Directory
+      donate: Donate to the Libraries
+      employment: Employment
+      events: Events
+      facebook: UTK Libraries Facebook
+      give: Give to UT
+      instagram: UTK Libraries Instagram
+      intranet: Library Intranet
+      linkedin: UTK Libraries LinkedIn
+      map: Map
+      map_and_directions: Map & Directions
+      outreach: Outreach
+      policies: Policies
+      power_t_desc: University of Tennessee power T logo
+      privacy: Privacy
+      speaking_volumes_html: "<i>Speaking Volumes</i> magazine"
+      twitter: UTK Libraries Twitter
+      ut_system_desc: Winged UT logo for the University of Tennessee System
+      ut_system_html: The flagship campus of <a href="http://tennessee.edu">the University of Tennessee System</a> and partner in <a href="http://www.tntransferpathway.org/">the Tennessee Transfer Pathway</a>.
+      utk_home: University of Tennessee Knoxville home page
+      youtube: UTK Libraries YouTube
