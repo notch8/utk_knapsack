@@ -37,6 +37,12 @@ RSpec.describe HykuKnapsack::DerivativeCandidate do
       expect(described_class.match?(intermediate, Hyrax::FileMetadata.new(mime_type: 'audio/mpeg'))).to be true
     end
 
+    it 'accepts a supplied thumbnail image' do
+      thumbnail = Hyrax::FileSet.new(rdf_type: ['http://pcdm.org/use#ThumbnailImage'])
+
+      expect(described_class.match?(thumbnail, Hyrax::FileMetadata.new(mime_type: 'image/png'))).to be true
+    end
+
     it 'rejects a preservation master that is not intermediate' do
       preservation = Hyrax::FileSet.new(rdf_type: ['http://pcdm.org/use#PreservationFile'])
 
