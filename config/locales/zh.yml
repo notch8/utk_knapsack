@@ -14,3 +14,30 @@ zh:
     select_type:
       compound_object:
         description: 两个或多个工作类型
+  shared:
+    footer:
+      about: 关于
+      accessibility: 无障碍
+      apply: 申请入学
+      campus_directory: 通讯录
+      directory: 通讯录
+      donate: 向图书馆捐赠
+      employment: 招聘
+      events: 活动
+      facebook: UTK Libraries 的 Facebook
+      give: 向 UT 捐赠
+      instagram: UTK Libraries 的 Instagram
+      intranet: 图书馆内网
+      linkedin: UTK Libraries 的 LinkedIn
+      map: 地图
+      map_and_directions: 地图与交通
+      outreach: 外展服务
+      policies: 政策
+      power_t_desc: University of Tennessee Power T 标志
+      privacy: 隐私
+      speaking_volumes_html: "<i>Speaking Volumes</i> 杂志"
+      twitter: UTK Libraries 的 Twitter
+      ut_system_desc: University of Tennessee System 飞翼 UT 标志
+      ut_system_html: <a href="http://tennessee.edu">University of Tennessee System</a> 的旗舰校区，<a href="http://www.tntransferpathway.org/">Tennessee Transfer Pathway</a> 的合作伙伴。
+      utk_home: University of Tennessee Knoxville 主页
+      youtube: UTK Libraries 的 YouTube

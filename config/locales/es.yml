@@ -14,3 +14,30 @@ es:
     select_type:
       compound_object:
         description: Dos o más tipos de trabajo
+  shared:
+    footer:
+      about: Acerca de
+      accessibility: Accesibilidad
+      apply: Solicitar admisión
+      campus_directory: Directorio
+      directory: Directorio
+      donate: Donar a las Bibliotecas
+      employment: Empleo
+      events: Eventos
+      facebook: UTK Libraries en Facebook
+      give: Donar a la UT
+      instagram: UTK Libraries en Instagram
+      intranet: Intranet de la Biblioteca
+      linkedin: UTK Libraries en LinkedIn
+      map: Mapa
+      map_and_directions: Mapa y cómo llegar
+      outreach: Divulgación
+      policies: Políticas
+      power_t_desc: Logotipo Power T de la University of Tennessee
+      privacy: Privacidad
+      speaking_volumes_html: Revista <i>Speaking Volumes</i>
+      twitter: UTK Libraries en Twitter
+      ut_system_desc: Logotipo alado de UT del University of Tennessee System
+      ut_system_html: El campus principal del <a href="http://tennessee.edu">University of Tennessee System</a> y socio del <a href="http://www.tntransferpathway.org/">Tennessee Transfer Pathway</a>.
+      utk_home: Página principal de la University of Tennessee Knoxville
+      youtube: UTK Libraries en YouTube
