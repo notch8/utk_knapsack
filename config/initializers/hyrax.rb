@@ -11,6 +11,7 @@ Hyrax.config do |config|
 
   config.flexible = ActiveModel::Type::Boolean.new.cast(ENV.fetch('HYRAX_FLEXIBLE', 'true'))
   config.derivative_options[:video].reject! { |output| output[:label] == 'webm' }
+  config.derivative_options[:audio].reject! { |output| output[:label] == 'ogg' }
 
   # Prepend to ensure knapsack profile is checked before the host app's profiles.
   config.schema_loader_config_search_paths.unshift(HykuKnapsack::Engine.root) \

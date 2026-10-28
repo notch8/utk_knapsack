@@ -17,6 +17,10 @@ RSpec.describe 'config/initializers/hyrax.rb' do
     expect(Hyrax.config.derivative_options[:video].map { |output| output[:label] }).to eq [:thumbnail, 'mp4']
   end
 
+  it 'makes mp3 audio derivatives but not ogg' do
+    expect(Hyrax.config.derivative_options[:audio].map { |output| output[:label] }).to eq ['mp3']
+  end
+
   it 'points Bulkrax at a registered work type' do
     expect(registered).to include(Bulkrax::Entry.default_work_type)
   end
