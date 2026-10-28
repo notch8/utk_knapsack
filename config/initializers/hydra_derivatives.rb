@@ -1,4 +1,5 @@
 # frozen_string_literal: true
 
-mpeg4 = Hydra::Derivatives::Processors::Video::Processor.config.mpeg4
-mpeg4.codec += ' -preset veryfast' unless mpeg4.codec.include?('-preset')
+video = Hydra::Derivatives::Processors::Video::Processor.config
+video.mpeg4.codec += ' -preset veryfast' unless video.mpeg4.codec.include?('-preset')
+video.video_attributes = '-g 30 -crf 23 -movflags +faststart'
