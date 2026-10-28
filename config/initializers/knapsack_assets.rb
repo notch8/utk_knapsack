@@ -16,4 +16,6 @@ end
 # The knapsack's scripts load on their own, not through the host app's
 # `application.js` manifest, so sprockets has to be told to build them. `|=` keeps
 # a single entry each across the repeated evaluation above.
-Rails.application.config.assets.precompile |= ['hyku_knapsack/file_manager_sequence_sort.js', 'hyku_knapsack/search_work_type.js']
+Rails.application.config.assets.precompile |= %w[hyku_knapsack/file_manager_sequence_sort.js
+                                                 hyku_knapsack/search_work_type.js
+                                                 hyku_knapsack/browse_everything_submit.js]

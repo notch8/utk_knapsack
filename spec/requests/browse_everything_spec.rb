@@ -111,6 +111,12 @@ RSpec.describe 'Browse Everything', type: :request, singletenant: true do
       expect(response.body).to include('data-toggle="browse-everything"')
     end
 
+    it 'loads the picker Submit fix on the importer' do
+      get '/importers/new'
+
+      expect(response.body).to match(%r{<script src="/assets/hyku_knapsack/browse_everything_submit[^"]*\.js"})
+    end
+
     it 'offers no cloud files on the importer without a provider' do
       BrowseEverything.configure({})
       get '/importers/new'
