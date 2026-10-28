@@ -49,6 +49,7 @@
     <h4><%= t('bulkrax.importer.csv.add_files_to_import') %></h4>
     <p><%= t('bulkrax.importer.csv.add_files_hint') %></p>
     <%= render 'browse_everything', form: form %>
+    <%= javascript_include_tag 'hyku_knapsack/browse_everything_submit' %>
   <% end %>
   <br />
 </div>
