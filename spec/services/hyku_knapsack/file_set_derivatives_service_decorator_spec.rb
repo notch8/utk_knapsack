@@ -30,4 +30,58 @@ RSpec.describe HykuKnapsack::FileSetDerivativesServiceDecorator do
 
     expect(HykuKnapsack::PdfTextExtractor).not_to have_received(:call)
   end
+
+  context 'with audio and video' do
+    let(:av_path) { HykuKnapsack::Engine.root.join('spec/fixtures/av', fixture).to_s }
+    let(:fixture) { 'h264.mp4' }
+
+    def labels(processor)
+      outputs = nil
+      expect(processor).to have_received(:create) { |_, options| outputs = options[:outputs] }
+      outputs.map { |output| output[:label].to_s }
+    end
+
+    before do
+      allow(Hydra::Derivatives::AudioDerivatives).to receive(:create)
+      allow(Hydra::Derivatives::VideoDerivatives).to receive(:create)
+    end
+
+    it 'makes only a thumbnail for an H.264 MP4' do
+      Hyrax::FileSetDerivativesService.new(original('video/mp4')).create_derivatives(av_path)
+
+      expect(labels(Hydra::Derivatives::VideoDerivatives)).to eq %w[thumbnail]
+    end
+
+    context 'with an MP4 a browser cannot play' do
+      let(:fixture) { 'mpeg4.mp4' }
+
+      it 'makes a thumbnail and an mp4 service file' do
+        Hyrax::FileSetDerivativesService.new(original('video/mp4')).create_derivatives(av_path)
+
+        expect(labels(Hydra::Derivatives::VideoDerivatives)).to eq %w[thumbnail mp4]
+      end
+    end
+
+    it 'makes a thumbnail and an mp4 service file for a QuickTime original' do
+      Hyrax::FileSetDerivativesService.new(original('video/quicktime')).create_derivatives(av_path)
+
+      expect(labels(Hydra::Derivatives::VideoDerivatives)).to eq %w[thumbnail mp4]
+    end
+
+    context 'with an MP3' do
+      let(:fixture) { 'mp3.mp3' }
+
+      it 'makes nothing' do
+        Hyrax::FileSetDerivativesService.new(original('audio/mpeg')).create_derivatives(av_path)
+
+        expect(Hydra::Derivatives::AudioDerivatives).not_to have_received(:create)
+      end
+    end
+
+    it 'makes an mp3 service file for a WAV' do
+      Hyrax::FileSetDerivativesService.new(original('audio/x-wav')).create_derivatives(av_path)
+
+      expect(labels(Hydra::Derivatives::AudioDerivatives)).to eq %w[mp3]
+    end
+  end
 end
