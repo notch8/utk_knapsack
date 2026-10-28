@@ -41,10 +41,10 @@ RSpec.describe CatalogController do
       let(:resource_type) { config.index_fields['resource_type_tesim'] }
 
       around do |example|
-        loaded = config.index_fields.dup
+        loaded = described_class.blacklight_config
         example.run
       ensure
-        config.index_fields.replace(loaded)
+        described_class.blacklight_config = loaded
       end
 
       it 'displays its label rather than its stored value' do
