@@ -13,21 +13,21 @@
           <p>1015 Volunteer Boulevard<br>Knoxville, TN 37996<br><a href="tel:865-974-4351">865-974-4351</a></p>
         </div>
         <div class="text-link link-link utk-search-selector pb-3">
-          <div><a href="https://maps.utk.edu/?id=314#!ce/3040?ct/27641?m/276034?s/"><%= t('.map_and_directions') %></a></div>
-          <div><a href="https://give.utk.edu/campaigns/42950/donations/new?designation_id=anutk_lib"><%= t('.donate') %></a></div>
+          <div><a href="https://maps.utk.edu/?id=314#!ce/3040?ct/27641?m/276034?s/">Map &amp; Directions</a></div>
+          <div><a href="https://give.utk.edu/campaigns/42950/donations/new?designation_id=anutk_lib">Donate to the Libraries</a></div>
         </div>
       </div>
       <div class="col-12 col-lg-6 text-link link-link utk-search-selector">
         <div class="row">
           <% [
-               [[t('.about'), 'https://lib.utk.edu/about'],
+               [['About', 'https://lib.utk.edu/about'],
                 ['John C. Hodges Society', 'https://lib.utk.edu/society'],
-                [t('.speaking_volumes_html'), 'https://volumes.lib.utk.edu/features/'],
-                [t('.outreach'), 'https://lib.utk.edu/department/community-learning-and-engagement']],
-               [[t('.directory'), 'https://lib.utk.edu/directory'],
-                [t('.employment'), 'https://lib.utk.edu/employment'],
-                [t('.policies'), 'https://lib.utk.edu/about/policies'],
-                [t('.intranet'), 'https://liveutk.sharepoint.com/sites/ut_libraryadministration/SitePages/Homepage.aspx']]
+                [tag.i('Speaking Volumes') + ' magazine', 'https://volumes.lib.utk.edu/features/'],
+                ['Outreach', 'https://lib.utk.edu/department/community-learning-and-engagement']],
+               [['Directory', 'https://lib.utk.edu/directory'],
+                ['Employment', 'https://lib.utk.edu/employment'],
+                ['Policies', 'https://lib.utk.edu/about/policies'],
+                ['Library Intranet', 'https://liveutk.sharepoint.com/sites/ut_libraryadministration/SitePages/Homepage.aspx']]
              ].each do |column| %>
             <div class="col-12 col-lg-6">
               <ul class="list-group list-group-flush">
@@ -48,7 +48,7 @@
     <div class="utk-header-footer-max">
       <div class="row pt-2">
         <div class="col-lg py-2">
-          <a href="https://www.utk.edu" aria-label="<%= t('.utk_home') %>">
+          <a href="https://www.utk.edu" aria-label="University of Tennessee Knoxville home page">
             <%= render 'shared/footer/power_t' %>
           </a>
           <div class="pt-2">
@@ -57,14 +57,14 @@
         </div>
         <div class="col-lg">
           <div class="row py-3">
-            <% [[t('.events'), 'http://calendar.utk.edu/'],
+            <% [['Events', 'http://calendar.utk.edu/'],
                 ['A-Z', 'http://www.utk.edu/alpha/'],
-                [t('.apply'), 'http://www.utk.edu/admissions/'],
-                [t('.privacy'), 'https://www.utk.edu/aboutut/privacy/'],
-                [t('.map'), 'http://maps.utk.edu/'],
-                [t('.campus_directory'), 'http://directory.utk.edu'],
-                [t('.give'), 'http://giveto.utk.edu'],
-                [t('.accessibility'), 'https://oed.utk.edu/ada/campus-accessibility/']].each do |label, url| %>
+                ['Apply', 'http://www.utk.edu/admissions/'],
+                ['Privacy', 'https://www.utk.edu/aboutut/privacy/'],
+                ['Map', 'http://maps.utk.edu/'],
+                ['Directory', 'http://directory.utk.edu'],
+                ['Give to UT', 'http://giveto.utk.edu'],
+                ['Accessibility', 'https://oed.utk.edu/ada/campus-accessibility/']].each do |label, url| %>
               <div class="col-6 col-sm-3 mb-2">
                 <a href="<%= url %>"><%= label %><span class="svg-settings fluent-icon-external"></span></a>
               </div>
@@ -78,7 +78,7 @@
   <div class="text-white link-white utk-search-selector bg-smokey font-small">
     <div class="d-flex align-items-center utk-header-footer-max">
       <%= render 'shared/footer/ut_system_logo' %>
-      <p class="align-items-center px-2 py-3 mb-0"><%= t('.ut_system_html') %></p>
+      <p class="align-items-center px-2 py-3 mb-0">The flagship campus of <a href="http://tennessee.edu">the University of Tennessee System</a> and partner in <a href="http://www.tntransferpathway.org/">the Tennessee Transfer Pathway</a>.</p>
     </div>
   </div>
 </footer>
