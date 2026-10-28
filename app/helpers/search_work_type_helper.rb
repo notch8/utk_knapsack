@@ -7,9 +7,9 @@ module SearchWorkTypeHelper
   # @return [Array<Array(String, String)>] label and value of each enabled work type, in registration order
   def search_work_type_options
     enabled = Array(Site.instance.available_works)
-    Hyrax.config.curation_concerns
-         .select { |klass| enabled.include?(klass.to_s) }
-         .map { |klass| [work_type_facet_label(klass.to_s), klass.to_s] }
+    Hyrax.config.curation_concerns.filter_map do |klass|
+      [work_type_facet_label(klass.to_s), klass.to_s] if enabled.include?(klass.to_s)
+    end
   end
 
   # Advanced search sends its choice as f_inclusive. The menu holds one type, so several show as All.
