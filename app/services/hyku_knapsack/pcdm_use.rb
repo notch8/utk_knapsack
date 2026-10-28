@@ -11,6 +11,10 @@ module HykuKnapsack
         match?(types, Hyrax::FileMetadata::Use::TRANSCRIPT)
       end
 
+      def thumbnail_image?(types)
+        match?(types, Hyrax::FileMetadata::Use::THUMBNAIL_IMAGE)
+      end
+
       private
 
       def match?(types, use)

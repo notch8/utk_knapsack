@@ -43,4 +43,14 @@ RSpec.describe HykuKnapsack::PcdmUse do
       expect(described_class.transcript?(['http://pcdm.org/use#IntermediateFile'])).to be false
     end
   end
+
+  describe '.thumbnail_image?' do
+    it 'matches the PCDM use URI' do
+      expect(described_class.thumbnail_image?(['http://pcdm.org/use#ThumbnailImage'])).to be true
+    end
+
+    it 'rejects other PCDM uses' do
+      expect(described_class.thumbnail_image?(['http://pcdm.org/use#IntermediateFile'])).to be false
+    end
+  end
 end

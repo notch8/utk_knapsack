@@ -3,7 +3,8 @@
 module HykuKnapsack
   class DerivativeCandidate
     def self.match?(file_set, original)
-      pdf?(original) || PcdmUse.intermediate_file?(file_set.try(:rdf_type))
+      types = file_set.try(:rdf_type)
+      pdf?(original) || PcdmUse.intermediate_file?(types) || PcdmUse.thumbnail_image?(types)
     end
 
     def self.pdf?(original)
