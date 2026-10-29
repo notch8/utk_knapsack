@@ -313,8 +313,10 @@ GitHub repo settings have "Allow squash merging" disabled. If you want a clean h
 ## CI
 
 `.github/workflows/build-test-lint.yaml` delegates to the reusable `notch8/actions` workflows for
-build, test, lint and reporting. A green push to `main` or `production` deploys that branch
-(see [Deploying](#deploying)); `workflow_dispatch` on Deploy is for ad-hoc and rollback deploys.
+build, test, lint and reporting. When it passes on a push to `main` or `production`,
+`.github/workflows/deploy.yaml` (Deploy) deploys the commit it tested (see [Deploying](#deploying));
+its run name carries that commit's SHA, since GitHub labels the run with `main`'s HEAD.
+`workflow_dispatch` on Deploy is for ad-hoc and rollback deploys.
 
 ## Deploying
 
@@ -336,8 +338,8 @@ from [notch8/playbook](https://github.com/notch8/playbook). UTK specifics:
   git switch production && git pull && git merge --ff-only origin/main && git push
   ```
 
-  The push runs Build Test Lint; when it passes, production deploys and the newest stable draft
-  release is published, with no approval step. Production can't be force-pushed or deleted.
+  The push runs Build Test Lint; when it passes, the Deploy workflow deploys production and
+  publishes the newest stable draft release, with no approval step. Production can't be force-pushed or deleted.
   The client QAs on dev first. `utk-knapsack-staging` still exists but only deploys by manual
   dispatch. A hotfix on `production` gets an auto-opened merge-down PR to `main` from the
   auto-merger; review and merge it.

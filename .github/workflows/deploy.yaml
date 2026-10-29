@@ -1,8 +1,15 @@
 name: "Deploy"
-# Ad-hoc deploys and rollbacks. Pushes to main, staging and production deploy from their
-# Build Test Lint run instead.
-run-name: Deploy (${{ github.ref_name }} -> ${{ inputs.environment }}) by @${{ github.actor }}
+# Deploys the commit Build Test Lint tested once it passes: a push to main deploys dev, production
+# deploys production and then publishes the release. Run it by hand to deploy a branch ad hoc, to
+# deploy staging, or to roll back.
+run-name: Deploy (${{ github.event.workflow_run.head_branch || github.ref_name }} -> ${{ inputs.environment || (github.event.workflow_run.head_branch == 'main' && 'dev') || github.event.workflow_run.head_branch }}) ${{ github.event.workflow_run.head_sha || github.sha }} by @${{ github.actor }}
 on:
+  workflow_run:
+    workflows: ["Build Test Lint"]
+    types: [completed]
+    branches:
+      - main
+      - production
   workflow_dispatch:
     inputs:
       environment:
@@ -20,13 +27,45 @@ on:
         required: false
         default: false
 
-
 jobs:
+  determine-environment:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set.outputs.environment }}
+    steps:
+      - id: set
+        name: Map branch or input to the target environment
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "environment=$INPUT_ENVIRONMENT" >> "$GITHUB_OUTPUT"
+          else
+            case "$HEAD_BRANCH" in
+              main) echo "environment=dev" >> "$GITHUB_OUTPUT" ;;
+              production) echo "environment=production" >> "$GITHUB_OUTPUT" ;;
+            esac
+          fi
+
   deploy:
+    needs: determine-environment
     concurrency:
-      group: deploy-${{ inputs.environment }}
+      group: deploy-${{ needs.determine-environment.outputs.environment }}
       cancel-in-progress: false
     uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
     secrets: inherit
     with:
-      environment: ${{ inputs.environment }}
+      environment: ${{ needs.determine-environment.outputs.environment }}
+
+  publish-release:
+    needs: deploy
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'production' }}
+    permissions:
+      actions: read
+      contents: write
+    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.13
+    with:
+      sha: ${{ github.event.workflow_run.head_sha }}
+      deploy-run-id: ${{ github.run_id }}
