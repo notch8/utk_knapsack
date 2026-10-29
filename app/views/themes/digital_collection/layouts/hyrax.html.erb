@@ -1,10 +1,13 @@
-<%# OVERRIDE Hyku 7.2.0 to render the UTK footer on every digital_collection page, not only the homepage and splash page %>
+<%# OVERRIDE Hyku 7.2.0 to render the UTK footer on every digital_collection page, not only the homepage and splash page, and to load Clicky where CLICKY_SITE_ID is set %>
 <!-- add body classes to make styling easier -->
 <!DOCTYPE html>
 <html lang="<%= I18n.locale.to_s %>" prefix="og:http://ogp.me/ns#">
   <head>
     <%= render partial: 'layouts/head_tag_content' %>
     <%= content_for(:head) %>
+    <% if (clicky_site_id = ENV['CLICKY_SITE_ID'].presence) && !themed_account_page? %>
+      <%= javascript_include_tag 'https://static.getclicky.com/js', async: true, data: { id: clicky_site_id } %>
+    <% end %>
     <%= yield(:canonical_url) %>
   </head>
   <% content_for(:extra_body_classes, 'public-facing') unless params[:controller].match(/^proprietor/) %>
