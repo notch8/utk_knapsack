@@ -3,7 +3,8 @@
 
 // ---- UTK brand settings (Hyku: themes/digital_collection/_primitives.scss, _catalog.scss, _shell.scss, shared/_appearance_styles.html.erb) ----
 body.digital_collection,
-body.digital_collection_show {
+body.digital_collection_show,
+body.dashboard.dc-dashboard {
   --dc-accent: #ff8200;
   --dc-badge: #ffffff;
   --dc-badge-case: none;
@@ -28,11 +29,13 @@ body.digital_collection_show {
   --dc-selected-ink: #ffffff;
 }
 
-// ---- current page and language in the masthead (Hyku: _shell.scss, .dc-masthead-nav, .dc-masthead-login, .dc-masthead-section and .dc-language-row links) ----
+// ---- current page and language in the masthead (Hyku: _shell.scss, .dc-masthead-nav, .dc-masthead-login, .dc-masthead-trigger, .dc-masthead-section and .dc-language-row links) ----
 body.digital_collection.public-facing,
-body.digital_collection_show.public-facing {
+body.digital_collection_show.public-facing,
+body.dashboard.dc-dashboard {
   .dc-masthead .nav.navbar-nav.dc-masthead-nav > li.nav-item > a.nav-link[aria-current='page'],
   .dc-masthead .dc-masthead-login[aria-current='page'],
+  .dc-masthead .dc-masthead-trigger[aria-current='true'] .dc-masthead-name,
   .dc-masthead .dc-masthead-section .nav.navbar-nav > li.nav-item > a.nav-link[aria-current='page'],
   .dc-masthead .dc-language-row a.nav-link[aria-current='true'] {
     text-decoration-color: var(--dc-accent);
