@@ -53,4 +53,8 @@ RSpec.describe 'config/initializers/4browse_everything.rb' do
 
     expect(config).to be_empty
   end
+
+  it 'downloads cloud files at the importer job\'s priority, ahead of derivatives' do
+    expect(Bulkrax::DownloadCloudFileJob.new.priority).to eq(-20)
+  end
 end
