@@ -5,7 +5,7 @@
   <head>
     <%= render partial: 'layouts/head_tag_content' %>
     <%= content_for(:head) %>
-    <% if (clicky_site_id = ENV['CLICKY_SITE_ID'].presence) %>
+    <% if (clicky_site_id = ENV['CLICKY_SITE_ID'].presence) && !themed_account_page? %>
       <%= javascript_include_tag 'https://static.getclicky.com/js', async: true, data: { id: clicky_site_id } %>
     <% end %>
     <%= yield(:canonical_url) %>
