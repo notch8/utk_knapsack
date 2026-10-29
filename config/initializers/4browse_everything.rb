@@ -5,3 +5,7 @@ keys = { app_key: ENV['BROWSE_EVERYTHING_S3_ACCESS_KEY_ID'], app_secret: ENV['BR
 s3.merge!(keys) if keys.values.all?(&:present?)
 
 BrowseEverything.configure(s3.values_at(:bucket, :region).all?(&:present?) ? { s3: } : {})
+
+Rails.application.config.after_initialize do
+  Bulkrax::DownloadCloudFileJob.priority = -20
+end
