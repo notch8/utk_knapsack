@@ -29,6 +29,10 @@
           .clover-viewer-information-panel, .clover-viewer-information-panel * { box-sizing: border-box; }
           .clover-viewer-header > span:first-child { padding-left: 1rem !important; }
           .clover-viewer-header > div:last-child { padding-right: 1rem !important; }
+          clover-viewer:not(:has(*)) { padding: 1rem; box-sizing: border-box; }
+          .clover-viewer-content > div[data-aside-active] { padding: 0 1rem; box-sizing: border-box; }
+          @media (max-width: 767px) { .clover-viewer-content > div[data-aside-active="true"] { padding: 0; } }
+          .clover-viewer-media-wrapper figure img { object-fit: contain; }
         </style>
     </head>
     <body>
