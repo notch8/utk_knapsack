@@ -108,6 +108,14 @@ body.dashboard.dc-dashboard {
   }
 }
 
+// ---- search bar row (Hyku: _shell.scss, .dc-searchbar; digital_collection_show.scss, .dc-secondary-header) ----
+body.digital_collection.public-facing,
+body.digital_collection_show.public-facing {
+  .dc-searchbar {
+    background: $dc-surface-alt;
+  }
+}
+
 // ---- search results toolbar rule (Hyku: _catalog.scss, .dc-toolbar) ----
 body.catalog-index.digital_collection.public-facing {
   .dc-toolbar {
