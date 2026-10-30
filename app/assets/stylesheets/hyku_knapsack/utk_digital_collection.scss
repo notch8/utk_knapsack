@@ -29,6 +29,72 @@ body.dashboard.dc-dashboard {
   --dc-selected-ink: #ffffff;
 }
 
+// ---- white masthead with an orange rule (Hyku: _shell.scss, dc-masthead-chrome; digital_collection.scss, body.dashboard.dc-dashboard) ----
+body.digital_collection.public-facing,
+body.digital_collection_show.public-facing,
+body.dashboard.dc-dashboard {
+  .dc-masthead {
+    --dc-chrome: #ffffff;
+    --dc-chrome-ink: #4b4b4b;
+    overflow-x: clip;
+
+    #masthead {
+      border-bottom: $dc-rule-strong solid transparent;
+
+      &::after {
+        background: var(--dc-accent);
+        bottom: -$dc-rule-strong;
+        content: '';
+        height: $dc-rule-strong;
+        left: 50%;
+        position: absolute;
+        transform: translateX(-50%);
+        width: 100vw;
+      }
+    }
+
+    #masthead #logo,
+    .dc-menu-button,
+    .nav.navbar-nav.dc-masthead-nav > li.nav-item > a.nav-link,
+    .dc-masthead-section .nav.navbar-nav > li.nav-item > a.nav-link,
+    .dc-masthead-trigger,
+    .dc-masthead-login,
+    .dc-language-row a.nav-link {
+      &:focus-visible {
+        @include dc-focus-ring;
+      }
+    }
+
+    #masthead .navbar-nav .nav-link {
+      color: var(--dc-chrome-ink) !important;
+    }
+
+    .dc-menu-button {
+      border-color: $dc-control-edge;
+    }
+
+    .dc-menu-button:hover,
+    .dc-masthead-trigger:hover,
+    .dc-masthead-trigger[aria-expanded='true'],
+    .dc-masthead-login:hover {
+      background: $dc-surface-alt;
+    }
+
+    .dc-unread-count {
+      background: #4b4b4b;
+      color: #ffffff;
+    }
+
+    .dc-masthead-section {
+      border-top-color: $dc-hairline;
+    }
+  }
+}
+
+body.digital_collection.hyrax-homepage .dc-announcement {
+  border-top: 0;
+}
+
 // ---- current page and language in the masthead (Hyku: _shell.scss, .dc-masthead-nav, .dc-masthead-login, .dc-masthead-trigger, .dc-masthead-section and .dc-language-row links) ----
 body.digital_collection.public-facing,
 body.digital_collection_show.public-facing,
@@ -38,7 +104,7 @@ body.dashboard.dc-dashboard {
   .dc-masthead .dc-masthead-trigger[aria-current='true'] .dc-masthead-name,
   .dc-masthead .dc-masthead-section .nav.navbar-nav > li.nav-item > a.nav-link[aria-current='page'],
   .dc-masthead .dc-language-row a.nav-link[aria-current='true'] {
-    text-decoration-color: var(--dc-accent);
+    text-decoration-color: #e67500;
   }
 }
 
