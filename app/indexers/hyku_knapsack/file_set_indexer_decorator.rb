@@ -20,3 +20,4 @@ module HykuKnapsack
 end
 
 Hyku::Indexers::FileSetIndexer.prepend(HykuKnapsack::FileSetIndexerDecorator)
+Hyku::Indexers::FileSetIndexer.prepend(UtkUriLabelIndexing)

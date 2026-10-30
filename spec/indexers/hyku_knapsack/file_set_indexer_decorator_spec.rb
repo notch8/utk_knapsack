@@ -83,6 +83,20 @@ RSpec.describe HykuKnapsack::FileSetIndexerDecorator do
     end
   end
 
+  context 'when the file set has a creator URI' do
+    let(:uri) { 'http://id.loc.gov/authorities/names/n85364216' }
+    let(:file_set) do
+      Hyrax.persister.save(resource: Hyrax::FileSet.new(title: ['Page'], creators: [{ 'name' => uri, 'role' => 'Creator' }]))
+    end
+
+    before { allow(UriLabelResolver).to receive(:label_for) { |v| v == uri ? 'Delaney, Beauford, 1901-1979' : v } }
+
+    it 'indexes the label' do
+      expect(JSON.parse(solr_doc['creators_json_ss']).first).to include('name' => 'Delaney, Beauford, 1901-1979')
+      expect(solr_doc['creators_name_sim']).to eq ['Delaney, Beauford, 1901-1979']
+    end
+  end
+
   context 'when the file set is not a PDF' do
     let(:image) { attach(Hyrax::FileMetadata::Use::ORIGINAL_FILE, write('page.tif', 'tiff bytes'), 'image/tiff') }
 
