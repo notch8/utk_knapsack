@@ -158,31 +158,6 @@ body.digital_collection_show.hyrax-collections-show {
   }
 }
 
-// ---- collection breadcrumbs on the banner (Hyku: digital_collection_show.scss, .dc-secondary-header, .dc-breadcrumbs) ----
-body.digital_collection_show.hyrax-collections-show {
-  .dc-secondary-header .dc-breadcrumbs {
-    display: none;
-  }
-
-  .dc-secondary-header-inner {
-    justify-content: flex-end;
-  }
-
-  .dc-collection-breadcrumbs {
-    li {
-      color: $dc-overlay-text;
-    }
-
-    li + li::before {
-      color: #e6e6e6;
-    }
-
-    a {
-      @include dc-link($on: dark);
-    }
-  }
-}
-
 // ---- search bar on phones (Hyku: _shell.scss, .dc-searchbar; digital_collection.scss, .dc-hero-search) ----
 // OVERRIDE Hyku v7.2.0 to give the search field its own row on phones, as the hero does, since every visitor now has the work type menu beside it
 body.digital_collection,
