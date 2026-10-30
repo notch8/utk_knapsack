@@ -126,6 +126,22 @@ body.catalog-index.digital_collection.public-facing {
 
 // ---- homepage hero (Hyku: digital_collection.scss, .dc-hero-plate, .dc-hero-headline, .dc-hero-stats, .dc-hero-caption) ----
 .digital_collection.hyrax-homepage {
+  .dc-hero {
+    min-height: 520px;
+
+    @media (max-width: $dc-laptop-max) {
+      min-height: 460px;
+    }
+
+    @media (max-width: $dc-tablet-max) {
+      min-height: 400px;
+    }
+
+    @media (max-width: $dc-mobile-max) {
+      min-height: 380px;
+    }
+  }
+
   .dc-hero .carousel-item::after {
     @include utk-banner-overlay;
     z-index: 1;
