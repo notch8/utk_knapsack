@@ -33,6 +33,14 @@
           .clover-viewer-content > div[data-aside-active] { padding: 0 1rem; box-sizing: border-box; }
           @media (max-width: 767px) { .clover-viewer-content > div[data-aside-active="true"] { padding: 0; } }
           .clover-viewer-media-wrapper figure img { object-fit: contain; }
+          video.audio-only::cue { font-size: clamp(14px, 2.4vw, 24px); white-space: pre-line; }
+          .captions-toggle {
+            position: absolute; top: 64px; left: 50%; transform: translateX(-50%); z-index: 1;
+            padding: 4px 12px; border: 1px solid #fff; border-radius: 4px;
+            background: #4b4b4b; color: #fff; font: 600 14px/1.4 Montserrat, Helvetica, Arial, sans-serif; cursor: pointer;
+          }
+          .captions-toggle[aria-pressed="true"] { background: #fff; color: #4b4b4b; }
+          .captions-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
         </style>
     </head>
     <body>
@@ -58,6 +66,64 @@
             if (event.isTrusted && event.target.closest?.('#information-toggle')) keepPanelClosed.disconnect();
           }, true);
         });
+
+        // OVERRIDE: liftAudioCaptions and the audio cue size come from samvera/hyku#3499, which this page shadows
+        const CAPTION_CLEARANCE = 130;
+        const liftAudioCaptions = (media) => {
+          if (media.readyState < 1 || media.videoWidth > 0 || !media.clientHeight) return;
+          const line = Math.max(0, 100 - (CAPTION_CLEARANCE / media.clientHeight) * 100);
+          for (const track of media.textTracks) {
+            for (const cue of track.cues || []) Object.assign(cue, { snapToLines: false, line });
+          }
+        };
+        ['loadedmetadata', 'load'].forEach((type) => {
+          document.addEventListener(type, (event) => {
+            const media = event.target.closest?.('audio, video');
+            if (media) liftAudioCaptions(media);
+          }, true);
+        });
+        window.addEventListener('resize', () => document.querySelectorAll('audio, video').forEach(liftAudioCaptions));
+
+        const captionsShowing = (media) => [...media.textTracks].some((track) => track.mode === 'showing');
+        const captionsToggleFor = (media) => media.closest?.('.clover-viewer-player-wrapper')?.querySelector('.captions-toggle');
+        const syncCaptionsToggle = (media) => {
+          const button = captionsToggleFor(media);
+          if (!button) return;
+          button.hidden = !media.textTracks.length;
+          button.setAttribute('aria-pressed', String(captionsShowing(media)));
+        };
+
+        const watchedMedia = new WeakSet();
+        document.addEventListener('loadstart', (event) => {
+          const media = event.target;
+          if (!media.textTracks) return;
+          captionsToggleFor(media)?.remove();
+          if (watchedMedia.has(media)) return;
+          watchedMedia.add(media);
+          ['change', 'addtrack', 'removetrack'].forEach((type) => {
+            media.textTracks.addEventListener(type, () => {
+              liftAudioCaptions(media);
+              syncCaptionsToggle(media);
+            });
+          });
+        }, true);
+
+        document.addEventListener('loadedmetadata', (event) => {
+          const media = event.target;
+          if (!media.textTracks) return;
+          media.classList.toggle('audio-only', !media.videoWidth);
+          const wrapper = media.closest('.clover-viewer-player-wrapper');
+          if (!wrapper || media.videoWidth > 0 || captionsToggleFor(media)) return;
+          const button = document.createElement('button');
+          Object.assign(button, { type: 'button', className: 'captions-toggle', textContent: 'CC', title: 'Captions' });
+          button.addEventListener('click', () => {
+            const turnOn = !captionsShowing(media);
+            [...media.textTracks].forEach((track, index) => { track.mode = turnOn && index === 0 ? 'showing' : 'disabled'; });
+            syncCaptionsToggle(media);
+          });
+          wrapper.appendChild(button);
+          syncCaptionsToggle(media);
+        }, true);
     </script>
     </body>
 </html>
