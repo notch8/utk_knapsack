@@ -2,3 +2,4 @@
 
 IiifPrint.config.uv_config_path = '/uv/knapsack-uv-config.json'
 IiifPrint.config.iiif_metadata_field_presentation_order = %i[title description abstract collection remaining rights_statement]
+IiifPrint.config.ocr_preprocess_options = "-colorspace gray -blur 0x1"
