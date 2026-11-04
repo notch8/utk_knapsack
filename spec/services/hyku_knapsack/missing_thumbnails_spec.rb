@@ -104,7 +104,7 @@ RSpec.describe HykuKnapsack::MissingThumbnails do
     it 'sends a PDF Hyrax has no derivative service for to characterization first, which chains the thumbnail' do
       described_class.call(io:)
 
-      expect(UtkMigrationCharacterizationJob).to have_been_enqueued.with(uncharacterized_pdf.last)
+      expect(HykuKnapsack::CharacterizeOriginalJob).to have_been_enqueued.with(uncharacterized_pdf.last)
       expect(ValkyrieCreateDerivativesJob).not_to have_been_enqueued.with(*uncharacterized_pdf)
       expect(io.string).to include("#{uncharacterized_pdf.first} inode/x-empty characterize first")
     end
@@ -124,7 +124,7 @@ RSpec.describe HykuKnapsack::MissingThumbnails do
       described_class.call(io:)
 
       expect(Hyrax::DerivativeService).to have_received(:services).at_least(:once)
-      expect(UtkMigrationCharacterizationJob).to have_been_enqueued.with(uncharacterized_pdf.last)
+      expect(HykuKnapsack::CharacterizeOriginalJob).to have_been_enqueued.with(uncharacterized_pdf.last)
       expect(ValkyrieCreateDerivativesJob).to have_been_enqueued.with(*pdf_without_thumbnail)
     end
 

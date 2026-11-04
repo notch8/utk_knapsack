@@ -59,7 +59,7 @@ module HykuKnapsack
       if derivable?(candidate.original)
         ValkyrieCreateDerivativesJob.perform_later(candidate.file_set_id, candidate.original.id.to_s)
       else
-        UtkMigrationCharacterizationJob.perform_later(candidate.original.id.to_s)
+        CharacterizeOriginalJob.perform_later(candidate.original.id.to_s)
       end
     end
 

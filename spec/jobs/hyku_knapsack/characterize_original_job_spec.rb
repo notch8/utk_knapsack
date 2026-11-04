@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UtkMigrationCharacterizationJob do
+RSpec.describe HykuKnapsack::CharacterizeOriginalJob do
   let(:metadata) do
     double('file_metadata', id: 'fm-1', file: nil, original_file?: true, file_set_id: 'fs-1',
                             pdf?: true, audio?: false, original_filename: 'memoir.pdf')

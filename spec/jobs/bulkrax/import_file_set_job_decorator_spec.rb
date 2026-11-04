@@ -4,16 +4,16 @@ require 'rails_helper'
 
 RSpec.describe Bulkrax::ImportFileSetJobDecorator do
   let(:importer) do
-    Bulkrax::Importer.create!(name: 'probe', admin_set_id: 'admin-set', parser_klass: 'Bulkrax::UtkMigrationCsvParser',
+    Bulkrax::Importer.create!(name: 'probe', admin_set_id: 'admin-set', parser_klass: 'Bulkrax::CsvParser',
                               user: ::User.system_user,
-                              field_mapping: Bulkrax.field_mappings['Bulkrax::UtkMigrationCsvParser'],
+                              field_mapping: Bulkrax.field_mappings['Bulkrax::CsvParser'],
                               parser_fields: { 'import_file_path' => 'unused.csv' })
   end
   let(:run) { importer.importer_runs.create! }
-  let!(:parent) { Bulkrax::UtkMigrationCsvEntry.create!(importerexporter: importer, identifier: 'w:1', raw_metadata: {}) }
+  let!(:parent) { Bulkrax::CsvEntry.create!(importerexporter: importer, identifier: 'w:1', raw_metadata: {}) }
   let(:file_set) do
-    Bulkrax::UtkMigrationCsvFileSetEntry.create!(importerexporter: importer, identifier: 'w:1_OBJ_fileset',
-                                                 raw_metadata: { 'parents' => 'w:1' }, import_attempts: 4)
+    Bulkrax::CsvFileSetEntry.create!(importerexporter: importer, identifier: 'w:1_OBJ_fileset',
+                                     raw_metadata: { 'parents' => 'w:1' }, import_attempts: 4)
   end
   let(:job) { Bulkrax::ImportFileSetJob.new }
 
