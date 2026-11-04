@@ -99,6 +99,14 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
+    - host: utk-knapsack-origin.notch8.cloud
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+    - host: digital.lib.utk.edu
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
   annotations:
     nginx.org/client-max-body-size: "0"
     nginx.org/websocket-services: "utk-knapsack-production-nginx"
@@ -108,6 +116,9 @@ ingress:
         - utk-knapsack-production.notch8.cloud
         - "*.utk-knapsack-production.notch8.cloud"
       secretName: utk-knapsack-production-tls
+    - hosts:
+        - utk-knapsack-origin.notch8.cloud
+      secretName: utk-knapsack-origin-tls
 
 extraEnvVars: &envVars
   - name: BUNDLE_DISABLE_LOCAL_BRANCH_CHECK
