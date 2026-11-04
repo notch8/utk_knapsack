@@ -5,10 +5,4 @@ Rails.application.config.to_prepare do
 
   Bulkrax.default_work_type = 'StillImage'
   Bulkrax::Entry.default_work_type = Bulkrax.default_work_type
-
-  unless Bulkrax.parsers.any? { |p| p[:class_name] == Bulkrax::UtkMigrationCsvParser.to_s }
-    Bulkrax.parsers += [{ name: 'UTK Migration - CSV',
-                          class_name: Bulkrax::UtkMigrationCsvParser.to_s,
-                          partial: 'csv_fields' }]
-  end
 end

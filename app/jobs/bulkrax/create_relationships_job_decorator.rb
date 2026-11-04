@@ -3,8 +3,7 @@
 # OVERRIDE Bulkrax 10.0.0: after the relationship pass assembles a work's
 # member_ids, rewrite them in sequence order and set representative_id /
 # thumbnail_id to the member the legacy app would have shown, or thumbnail_id
-# to a member UTK supplied as its ThumbnailImage. The migration
-# factory bypasses the transaction that normally does this. Then reindex the
+# to a member UTK supplied as its ThumbnailImage. Then reindex the
 # work's file sets, which were indexed before they had a parent and so lack
 # the `is_page_of_ssim` IIIF search filters on. Queue the ingest of each file
 # set created from an upload as soon as the pass first attaches it, so

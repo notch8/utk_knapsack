@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Bulkrax::HasLocalProcessingDecorator do
-  let(:entry) { Bulkrax::UtkMigrationCsvEntry.new }
+  let(:entry) { Bulkrax::CsvEntry.new }
 
   before do
     allow(entry).to receive(:factory_class).and_return(factory_class)

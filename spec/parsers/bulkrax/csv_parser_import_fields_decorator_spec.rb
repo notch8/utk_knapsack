@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe Bulkrax::CsvParserImportFieldsDecorator do
   let(:csv) { Tempfile.new(['import', '.csv']) }
   let(:importer) do
-    Bulkrax::Importer.create!(name: 'probe', admin_set_id: 'admin-set', parser_klass: 'Bulkrax::UtkMigrationCsvParser',
+    Bulkrax::Importer.create!(name: 'probe', admin_set_id: 'admin-set', parser_klass: 'Bulkrax::CsvParser',
                               user: ::User.system_user,
-                              field_mapping: Bulkrax.field_mappings['Bulkrax::UtkMigrationCsvParser'],
+                              field_mapping: Bulkrax.field_mappings['Bulkrax::CsvParser'],
                               parser_fields: { 'import_file_path' => csv.path })
   end
   let(:sheet) do
