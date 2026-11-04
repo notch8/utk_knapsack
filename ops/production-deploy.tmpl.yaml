@@ -382,7 +382,7 @@ extraDeploy:
               command:
                 - sh
                 - -c
-                - service-wait.sh "$REDIS_HOST:6379"
+                - service-wait.sh "${DOLLAR}REDIS_HOST:6379"
           {{- with .Values.imagePullSecrets }}
           imagePullSecrets:
             {{- toYaml . | nindent 8 }}
