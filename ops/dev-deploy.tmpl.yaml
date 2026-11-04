@@ -263,6 +263,10 @@ worker:
     targetCPUUtilizationPercentage: 300
   extraVolumeMounts: *volMounts
   extraEnvVars: *envVars
+  # GOOD_JOB_QUEUES=-auxiliary; kept out of extraEnvVars so the auxiliary worker can set its own.
+  extraEnvFrom:
+    - configMapRef:
+        name: utk-knapsack-dev-hyrax-worker-queues
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -293,7 +297,109 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 200
 
+# Dedicated worker for the `auxiliary` queue (A/V derivatives): one job at a time, own CPU/memory.
+# Mirrored by the auxiliary-worker Deployment in extraDeploy below.
+workerAuxiliary:
+  replicaCount: 1
+  terminationGracePeriodSeconds: 10800
+  resources:
+    limits:
+      memory: "6Gi"
+      cpu: "1500m"
+    requests:
+      memory: "1Gi"
+      cpu: "100m"
+
 extraDeploy:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-worker-queues'
+    data:
+      GOOD_JOB_QUEUES: "-auxiliary"
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: {{ include "hyrax.fullname" . }}-auxiliary-worker
+      labels:
+        {{- include "hyrax.labels" . | nindent 4 }}
+    spec:
+      replicas: {{ .Values.workerAuxiliary.replicaCount }}
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: hyrax-auxiliary-worker
+          app.kubernetes.io/instance: {{ .Release.Name }}
+      template:
+        metadata:
+          annotations:
+            {{- toYaml .Values.podAnnotations | nindent 8 }}
+            cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+          labels:
+            app.kubernetes.io/name: hyrax-auxiliary-worker
+            app.kubernetes.io/instance: {{ .Release.Name }}
+        spec:
+          terminationGracePeriodSeconds: {{ .Values.workerAuxiliary.terminationGracePeriodSeconds }}
+          initContainers:
+            - name: service-wait
+              image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+              envFrom:
+                - configMapRef:
+                    name: {{ include "hyrax.fullname" . }}-env
+                - secretRef:
+                    name: {{ template "hyrax.fullname" . }}
+              env:
+                {{- toYaml .Values.worker.extraEnvVars | nindent 12 }}
+              command:
+                - sh
+                - -c
+                - service-wait.sh "$REDIS_HOST:6379"
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          serviceAccountName: {{ include "hyrax.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+          containers:
+            - name: {{ .Chart.Name }}-auxiliary-worker
+              image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+              envFrom:
+                - configMapRef:
+                    name: {{ include "hyrax.fullname" . }}-env
+                - secretRef:
+                    name: {{ template "hyrax.fullname" . }}
+                {{- if .Values.solrExistingSecret }}
+                - secretRef:
+                    name: {{ .Values.solrExistingSecret }}
+                {{- end }}
+              env:
+                {{- toYaml .Values.worker.extraEnvVars | nindent 12 }}
+                - name: GOOD_JOB_QUEUES
+                  value: "auxiliary:1"
+              volumeMounts:
+                - name: derivatives
+                  mountPath: /app/samvera/derivatives
+                - name: uploads
+                  subPath: file_cache
+                  mountPath: /app/samvera/file_cache
+                - name: uploads
+                  subPath: uploads
+                  mountPath: /app/samvera/uploads
+                {{- with .Values.worker.extraVolumeMounts }}
+                {{- toYaml . | nindent 12 }}
+                {{- end }}
+              resources:
+                {{- toYaml .Values.workerAuxiliary.resources | nindent 12 }}
+          volumes:
+            - name: derivatives
+              persistentVolumeClaim:
+                claimName: {{ template "hyrax.fullname" . }}-derivatives
+            - name: uploads
+              persistentVolumeClaim:
+                claimName: {{ template "hyrax.fullname" . }}-uploads
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
     metadata:
