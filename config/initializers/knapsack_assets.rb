@@ -17,5 +17,4 @@ end
 # `application.js` manifest, so sprockets has to be told to build them. `|=` keeps
 # a single entry each across the repeated evaluation above.
 Rails.application.config.assets.precompile |= %w[hyku_knapsack/file_manager_sequence_sort.js
-                                                 hyku_knapsack/search_work_type.js
-                                                 hyku_knapsack/browse_everything_submit.js]
+                                                 hyku_knapsack/search_work_type.js]
