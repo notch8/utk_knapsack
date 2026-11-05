@@ -42,6 +42,31 @@ Rails.application.config.after_initialize do
   HykuKnapsack::ReseedValidChildConcerns.call
 end
 
+Rails.application.config.after_initialize do
+  Hyrax.config.collection_terms = %i[
+    abstract
+    date_created
+    date_issued
+    creators
+    contributors
+    publication_place
+    subject
+    keyword
+    repository
+    language
+    spatial
+    coordinates
+    extent
+    form
+    resource_type
+    note
+    rights_statement
+    provider
+    call_number
+    ark
+  ]
+end
+
 Rails.application.config.to_prepare do
   Hyrax.config.iiif_av_viewer = :clover
   Hyku::ListenerSubscription.replace(HykuKnapsack::AvTranscriptsListener.new)
