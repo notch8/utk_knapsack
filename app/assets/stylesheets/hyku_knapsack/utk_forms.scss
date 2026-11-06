@@ -1,0 +1,10 @@
+// ---- autocomplete fields on the work form (hydra-editor: multi_value_fields.scss; Hyku: records/edit_fields/_controlled_vocab_autocomplete.html.erb) ----
+// OVERRIDE hydra-editor 7.1.0 to show Remove on the first row, which a select2 box gives no other way to clear
+.multi_value[data-autocomplete-url] .listing li:first-of-type .remove {
+  display: inline-block;
+}
+
+.multi_value[data-autocomplete-url] .listing li:has(.select2-chosen:empty) .remove,
+.multi_value[data-autocomplete-url] .listing li:only-of-type .remove {
+  display: none !important;
+}
