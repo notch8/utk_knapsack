@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::FlexibleSchemaDecorator do
+RSpec.describe HykuKnapsack::FlexibleSchemaMemosDecorator do
   it 'drops the schema memos when a profile is saved' do
     schema = Hyrax::FlexibleSchema.current_record
     Hyrax::Schema.m3_schema_loader.attributes_for(schema: 'Pdf', version: schema.id)

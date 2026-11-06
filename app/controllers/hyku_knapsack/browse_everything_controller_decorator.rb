@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE browse-everything 1.5.0 - only admins may list or resolve a provider's files, and a
+# OVERRIDE browse-everything 1.6.1 - only admins may list or resolve a provider's files, and a
 # provider that cannot be listed renders a message in the picker instead of an empty modal
 module HykuKnapsack
   module BrowseEverythingControllerDecorator
