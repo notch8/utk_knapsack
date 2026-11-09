@@ -1,4 +1,7 @@
 en:
+  hyku_knapsack:
+    islandora_redirects:
+      not_found: "We could not find %{pid}."
   browse_everything:
     provider_error:
       message: "Cloud files can't be loaded right now. Please contact support so the storage connection can be checked."
