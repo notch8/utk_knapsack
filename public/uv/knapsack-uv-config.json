@@ -1,5 +1,11 @@
 {
   "modules": {
+    "downloadDialogue": {
+      "options": {
+        "downloadCurrentViewEnabled": false,
+        "downloadWholeImageLowResEnabled": false
+      }
+    },
     "moreInfoRightPanel": {
       "content": {
         "rights": "Rights"

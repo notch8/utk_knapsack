@@ -8,6 +8,15 @@ RSpec.describe 'IIIF manifest configuration' do
     expect(HykuKnapsack::Engine.root.join('public', 'uv', 'knapsack-uv-config.json')).to exist
   end
 
+  it 'offers only the whole high-res image for download, the one option the image server answers' do
+    config = JSON.parse(HykuKnapsack::Engine.root.join('public', 'uv', 'knapsack-uv-config.json').read)
+
+    expect(config.dig('modules', 'downloadDialogue', 'options')).to eq(
+      'downloadCurrentViewEnabled' => false,
+      'downloadWholeImageLowResEnabled' => false
+    )
+  end
+
   it 'leaves the top-level rights out of manifests, since the rights statement is already a metadata row' do
     presenter = Hyrax::IiifManifestPresenter.new(
       SolrDocument.new(id: 'w1', has_model_ssim: ['Book'], rights_statement_tesim: ['http://rightsstatements.org/vocab/InC/1.0/'])
