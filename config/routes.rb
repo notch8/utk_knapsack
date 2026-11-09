@@ -5,4 +5,7 @@ HykuKnapsack::Engine.routes.draw do
   get '/concern/parent/:parent_id/images/*rest',
       to: redirect(path: '/concern/parent/%{parent_id}/still_images/%{rest}'),
       format: false
+  get '/collections', to: redirect('/')
+  get '/collections/islandora/object/:pid(/*rest)', to: 'islandora_redirects#show', constraints: { pid: %r{[^/]+} }, format: false
+  get '/islandora/object/:pid(/*rest)', to: 'islandora_redirects#show', constraints: { pid: %r{[^/]+} }, format: false
 end

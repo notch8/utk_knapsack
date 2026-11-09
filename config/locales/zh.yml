@@ -1,4 +1,7 @@
 zh:
+  hyku_knapsack:
+    islandora_redirects:
+      not_found: "找不到 %{pid}。"
   browse_everything:
     provider_error:
       message: "目前无法加载云端文件。请联系支持人员检查存储连接。"

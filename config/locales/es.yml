@@ -1,4 +1,7 @@
 es:
+  hyku_knapsack:
+    islandora_redirects:
+      not_found: "No pudimos encontrar %{pid}."
   browse_everything:
     provider_error:
       message: "No se pueden cargar los archivos en la nube en este momento. Póngase en contacto con soporte para que se revise la conexión de almacenamiento."
