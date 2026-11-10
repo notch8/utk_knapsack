@@ -352,6 +352,7 @@ extraDeploy:
       name: '{{ include "hyrax.fullname" . }}-digital-lib'
       annotations:
         nginx.org/client-max-body-size: "0"
+        nginx.org/websocket-services: "utk-knapsack-production-nginx"
     spec:
       ingressClassName: nginx
       tls:
