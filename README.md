@@ -133,6 +133,27 @@ place. ERB and Ruby edits need no restart; only assets do.
 in-process, jobs only move while `bundle exec good_job` is up in the worker container. Check
 `GoodJob::Process.count` before concluding a queue is stuck, and never start Sidekiq here.
 
+### Seeding a tenant with production data
+
+A fresh stack has no tenants. One command gives you one that mirrors production:
+
+```bash
+docker compose exec web bash -lc 'cd /app/samvera/hyrax-webapp && bundle exec rake "utk:seed_local[dev]"'
+```
+
+It creates admin@example.com (superadmin, password `testing123`, the account the bundle's records
+name), the tenant (`dev` when no name is given), the M3 profile, production's
+theme, logo, favicon, content blocks, feature flags and URI labels, and then about a dozen public
+works of every type with their collections, branding and files. Production ids are kept, so
+`/concern/books/<id>` is the same work locally and in production. Derivatives are left to the
+worker, so start it first. Running the command again adds nothing.
+
+The bundle (about 32 MB, `utk-seed-2026-11-10.tar.gz`) is a public Google Drive file named by
+`HykuKnapsack::LocalSeed::BUNDLE_URL`, checked against `BUNDLE_SHA256`; it downloads without
+credentials and is cached in `tmp/seed/<sha256>`, so a new bundle is fetched when the constants
+change. The task refuses to run in
+production and never runs on its own.
+
 ## Troubleshooting
 
 **`initialize_app` exits 11 on `sc up`.** Everything else comes up healthy and the stack stops with
