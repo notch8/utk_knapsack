@@ -248,6 +248,10 @@ extraEnvVars: &envVars
     value: string
 
 worker:
+  # Long enough for in-flight jobs to finish on scale-down and rollout (chart default is 30s).
+  terminationGracePeriodSeconds: 10800
+  # KEDA owns the replica count; keeps deploys from resetting it.
+  externallyScaled: true
   resources:
     limits:
       memory: "6Gi"
@@ -286,8 +290,8 @@ podSecurityContext:
   fsGroupChangePolicy: "OnRootMismatch"
 
 # KEDA owns the web and worker HPAs (extraDeploy below); FITS has none, so its HPA is in extraDeploy too.
-# The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
-# resets them to worker.replicaCount / 1 until KEDA corrects it.
+# The chart still hardcodes `replicas:` on the fits Deployment, so each deploy resets it to 1
+# until its HPA corrects it.
 autoscaling:
   enabled: false
 
