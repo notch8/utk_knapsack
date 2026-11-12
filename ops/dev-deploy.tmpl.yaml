@@ -362,6 +362,10 @@ extraDeploy:
       minReplicaCount: 1
       maxReplicaCount: 3
       pollingInterval: 15
+      fallback:
+        failureThreshold: 3
+        replicas: 2
+        behavior: currentReplicasIfHigher
       advanced:
         horizontalPodAutoscalerConfig:
           behavior:
