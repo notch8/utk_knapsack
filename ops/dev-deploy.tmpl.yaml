@@ -1,4 +1,6 @@
 replicaCount: 1
+# KEDA owns the replica count; keeps deploys from resetting it.
+externallyScaled: true
 
 resources:
   limits:
