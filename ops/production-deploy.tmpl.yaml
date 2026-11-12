@@ -288,7 +288,7 @@ worker:
     requests:
       memory: "3Gi"
       cpu: "750m"
-  replicaCount: 3
+  replicaCount: 1
   # Scaled on GoodJob queue depth by the KEDA ScaledObject in extraDeploy below.
   autoscaling:
     enabled: false
