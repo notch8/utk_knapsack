@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# hyrax-webapp/bin/worker execs a shell string ("echo ... && bundle exec ..."), leaving sh as PID 1,
+# which ignores SIGTERM: pods then never shut down gracefully and linger until SIGKILL.
+# Exec the worker directly instead, and don't echo DATABASE_URL (it holds the password).
+`echo "$GOOGLE_OAUTH_PRIVATE_KEY_VALUE" | base64 -d > prod-cred.p12` unless ENV['GOOGLE_OAUTH_PRIVATE_KEY_VALUE'].to_s.strip.empty?
+
+ENV['DATABASE_URL'] = ENV['DATABASE_URL'].gsub('pool=5', 'pool=30') unless ENV['DATABASE_URL'].to_s.strip.empty?
+
+case ENV.fetch('HYRAX_ACTIVE_JOB_QUEUE', 'sidekiq')
+when 'sidekiq'
+  exec('bundle', 'exec', 'sidekiq')
+when 'good_job'
+  # The CLI flag beats hyku's config.good_job.shutdown_timeout = 60, which the env var alone can't override.
+  # Stay under terminationGracePeriodSeconds (10800) so GoodJob stops before the SIGKILL.
+  exec('bundle', 'exec', 'good_job', 'start', "--shutdown-timeout=#{ENV.fetch('GOOD_JOB_SHUTDOWN_TIMEOUT', '10500')}")
+else
+  abort "Unknown HYRAX_ACTIVE_JOB_QUEUE: #{ENV['HYRAX_ACTIVE_JOB_QUEUE']}"
+end
