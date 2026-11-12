@@ -289,7 +289,10 @@ podSecurityContext:
 # The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
 # resets them to worker.replicaCount / 1 until KEDA corrects it.
 autoscaling:
-  enabled: false
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 200
 
 # Dedicated worker for the `auxiliary` queue (A/V derivatives): one job at a time, own CPU/memory.
 # Mirrored by the auxiliary-worker Deployment in extraDeploy below.
@@ -305,7 +308,7 @@ workerAuxiliary:
       cpu: "100m"
 
 extraDeploy:
-  # KEDA (installed per cluster by notch8-ops) owns the web and worker HPAs.
+  # KEDA (installed per cluster by notch8-ops) owns the worker HPAs.
   - apiVersion: keda.sh/v1alpha1
     kind: TriggerAuthentication
     metadata:
@@ -388,55 +391,6 @@ extraDeploy:
               AND queue_name = 'auxiliary'
           authenticationRef:
             name: '{{ include "hyrax.fullname" . }}-good-job-db'
-  # Scales on Puma thread saturation (leading) or any backlog (already queueing); KEDA takes the larger.
-  - apiVersion: keda.sh/v1alpha1
-    kind: ScaledObject
-    metadata:
-      name: '{{ include "hyrax.fullname" . }}'
-    spec:
-      scaleTargetRef:
-        name: '{{ include "hyrax.fullname" . }}'
-      minReplicaCount: 1
-      maxReplicaCount: 3
-      pollingInterval: 15
-      fallback:
-        failureThreshold: 3
-        replicas: 2
-        behavior: currentReplicasIfHigher
-      advanced:
-        horizontalPodAutoscalerConfig:
-          behavior:
-            scaleDown:
-              stabilizationWindowSeconds: 600
-      triggers:
-        - type: prometheus
-          metricType: Value
-          metadata:
-            serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
-            threshold: "0.7"
-            query: >-
-              1 - sum(puma_pool_capacity{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
-              / sum(puma_max_threads{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
-        - type: prometheus
-          metricType: AverageValue
-          metadata:
-            serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
-            threshold: "1"
-            query: >-
-              sum(puma_backlog{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
-  - apiVersion: monitoring.coreos.com/v1
-    kind: PodMonitor
-    metadata:
-      name: '{{ include "hyrax.fullname" . }}-puma'
-    spec:
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: hyrax
-          app.kubernetes.io/instance: '{{ .Release.Name }}'
-      podMetricsEndpoints:
-        - port: http
-          path: /monitoring/metrics
-          interval: 15s
   - apiVersion: v1
     kind: ConfigMap
     metadata:
