@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# hyrax-webapp/bin/worker execs a shell string ("echo ... && bundle exec ..."), leaving sh as PID 1,
-# which ignores SIGTERM: pods then never shut down gracefully and linger until SIGKILL.
-# Exec the worker directly instead, and don't echo DATABASE_URL (it holds the password).
+# OVERRIDE Hyku (submodule) bin/worker: exec the worker directly so it, not sh, is PID 1 and receives SIGTERM;
+# don't echo DATABASE_URL (it holds the password); pass --shutdown-timeout, which hyku's good_job initializer caps at 60s.
+# Remove, with the Dockerfile CMD override, once the pin includes samvera/hyku#3537 and the shutdown timeout is set elsewhere.
 `echo "$GOOGLE_OAUTH_PRIVATE_KEY_VALUE" | base64 -d > prod-cred.p12` unless ENV['GOOGLE_OAUTH_PRIVATE_KEY_VALUE'].to_s.strip.empty?
 
 ENV['DATABASE_URL'] = ENV['DATABASE_URL'].gsub('pool=5', 'pool=30') unless ENV['DATABASE_URL'].to_s.strip.empty?
