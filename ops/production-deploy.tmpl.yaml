@@ -283,6 +283,8 @@ extraEnvVars: &envVars
 worker:
   # Long enough for in-flight jobs to finish on scale-down and rollout (chart default is 30s).
   terminationGracePeriodSeconds: 10800
+  # KEDA owns the replica count; keeps deploys from resetting it.
+  externallyScaled: true
   resources:
     limits:
       memory: "6Gi"
@@ -324,8 +326,8 @@ podSecurityContext:
 # Utilization is % of the CPU request (web 250m, worker 750m): 200% = 500m avg, 100% = 750m avg.
 # The worker request tracks its real use (7d p95 ~730m CPU, ~3Gi memory) so the scheduler spreads
 # workers and cluster-autoscaler adds nodes; a lower request packs them onto the web nodes unnoticed.
-# The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
-# resets them to worker.replicaCount / 1 until KEDA corrects it.
+# The chart still hardcodes `replicas:` on the fits Deployment, so each deploy resets it to 1
+# until its HPA corrects it.
 autoscaling:
   enabled: true
   minReplicas: 2
