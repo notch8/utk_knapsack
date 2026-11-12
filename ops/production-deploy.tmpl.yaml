@@ -359,7 +359,7 @@ extraDeploy:
     spec:
       scaleTargetRef:
         name: '{{ include "hyrax.fullname" . }}-worker'
-      minReplicaCount: 3
+      minReplicaCount: 1
       maxReplicaCount: 8
       pollingInterval: 30
       advanced:
