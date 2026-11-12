@@ -337,8 +337,8 @@ workerAuxiliary:
       memory: "8Gi"
       cpu: "2000m"
     requests:
-      memory: "2Gi"
-      cpu: "250m"
+      memory: "6Gi"
+      cpu: "1500m"
 
 extraDeploy:
   # KEDA (installed per cluster by notch8-ops) owns the web and worker HPAs.
@@ -385,6 +385,43 @@ extraDeploy:
               WHERE finished_at IS NULL
               AND COALESCE(scheduled_at, created_at) <= now()
               AND queue_name <> 'auxiliary'
+          authenticationRef:
+            name: '{{ include "hyrax.fullname" . }}-good-job-db'
+  # Auxiliary (A/V derivative) worker: 1 replica per queued-or-running job, 0 when idle; scale-down never outruns terminationGracePeriodSeconds.
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-auxiliary-worker'
+    spec:
+      scaleTargetRef:
+        name: '{{ include "hyrax.fullname" . }}-auxiliary-worker'
+      minReplicaCount: 0
+      maxReplicaCount: 3
+      pollingInterval: 30
+      cooldownPeriod: 600
+      advanced:
+        horizontalPodAutoscalerConfig:
+          behavior:
+            scaleDown:
+              stabilizationWindowSeconds: 600
+              policies:
+                - type: Pods
+                  value: 1
+                  periodSeconds: 300
+      triggers:
+        - type: postgresql
+          metadata:
+            host: postgres-18-pooler.postgres.svc.cluster.local
+            port: "5432"
+            userName: postgres
+            dbName: utk_knapsack_production
+            sslmode: require
+            targetQueryValue: "1"
+            query: >-
+              SELECT count(*) FROM good_jobs
+              WHERE finished_at IS NULL
+              AND COALESCE(scheduled_at, created_at) <= now()
+              AND queue_name = 'auxiliary'
           authenticationRef:
             name: '{{ include "hyrax.fullname" . }}-good-job-db'
   # Scales on Puma thread saturation (leading) or any backlog (already queueing); KEDA takes the larger.
