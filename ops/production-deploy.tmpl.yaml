@@ -281,6 +281,8 @@ extraEnvVars: &envVars
     value: string
 
 worker:
+  # Long enough for in-flight jobs to finish on scale-down and rollout (chart default is 30s).
+  terminationGracePeriodSeconds: 10800
   resources:
     limits:
       memory: "6Gi"

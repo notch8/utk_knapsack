@@ -27,6 +27,11 @@ WORKER_TAG="${WORKER_TAG:-$DEPLOY_TAG}"
 echo $DEPLOY_TAG
 
 helm pull --untar oci://ghcr.io/samvera/charts/hyrax --version $CHART_VERSION
+
+# TEMPORARY: 4.1.0's worker Deployment can't set terminationGracePeriodSeconds (samvera/hyrax#7748).
+# Overlay the one template from notch8/hyrax (4.1.0 + that change); drop once a released chart has it.
+curl -fsS -o hyrax/templates/deployment-worker.yaml \
+    https://raw.githubusercontent.com/notch8/hyrax/9d086da070726cb1b00acf6e2858b0997a1fc1c9/chart/hyrax/templates/deployment-worker.yaml
 helm repo update
 
 helm upgrade \
