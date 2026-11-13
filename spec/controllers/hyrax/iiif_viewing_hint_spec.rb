@@ -5,13 +5,14 @@ require 'rails_helper'
 RSpec.describe 'IIIF viewing hint' do
   Hyrax.config.registered_curation_concern_types.each do |type|
     controller_class = "Hyrax::#{type.pluralize}Controller".constantize
+    hint = %w[CompoundObject Audio Video].include?(type) ? nil : 'paged'
 
-    it "opens #{type} one page at a time" do
-      expect(controller_class.iiif_viewing_hint).to be_nil
+    it "gives #{type} the #{hint.inspect} viewing hint" do
+      expect(controller_class.iiif_viewing_hint).to eq hint
     end
 
     [true, false].each do |ranges|
-      it "builds #{type}'s manifest without a viewing hint, IIIF ranges #{ranges ? 'on' : 'off'}" do
+      it "builds #{type}'s manifest with the #{hint.inspect} viewing hint, IIIF ranges #{ranges ? 'on' : 'off'}" do
         allow(Flipflop).to receive(:iiif_ranges?).and_return(ranges)
         controller = controller_class.new
         controller.request = ActionDispatch::TestRequest.create
@@ -25,7 +26,7 @@ RSpec.describe 'IIIF viewing hint' do
         manifest = Hyrax::ManifestBuilderService.new.manifest_for(presenter:)
 
         expect(manifest).to include('type' => 'Manifest')
-        expect(manifest.keys).not_to include('viewingHint', 'behavior')
+        expect(manifest.values_at('viewingHint', 'behavior').compact.flatten).to eq Array(hint)
       end
     end
   end

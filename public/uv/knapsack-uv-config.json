@@ -1,4 +1,7 @@
 {
+  "options": {
+    "pagingEnabled": false
+  },
   "modules": {
     "downloadDialogue": {
       "options": {
