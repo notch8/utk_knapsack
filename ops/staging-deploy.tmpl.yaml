@@ -1,4 +1,6 @@
 replicaCount: 2
+# KEDA owns the replica count; keeps deploys from resetting it.
+externallyScaled: true
 
 resources:
   limits:
@@ -263,6 +265,10 @@ extraEnvVars: &envVars
     value: string
 
 worker:
+  # Long enough for in-flight jobs to finish on scale-down and rollout (chart default is 30s).
+  terminationGracePeriodSeconds: 10800
+  # KEDA owns the replica count; keeps deploys from resetting it.
+  externallyScaled: true
   resources:
     limits:
       memory: "6Gi"
@@ -271,11 +277,9 @@ worker:
       memory: "3Gi"
       cpu: "100m"
   replicaCount: 1
+  # Scaled on GoodJob queue depth by the KEDA ScaledObject in extraDeploy below.
   autoscaling:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 300
+    enabled: false
   extraVolumeMounts: *volMounts
   extraEnvVars: *envVars
   # GOOD_JOB_QUEUES=-auxiliary; kept out of extraEnvVars so the auxiliary worker can set its own.
@@ -302,15 +306,11 @@ podSecurityContext:
   fsGroup: 101
   fsGroupChangePolicy: "OnRootMismatch"
 
-# Chart 4.1.0 has v2 HPAs for web and worker; FITS has none, so its HPA is in extraDeploy below.
-# Utilization is % of the CPU request (web 250m, worker 100m): 200% = 500m avg, 300% = 300m avg.
-# The chart still hardcodes `replicas:` on the worker and fits Deployments, so each deploy
-# resets them to worker.replicaCount / 1 until the HPA corrects it.
+# KEDA owns the web and worker HPAs (extraDeploy below); FITS has none, so its HPA is in extraDeploy too.
+# The chart still hardcodes `replicas:` on the fits Deployment, so each deploy resets it to 1
+# until its HPA corrects it.
 autoscaling:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 4
-  targetCPUUtilizationPercentage: 200
+  enabled: false
 
 # Dedicated worker for the `auxiliary` queue (A/V derivatives): one job at a time, own CPU/memory.
 # Mirrored by the auxiliary-worker Deployment in extraDeploy below.
@@ -326,6 +326,143 @@ workerAuxiliary:
       cpu: "100m"
 
 extraDeploy:
+  # KEDA (installed per cluster by notch8-ops) owns the web and worker HPAs.
+  - apiVersion: keda.sh/v1alpha1
+    kind: TriggerAuthentication
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-good-job-db'
+    spec:
+      secretTargetRef:
+        - parameter: password
+          name: '{{ include "hyrax.fullname" . }}'
+          key: DB_PASSWORD
+  # Jobs queued or running, excluding `auxiliary` (own worker); one replica per GOOD_JOB_MAX_THREADS (5) jobs.
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-worker'
+    spec:
+      scaleTargetRef:
+        name: '{{ include "hyrax.fullname" . }}-worker'
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 30
+      advanced:
+        horizontalPodAutoscalerConfig:
+          behavior:
+            scaleDown:
+              stabilizationWindowSeconds: 900
+              policies:
+                - type: Pods
+                  value: 1
+                  periodSeconds: 300
+      triggers:
+        - type: postgresql
+          metadata:
+            host: postgres-18-pooler.postgres.svc.cluster.local
+            port: "5432"
+            userName: postgres
+            dbName: utk_knapsack_staging
+            sslmode: require
+            targetQueryValue: "5"
+            query: >-
+              SELECT count(*) FROM good_jobs
+              WHERE finished_at IS NULL
+              AND COALESCE(scheduled_at, created_at) <= now()
+              AND queue_name <> 'auxiliary'
+          authenticationRef:
+            name: '{{ include "hyrax.fullname" . }}-good-job-db'
+  # Auxiliary (A/V derivative) worker: 1 replica per queued-or-running job, 0 when idle; scale-down never outruns terminationGracePeriodSeconds.
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-auxiliary-worker'
+    spec:
+      scaleTargetRef:
+        name: '{{ include "hyrax.fullname" . }}-auxiliary-worker'
+      minReplicaCount: 0
+      maxReplicaCount: 1
+      pollingInterval: 30
+      cooldownPeriod: 600
+      advanced:
+        horizontalPodAutoscalerConfig:
+          behavior:
+            scaleDown:
+              stabilizationWindowSeconds: 600
+              policies:
+                - type: Pods
+                  value: 1
+                  periodSeconds: 300
+      triggers:
+        - type: postgresql
+          metadata:
+            host: postgres-18-pooler.postgres.svc.cluster.local
+            port: "5432"
+            userName: postgres
+            dbName: utk_knapsack_staging
+            sslmode: require
+            targetQueryValue: "1"
+            query: >-
+              SELECT count(*) FROM good_jobs
+              WHERE finished_at IS NULL
+              AND COALESCE(scheduled_at, created_at) <= now()
+              AND queue_name = 'auxiliary'
+          authenticationRef:
+            name: '{{ include "hyrax.fullname" . }}-good-job-db'
+  # Scales on Puma thread saturation (leading) or any backlog (already queueing); KEDA takes the larger.
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}'
+    spec:
+      scaleTargetRef:
+        name: '{{ include "hyrax.fullname" . }}'
+      minReplicaCount: 2
+      maxReplicaCount: 4
+      pollingInterval: 15
+      fallback:
+        failureThreshold: 3
+        replicas: 3
+        behavior: currentReplicasIfHigher
+      advanced:
+        horizontalPodAutoscalerConfig:
+          behavior:
+            scaleDown:
+              stabilizationWindowSeconds: 600
+              # Without this, the default policy removes pods down to target in one step (seen: 5->2).
+              policies:
+                - type: Pods
+                  value: 1
+                  periodSeconds: 60
+      triggers:
+        - type: prometheus
+          metricType: Value
+          metadata:
+            serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+            threshold: "0.7"
+            query: >-
+              1 - sum(puma_pool_capacity{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
+              / sum(puma_max_threads{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
+        - type: prometheus
+          metricType: AverageValue
+          metadata:
+            serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+            threshold: "1"
+            query: >-
+              sum(puma_backlog{namespace="{{ .Release.Namespace }}",pod=~"{{ include "hyrax.fullname" . }}-[a-z0-9]+-[a-z0-9]+"})
+  - apiVersion: monitoring.coreos.com/v1
+    kind: PodMonitor
+    metadata:
+      name: '{{ include "hyrax.fullname" . }}-puma'
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: hyrax
+          app.kubernetes.io/instance: '{{ .Release.Name }}'
+      podMetricsEndpoints:
+        - port: http
+          path: /monitoring/metrics
+          interval: 15s
   - apiVersion: v1
     kind: ConfigMap
     metadata:
