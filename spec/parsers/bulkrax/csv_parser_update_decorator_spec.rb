@@ -22,7 +22,7 @@ RSpec.describe Bulkrax::CsvParserUpdateDecorator do
     File.write(csv.path, "id,model,abstract\nabc,StillImage,\"unclosed\n")
 
     expect(importer.parser.valid_import?).to be false
-    expect(importer.current_status.error_class).to eq 'CSV::MalformedCSVError'
+    expect(importer.current_status.error_class).to eq 'Bulkrax::CsvReadError'
   end
 
   it 'still rejects a sheet whose file cannot be read' do
