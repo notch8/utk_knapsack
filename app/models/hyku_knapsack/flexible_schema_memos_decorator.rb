@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # OVERRIDE Hyrax 5.3.0: a saved profile replaces the request-scoped schema memos
-module Hyrax
-  module FlexibleSchemaDecorator
+module HykuKnapsack
+  module FlexibleSchemaMemosDecorator
     extend ActiveSupport::Concern
 
     included do
@@ -14,4 +14,4 @@ module Hyrax
   end
 end
 
-Hyrax::FlexibleSchema.include(Hyrax::FlexibleSchemaDecorator)
+Hyrax::FlexibleSchema.include(HykuKnapsack::FlexibleSchemaMemosDecorator)

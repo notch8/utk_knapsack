@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe HykuKnapsack::BrowseEverythingS3DriverDecorator do
+RSpec.describe BrowseEverything::Driver::S3 do
   subject(:driver) do
     BrowseEverything::Driver::S3.new(bucket: 'utk-ingest', region: 'us-east-2', app_key: 'key', app_secret: 'secret')
   end
 
-  let(:extras) { driver.link_for('burial_001.tif').last }
+  let(:extras) { JSON.parse(driver.link_for('burial_001.tif').last.to_json, symbolize_names: true) }
 
   around do |example|
     Aws.config[:s3] = { stub_responses: { head_object: { content_length: 10 } } }
