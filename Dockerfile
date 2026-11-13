@@ -31,7 +31,8 @@ RUN RAILS_ENV=production SECRET_KEY_BASE=$(bin/rails secret) DB_ADAPTER=nulldb D
 CMD ["./bin/web"]
 
 FROM hyku-web AS hyku-worker
-CMD ["./bin/worker"]
+# OVERRIDE Hyku (submodule) bin/worker; see bin/worker for when to go back to ./bin/worker.
+CMD ["/app/samvera/bin/worker"]
 
 FROM nginxinc/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
