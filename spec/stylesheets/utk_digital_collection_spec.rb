@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'UTK Digital Collection stylesheet' do
   let(:stylesheet) { HykuKnapsack::Engine.root.join('app/assets/stylesheets/hyku_knapsack/utk_digital_collection.scss').read }
   let(:hyku_theme) do
-    sources = Rails.root.glob('app/assets/stylesheets/themes/digital_collection{,_show,/*}.scss')
-    sources << Rails.root.join('app', 'views', 'shared', '_appearance_styles.html.erb')
+    sources = HykuThemes::Engine.root.glob('app/assets/stylesheets/themes/digital_collection{,_show,/*}.scss')
+    sources << HykuThemes::Engine.root.join('app', 'views', 'shared', '_appearance_styles.html.erb')
     sources.map(&:read).join("\n")
   end
 
