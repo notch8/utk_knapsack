@@ -15,6 +15,5 @@ module Hyrax
     # forms.
     self.work_form_service = Hyrax::FormFactory.new
     self.iiif_file_set_metadata = true
-    self.iiif_viewing_hint = nil
   end
 end

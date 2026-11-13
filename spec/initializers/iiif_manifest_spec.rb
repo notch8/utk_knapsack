@@ -17,6 +17,12 @@ RSpec.describe 'IIIF manifest configuration' do
     )
   end
 
+  it 'opens paged works one page at a time, leaving the two-page view as an option' do
+    config = JSON.parse(HykuKnapsack::Engine.root.join('public', 'uv', 'knapsack-uv-config.json').read)
+
+    expect(config.dig('options', 'pagingEnabled')).to be false
+  end
+
   it 'leaves the top-level rights out of manifests, since the rights statement is already a metadata row' do
     presenter = Hyrax::IiifManifestPresenter.new(
       SolrDocument.new(id: 'w1', has_model_ssim: ['Book'], rights_statement_tesim: ['http://rightsstatements.org/vocab/InC/1.0/'])
