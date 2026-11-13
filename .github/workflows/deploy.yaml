@@ -54,7 +54,7 @@ jobs:
     concurrency:
       group: deploy-${{ needs.determine-environment.outputs.environment }}
       cancel-in-progress: false
-    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.12
+    uses: notch8/actions/.github/workflows/deploy.yaml@v1.0.16
     secrets: inherit
     with:
       environment: ${{ needs.determine-environment.outputs.environment }}
@@ -65,7 +65,7 @@ jobs:
     permissions:
       actions: read
       contents: write
-    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.13
+    uses: notch8/actions/.github/workflows/publish-release.yaml@v1.0.16
     with:
       sha: ${{ github.event.workflow_run.head_sha }}
       deploy-run-id: ${{ github.run_id }}
