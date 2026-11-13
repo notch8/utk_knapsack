@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
+require 'hyku_knapsack/monitoring_middleware'
+
 module HykuKnapsack
   class Engine < ::Rails::Engine
     isolate_namespace HykuKnapsack
+
+    # Ahead of Rack::Attack, sessions and tenant middleware so Puma stats stay cheap and DB-independent.
+    initializer 'hyku_knapsack.monitoring_middleware' do |app|
+      app.middleware.insert_before 0, HykuKnapsack::MonitoringMiddleware
+    end
 
     # Rails serves the host app's public/ only; without this anything the
     # knapsack ships there, such as a generated IIIF viewer, 404s.

@@ -586,6 +586,11 @@ nginx:
   extraServerBlockConfig: |-
     include /etc/nginx/secrets/iiif-origin-verify.conf;
 
+    # Puma stats are for in-cluster scraping only; Prometheus hits the pods directly.
+    location ^~ /monitoring {
+        return 404;
+    }
+
     ## Gates IIIF tile requests, then proxies to CloudFront -- see terraform/cloudfront_iiif.tf in notch8-ops.
     location ^~ /iiif {
         resolver         10.0.0.2 valid=30s;
