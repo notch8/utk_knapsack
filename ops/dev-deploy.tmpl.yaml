@@ -402,8 +402,10 @@ extraDeploy:
     spec:
       scaleTargetRef:
         name: '{{ include "hyrax.fullname" . }}'
+      # TEST ONLY: raised from 3 to 8 to exercise more scale-up headroom than
+      # dev's own traffic ever needs; revert before merging.
       minReplicaCount: 1
-      maxReplicaCount: 3
+      maxReplicaCount: 8
       pollingInterval: 15
       fallback:
         failureThreshold: 3
