@@ -416,6 +416,11 @@ extraDeploy:
           behavior:
             scaleDown:
               stabilizationWindowSeconds: 600
+              # Without this, the default policy removes pods down to target in one step (seen: 5->2).
+              policies:
+                - type: Pods
+                  value: 1
+                  periodSeconds: 60
       triggers:
         - type: prometheus
           metricType: Value
