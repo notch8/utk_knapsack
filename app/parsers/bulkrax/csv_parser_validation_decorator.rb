@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# OVERRIDE Bulkrax 10.0.0: guided import's missing required columns check
+# OVERRIDE Bulkrax (acc18e4): guided import's missing required columns check
 # reads headers only, so a sheet that only updates existing works is told to
 # add columns those works already fill. Drop a model's missing field when
 # every row of that model is an existing record with a value for it.
@@ -8,7 +8,7 @@ module Bulkrax
   module CsvParserValidationDecorator
     private
 
-    def run_validations(csv_data, all_ids, headers, source_id_key, mappings, field_metadata, missing_required, zip_file, admin_set_id, mapping_manager: nil) # rubocop:disable Metrics/ParameterLists
+    def run_validations(csv_data, all_ids, headers, source_id_key, mappings, field_metadata, missing_required, zip_file, mapping_manager: nil, csv_in_zip: false) # rubocop:disable Metrics/ParameterLists
       results = super
       records = {}
       missing_required.reject! do |entry|

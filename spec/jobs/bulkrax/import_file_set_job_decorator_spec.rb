@@ -13,7 +13,7 @@ RSpec.describe Bulkrax::ImportFileSetJobDecorator do
   let!(:parent) { Bulkrax::CsvEntry.create!(importerexporter: importer, identifier: 'w:1', raw_metadata: {}) }
   let(:file_set) do
     Bulkrax::CsvFileSetEntry.create!(importerexporter: importer, identifier: 'w:1_OBJ_fileset',
-                                     raw_metadata: { 'parents' => 'w:1' }, import_attempts: 4)
+                                     raw_metadata: { 'parents' => 'w:1' }, import_attempts: 5)
   end
   let(:job) { Bulkrax::ImportFileSetJob.new }
 
