@@ -11,7 +11,7 @@ RSpec.describe 'themes/digital_collection/hyrax/homepage/_featured_fields.html.e
   let(:page) { Capybara.string(rendered) }
 
   before do
-    view.lookup_context.prepend_view_paths([Rails.root.join('app', 'views', 'themes', 'digital_collection').to_s,
+    view.lookup_context.prepend_view_paths([HykuThemes::Engine.root.join('app', 'views', 'themes', 'digital_collection').to_s,
                                             HykuKnapsack::Engine.root.join('app', 'views', 'themes', 'digital_collection').to_s])
     without_partial_double_verification do
       allow(view).to receive_messages(generate_work_url: '/concern/still_images/w1', block_valkyrie_redirect?: false,
