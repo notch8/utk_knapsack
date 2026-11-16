@@ -81,6 +81,7 @@ RSpec.configure do |config|
   config.before(:suite) { Hyrax::SolrService.wipe! }
 
   config.before do
+    SolrEndpoint.reset!
     RequestStore.clear!
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.start
