@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # OVERRIDE Hyku v7.2.0 (f908dc6e) digital-collection-theme
-#   - read the theme's names from UTK's creators compound and its summaries from abstract
+#   - read the theme's names from UTK's creators compound and its summaries from abstract, linking URLs on a page
 module DigitalCollectionHelperDecorator
   def dc_creator_names(record)
     document = record.is_a?(Blacklight::Document) ? record : record.solr_document
@@ -16,8 +16,10 @@ module DigitalCollectionHelperDecorator
     document = record.is_a?(Blacklight::Document) ? record : record.solr_document
     summary = Array(document['abstract_tesim']).compact_blank
     return super if summary.empty?
+    return summary if record.is_a?(Blacklight::Document)
+    return [] unless dc_profile_shows?(record, :abstract)
 
-    record.is_a?(Blacklight::Document) || dc_profile_shows?(record, :abstract) ? summary : []
+    Flipflop.treat_some_user_inputs_as_markdown? ? summary : summary.map { |text| auto_link(ERB::Util.h(text)) }
   end
 
   def dc_work_shown_elsewhere

@@ -56,6 +56,29 @@ RSpec.describe DigitalCollectionHelperDecorator, type: :helper do
     it "reads a search result's summary from abstract" do
       expect(helper.dc_summary(document)).to eq(['A survey of the river.'])
     end
+
+    context 'with a URL in the abstract' do
+      let(:document) { SolrDocument.new('id' => 'w1', 'has_model_ssim' => ['Book'], 'abstract_tesim' => ['<b>Aid</b> at https://lib.utk.edu/aid.']) }
+
+      before { allow(helper).to receive(:dc_profile_shows?).with(presenter, :abstract).and_return(true) }
+
+      it 'links it on a work page, escaping any markup' do
+        summary = Nokogiri::HTML.fragment(helper.dc_summary(presenter).first)
+
+        expect(summary.css('a').map { |a| a['href'] }).to eq(['https://lib.utk.edu/aid'])
+        expect(summary.css('b')).to be_empty
+      end
+
+      it "leaves it to markdown's autolink when user input is treated as markdown" do
+        allow(Flipflop).to receive(:treat_some_user_inputs_as_markdown?).and_return(true)
+
+        expect(helper.dc_summary(presenter)).to eq(['<b>Aid</b> at https://lib.utk.edu/aid.'])
+      end
+
+      it 'leaves a search result plain' do
+        expect(helper.dc_summary(document)).to eq(['<b>Aid</b> at https://lib.utk.edu/aid.'])
+      end
+    end
   end
 
   describe '#dc_work_shown_elsewhere' do
