@@ -13,7 +13,11 @@ RSpec.describe 'Legacy Islandora URLs', type: :request, singletenant: true do
     ]
   end
 
-  before { Hyrax::SolrService.add(docs.map { |doc| { read_access_group_ssim: ['public'] }.merge(doc) }, commit: true) }
+  before do
+    # Hard-commit: `add(commit: true)` only soft-commits, which can race a warming searcher and leave docs invisible to the request below.
+    Hyrax::SolrService.add(docs.map { |doc| { read_access_group_ssim: ['public'] }.merge(doc) }, commit: false)
+    Hyrax::SolrService.commit
+  end
   after { Hyrax::SolrService.delete_by_query('id:i566-*', commit: true) }
 
   it 'permanently redirects a collection PID to the collection' do
