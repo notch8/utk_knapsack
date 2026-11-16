@@ -78,6 +78,8 @@ RSpec.configure do |config|
   config.include Warden::Test::Helpers, type: :feature
   config.include ActiveJob::TestHelper
 
+  config.before(:suite) { Hyrax::SolrService.wipe! }
+
   config.before do
     RequestStore.clear!
     DatabaseCleaner.strategy = :transaction
