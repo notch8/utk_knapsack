@@ -4,3 +4,4 @@ require 'ruby-vips'
 
 Vips.block_untrusted(true)
 Vips.block('VipsForeignLoadPdf', false)
+Vips.block('VipsForeignLoadJp2k', false) if ENV['EXTERNAL_IIIF_URL'].blank?
