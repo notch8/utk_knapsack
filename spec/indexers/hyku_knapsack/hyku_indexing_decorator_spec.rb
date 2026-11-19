@@ -85,4 +85,74 @@ RSpec.describe HykuKnapsack::HykuIndexingDecorator do
       expect(all_text).to eq 'page text'
     end
   end
+
+  describe 'Published Date sort value' do
+    def sort_value(date_created_d)
+      work = Hyrax.persister.save(resource: Book.new(title: ['Dated'], date_created: ['1/1/1944'], date_created_d:))
+      BookIndexer.new(resource: work).to_solr[CatalogController.created_field]
+    end
+
+    it 'is the ISO day of a full date' do
+      expect(sort_value(['1926-01-29'])).to eq '1926-01-29'
+    end
+
+    it 'is the first day of a year-only date' do
+      expect(sort_value(['1944'])).to eq '1944-01-01'
+    end
+
+    it 'is the earliest day an approximate range allows' do
+      expect(sort_value(['1940~/1950'])).to eq '1940-01-01'
+    end
+
+    it 'is the day of a date with a time' do
+      expect(sort_value(['1944-01-01T10:00:00'])).to eq '1944-01-01'
+    end
+
+    it 'is the earliest of several dates' do
+      expect(sort_value(%w[1955 194X])).to eq '1940-01-01'
+    end
+
+    it 'is absent when there is only a display date' do
+      expect(sort_value([])).to be_nil
+    end
+
+    it 'is absent for an explicitly unknown date' do
+      expect(sort_value(%w[XXXX uuuu])).to be_nil
+    end
+
+    it 'is absent for a set with no earliest date' do
+      expect(sort_value(['[..1950]'])).to be_nil
+    end
+
+    it 'is absent for a blank or unparseable date' do
+      expect(sort_value(['', 'ca. 1940'])).to be_nil
+    end
+  end
+
+  describe 'sorting by Published Date' do
+    let(:works) do
+      { '1944' => ['1/1/1944', '1944'], '1926-01-29' => ['1/29/1926', '1926-01-29'], 'undated' => ['1/1/1955', nil] }
+        .to_h do |label, (date_created, date_created_d)|
+        work = Hyrax.persister.save(resource: Book.new(title: [label], date_created: [date_created],
+                                                       date_created_d: Array(date_created_d)))
+        [work.id.to_s, label]
+      end
+    end
+
+    before { Hyrax::SolrService.add(works.keys.map { |id| BookIndexer.new(resource: Hyrax.query_service.find_by(id:)).to_solr }, commit: true) }
+    after { works.each_key { |id| Hyrax::SolrService.delete(id) } }
+
+    def sorted(direction)
+      Hyrax::SolrService.get("{!terms f=id}#{works.keys.join(',')}", fl: 'id', sort: "#{CatalogController.created_field} #{direction}")
+                        .dig('response', 'docs').map { |doc| works[doc['id']] }
+    end
+
+    it 'runs oldest first ascending, with undated works last' do
+      expect(sorted('asc')).to eq %w[1926-01-29 1944 undated]
+    end
+
+    it 'runs newest first descending, with undated works last' do
+      expect(sorted('desc')).to eq %w[1944 1926-01-29 undated]
+    end
+  end
 end
