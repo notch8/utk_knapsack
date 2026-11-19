@@ -1,5 +1,5 @@
 ARG HYRAX_IMAGE_VERSION=hyrax-v5.2.0
-ARG NGINX_VERSION=1.29-alpine
+ARG NGINX_VERSION=1.31.9-alpine
 FROM ghcr.io/samvera/hyrax/hyrax-base:$HYRAX_IMAGE_VERSION AS hyku-web
 
 USER root
@@ -34,7 +34,7 @@ FROM hyku-web AS hyku-worker
 # OVERRIDE Hyku (submodule) bin/worker; see bin/worker for when to go back to ./bin/worker.
 CMD ["/app/samvera/bin/worker"]
 
-FROM nginxinc/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
+FROM nginx/nginx-unprivileged:$NGINX_VERSION AS hyku-nginx
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/assets /app/samvera/hyrax-webapp/public/assets
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/pdf.js /app/samvera/hyrax-webapp/public/pdf.js
 COPY --chown=101:101 --from=hyku-web /app/samvera/hyrax-webapp/public/uv /app/samvera/hyrax-webapp/public/uv
