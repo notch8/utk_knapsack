@@ -1,4 +1,4 @@
-ARG HYRAX_IMAGE_VERSION=hyrax-v5.2.0
+ARG HYRAX_IMAGE_VERSION=hyrax-v5.2.1
 ARG NGINX_VERSION=1.31.9-alpine
 FROM ghcr.io/samvera/hyrax/hyrax-base:$HYRAX_IMAGE_VERSION AS hyku-web
 
