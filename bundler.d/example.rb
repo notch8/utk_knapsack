@@ -13,3 +13,4 @@ override_gem "bulkrax", github: "samvera/bulkrax", ref: "acc18e45a95e05d9f3c030d
 # 3.2 builds a flexible record's manifest metadata from its profile (hyrax-webapp's ~> 3.1 locks 3.1.1)
 override_gem "iiif_print", "~> 3.3.0"
 override_gem "rails", ">= 7.2.3.2"
+ensure_gem "hyku_themes", github: "notch8/hyku_themes", ref: "9d9db713550925dd62ce6ef1121f6e0a940c7bae"
