@@ -2,6 +2,10 @@ it:
   hyku_knapsack:
     islandora_redirects:
       not_found: "Non abbiamo trovato %{pid}."
+    errors:
+      not_found:
+        title: "Pagina non trovata"
+        message: "La pagina richiesta \"%{path}\" non è stata trovata."
   browse_everything:
     provider_error:
       message: "Al momento non è possibile caricare i file cloud. Contatta il supporto per far verificare la connessione allo storage."

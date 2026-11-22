@@ -1,0 +1,3 @@
+<% provide :page_title, construct_page_title(t('.title')) %>
+<h1 class="mt-5"><%= t('.title') %></h1>
+<p class="mb-5 pb-3"><%= t('.message', path: request.env['action_dispatch.original_path']) %></p>
