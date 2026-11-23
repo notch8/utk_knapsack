@@ -2,6 +2,10 @@ zh:
   hyku_knapsack:
     islandora_redirects:
       not_found: "找不到 %{pid}。"
+    errors:
+      not_found:
+        title: "找不到页面"
+        message: "找不到所请求的页面“%{path}”。"
   browse_everything:
     provider_error:
       message: "目前无法加载云端文件。请联系支持人员检查存储连接。"
