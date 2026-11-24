@@ -7,8 +7,8 @@ RSpec.describe Hyku::Application do
   let(:hyku_knapsack_root) { HykuKnapsack::Engine.root }
 
   describe '.theme_view_path_roots' do
-    it 'includes the Rails root and the Hyku Knapsack root' do
-      expect(described_class.theme_view_path_roots).to eq([hyku_knapsack_root.to_s, rails_root.to_s])
+    it 'lists the Hyku Knapsack root, then the Hyku Themes root, then the Rails root' do
+      expect(described_class.theme_view_path_roots).to eq([hyku_knapsack_root.to_s, HykuThemes::Engine.root.to_s, rails_root.to_s])
     end
   end
 

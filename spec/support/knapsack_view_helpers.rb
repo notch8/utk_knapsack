@@ -17,6 +17,7 @@ RSpec.shared_context 'with knapsack view paths' do
     # (The previous `view.view_paths.unshift(...)` never worked: `view_paths` is an
     # ActionView::PathSet — an Enumerable, not an Array — so it has no #unshift;
     # the line apparently hadn't been exercised because no view spec hit it.)
+    controller.prepend_view_path(HykuThemes::Engine.views_path)
     controller.prepend_view_path(HykuKnapsack::Engine.root.join('app', 'views').to_s)
   end
 end
