@@ -8,10 +8,12 @@ module Hyku
 
     def thumbnail_value_from_document
       value = super
-      cname = document['account_cname_tesim']&.first
-      return value if value.blank? || HykuKnapsack::IndexedCname.current(cname) == cname
+      uri = URI.parse(value.to_s)
+      return value if uri.host.blank? || HykuKnapsack::IndexedCname.current(uri.host) == uri.host
 
-      value.delete_prefix(view_context.request.protocol + cname)
+      uri.request_uri
+    rescue URI::InvalidURIError
+      value
     end
   end
 end

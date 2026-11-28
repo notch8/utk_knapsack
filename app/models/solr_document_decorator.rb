@@ -14,12 +14,13 @@ module SolrDocumentDecorator
   end
 
   def with_current_cname(url)
-    indexed = first('account_cname_tesim')
-    current = HykuKnapsack::IndexedCname.current(indexed)
-    prefix = "https://#{indexed}/"
-    return url unless current != indexed && url&.start_with?(prefix)
+    uri = URI.parse(url.to_s)
+    return url if uri.host.blank?
 
-    "https://#{current}/#{url.delete_prefix(prefix)}"
+    uri.host = HykuKnapsack::IndexedCname.current(uri.host)
+    uri.to_s
+  rescue URI::InvalidURIError
+    url
   end
 end
 
